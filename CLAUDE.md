@@ -338,3 +338,4 @@ As your AI development assistant, I am committed to:
 - Always check if code could build properly after adding a significant portion of code.
 - Always verify any claims I make before continuing operations
 - Update direct file for plan with status when executing steps of plan. For example, if you just completed Day 9-10 of Phase 1 of the INTEGRATION_PLAN.md, update INTEGRATION_PLAN.md with that section updated.
+- When completing significant portions of code, check if vercel build passes. If it doesn't pass, diagnose and fix before continuing anything else.
