@@ -209,16 +209,16 @@ const contentTranslations: Record<string, Record<string, string>> = {
   content_performance: {
     en: "Content Performance",
     fr: "Performance du contenu",
-    ht: "Pèfòmans kontni"
+    ht: "PÃ¨fÃ²mans kontni"
   },
   analyze_content: {
     en: "Analyze your video content performance and engagement",
-    fr: "Analysez les performances et l'engagement de votre contenu vidéo",
-    ht: "Analize pèfòmans ak angajman videyo ou"
+    fr: "Analysez les performances et l'engagement de votre contenu vidÃ©o",
+    ht: "Analize pÃ¨fÃ²mans ak angajman videyo ou"
   },
   total_videos: {
     en: "Total Videos",
-    fr: "Total des vidéos",
+    fr: "Total des vidÃ©os",
     ht: "Total videyo"
   },
   total_views: {
@@ -229,7 +229,7 @@ const contentTranslations: Record<string, Record<string, string>> = {
   avg_watch_time: {
     en: "Avg Watch Time",
     fr: "Temps de visionnage moyen",
-    ht: "Tan gade mwayèn"
+    ht: "Tan gade mwayÃ¨n"
   },
   engagement_rate: {
     en: "Engagement Rate",
@@ -238,13 +238,13 @@ const contentTranslations: Record<string, Record<string, string>> = {
   },
   top_performing: {
     en: "Top Performing Videos",
-    fr: "Vidéos les plus performantes",
+    fr: "VidÃ©os les plus performantes",
     ht: "Pi bon videyo"
   },
   performance_metrics: {
     en: "Performance Metrics",
-    fr: "Métriques de performance",
-    ht: "Mezi pèfòmans"
+    fr: "MÃ©triques de performance",
+    ht: "Mezi pÃ¨fÃ²mans"
   },
   audience_engagement: {
     en: "Audience Engagement",
@@ -253,28 +253,28 @@ const contentTranslations: Record<string, Record<string, string>> = {
   },
   video_analytics: {
     en: "Video Analytics",
-    fr: "Analyse vidéo",
+    fr: "Analyse vidÃ©o",
     ht: "Analiz videyo"
   },
   completion_rate: {
     en: "Completion Rate",
-    fr: "Taux de complétion",
+    fr: "Taux de complÃ©tion",
     ht: "To konplesyon"
   },
   category_performance: {
     en: "Category Performance",
-    fr: "Performance par catégorie",
-    ht: "Pèfòmans pa kategori"
+    fr: "Performance par catÃ©gorie",
+    ht: "PÃ¨fÃ²mans pa kategori"
   },
   viewer_retention: {
     en: "Viewer Retention",
-    fr: "Rétention des spectateurs",
-    ht: "Retansyon espektatè"
+    fr: "RÃ©tention des spectateurs",
+    ht: "Retansyon espektatÃ¨"
   },
   export_analytics: {
     en: "Export Analytics",
     fr: "Exporter l'analyse",
-    ht: "Ekspòte analiz"
+    ht: "EkspÃ²te analiz"
   }
 }
 

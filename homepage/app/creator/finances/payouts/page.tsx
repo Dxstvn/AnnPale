@@ -73,8 +73,8 @@ const payoutTranslations: Record<string, Record<string, string>> = {
   },
   manage_withdrawals: {
     en: "Manage your withdrawals and payout settings",
-    fr: "Gérez vos retraits et paramètres de paiement",
-    ht: "Jere retrè ak paramèt peman ou"
+    fr: "GÃ©rez vos retraits et paramÃ¨tres de paiement",
+    ht: "Jere retrÃ¨ ak paramÃ¨t peman ou"
   },
   request_payout: {
     en: "Request Payout",
@@ -84,21 +84,21 @@ const payoutTranslations: Record<string, Record<string, string>> = {
   payout_schedule: {
     en: "Payout Schedule",
     fr: "Calendrier des paiements",
-    ht: "Orè peman"
+    ht: "OrÃ¨ peman"
   },
   minimum_payout: {
     en: "Minimum Payout",
     fr: "Paiement minimum",
-    ht: "Peman minimòm"
+    ht: "Peman minimÃ²m"
   },
   instant_payout: {
     en: "Instant Payout",
-    fr: "Paiement instantané",
+    fr: "Paiement instantanÃ©",
     ht: "Peman rapid"
   },
   scheduled_payout: {
     en: "Scheduled Payout",
-    fr: "Paiement programmé",
+    fr: "Paiement programmÃ©",
     ht: "Peman pwograme"
   },
   payout_history: {
@@ -108,12 +108,12 @@ const payoutTranslations: Record<string, Record<string, string>> = {
   },
   payout_settings: {
     en: "Payout Settings",
-    fr: "Paramètres de paiement",
-    ht: "Paramèt peman"
+    fr: "ParamÃ¨tres de paiement",
+    ht: "ParamÃ¨t peman"
   },
   select_amount: {
     en: "Select Amount",
-    fr: "Sélectionner le montant",
+    fr: "SÃ©lectionner le montant",
     ht: "Chwazi kantite"
   },
   processing_time: {
@@ -124,7 +124,7 @@ const payoutTranslations: Record<string, Record<string, string>> = {
   fee: {
     en: "Fee",
     fr: "Frais",
-    ht: "Frè"
+    ht: "FrÃ¨"
   }
 }
 
