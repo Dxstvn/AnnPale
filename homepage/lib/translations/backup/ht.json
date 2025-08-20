@@ -1,0 +1,373 @@
+{
+  "common": {
+    "loading": "Ap chaje...",
+    "error": "Erè",
+    "success": "Siksè",
+    "cancel": "Anile",
+    "save": "Anrejistre",
+    "delete": "Efase",
+    "edit": "Modifye",
+    "close": "Fèmen",
+    "back": "Retounen",
+    "next": "Pwochen",
+    "previous": "Anvan",
+    "submit": "Soumèt",
+    "confirm": "Konfime",
+    "search": "Chèche",
+    "filter": "Filtre",
+    "sort": "Klase",
+    "view": "Gade",
+    "download": "Telechaje",
+    "upload": "Voye",
+    "share": "Pataje",
+    "copy": "Kopye",
+    "copied": "Kopye!",
+    "required": "Obligatwa",
+    "optional": "Opsyonèl"
+  },
+  "nav": {
+    "welcome": "Byenveni nan Ann Pale",
+    "browse": "Gade",
+    "categories": "Kategori yo",
+    "howItWorks": "Kijan li fonksyone",
+    "forBusiness": "Pou biznis",
+    "login": "Konekte",
+    "signup": "Enskri",
+    "logout": "Dekonekte",
+    "profile": "Pwofil",
+    "dashboard": "Tablo bò",
+    "settings": "Paramèt",
+    "help": "Èd",
+    "about": "Konsènan",
+    "contact": "Kontak",
+    "blog": "Blog",
+    "careers": "Karyè",
+    "press": "Laprès",
+    "terms": "Kondisyon itilizasyon",
+    "privacy": "Politik konfidansyalite",
+    "cookies": "Politik cookies"
+  },
+  "auth": {
+    "login": {
+      "title": "Byenvini ankò",
+      "subtitle": "Konekte nan kont ou",
+      "email": "Adrès imèl",
+      "password": "Modpas",
+      "rememberMe": "Sonje mwen",
+      "forgotPassword": "Ou bliye modpas?",
+      "submit": "Konekte",
+      "noAccount": "Ou pa gen kont?",
+      "signupLink": "Enskri",
+      "orContinueWith": "Oswa kontinye ak",
+      "errors": {
+        "invalidCredentials": "Imèl oswa modpas envalid",
+        "accountLocked": "Kont la fèmen. Tanpri kontakte sipò.",
+        "tooManyAttempts": "Twòp tantativ koneksyon. Tanpri eseye ankò pita."
+      }
+    },
+    "signup": {
+      "title": "Kreye kont ou",
+      "subtitle": "Antre nan kominote Ann Pale",
+      "firstName": "Non",
+      "lastName": "Siyati",
+      "email": "Adrès imèl",
+      "password": "Modpas",
+      "confirmPassword": "Konfime modpas",
+      "accountType": "Tip kont",
+      "fan": "Fanatik",
+      "creator": "Kreyatè",
+      "agreeToTerms": "Mwen dakò ak kondisyon itilizasyon ak politik konfidansyalite",
+      "submit": "Kreye kont",
+      "haveAccount": "Ou gen kont deja?",
+      "loginLink": "Konekte",
+      "step1": "Enfòmasyon pèsonèl",
+      "step2": "Tip kont",
+      "step3": "Verifikasyon",
+      "errors": {
+        "emailExists": "Gen yon kont ki gen imèl sa deja",
+        "passwordMismatch": "Modpas yo pa menm",
+        "passwordTooWeak": "Modpas la twò fèb",
+        "invalidEmail": "Tanpri antre yon adrès imèl valid"
+      }
+    },
+    "passwordReset": {
+      "title": "Reyinisyalize modpas ou",
+      "subtitle": "Antre imèl ou pou resevwa enstriksyon",
+      "email": "Adrès imèl",
+      "submit": "Voye lyen",
+      "backToLogin": "Retounen nan koneksyon",
+      "success": "Tcheke imèl ou pou enstriksyon",
+      "newPassword": "Nouvo modpas",
+      "confirmNewPassword": "Konfime nouvo modpas",
+      "resetSubmit": "Reyinisyalize modpas"
+    },
+    "errors": {
+      "emailRequired": "Imèl obligatwa",
+      "invalidEmail": "Tanpri antre yon adrès imèl valid",
+      "passwordRequired": "Modpas obligatwa",
+      "passwordTooShort": "Modpas la dwe gen omwen 6 karaktè",
+      "passwordMismatch": "Modpas yo pa menm",
+      "generic": "Gen yon erè ki fèt. Tanpri eseye ankò."
+    },
+    "demo": {
+      "title": "Kont demonstrasyon"
+    },
+    "socialProof": "Vin jwenn plis pase 10,000 itilizatè kontan",
+    "trust": {
+      "secure": "Sekirize ak ankripte",
+      "users": "Milye moun fè konfyans",
+      "rating": "Nòt mwayèn 4.9/5",
+      "verified": "Kreyatè verifye"
+    },
+    "security": {
+      "badge": "Ankripsyon SSL 256 bit"
+    },
+    "testimonials": {
+      "quote1": "Ann Pale ede m konekte ak atis mwen pi renmen an pou anivèsè pitit fi m!",
+      "role1": "Kliyan kontan",
+      "quote2": "Platfòm lan fasil pou itilize e kreyatè yo etonan!",
+      "role2": "Òganizatè evènman",
+      "quote3": "Mwen renmen ka sipriz fanmi m ak mesaj pèsonalize.",
+      "role3": "Moun k ap bay kado"
+    },
+    "providers": {
+      "google": "Google",
+      "facebook": "Facebook",
+      "apple": "Apple"
+    },
+    "passwordStrength": {
+      "weak": "Modpas fèb",
+      "medium": "Fòs mwayèn",
+      "strong": "Modpas fò",
+      "requirements": {
+        "length": "Omwen 8 karaktè",
+        "uppercase": "Yon lèt majiskil",
+        "lowercase": "Yon lèt miniskil",
+        "number": "Yon chif",
+        "special": "Yon karaktè espesyal"
+      }
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Jwenn videyo pèsonalize nan men kreyatè Ayisyen ou pi renmen yo",
+      "subtitle": "Kòmande mesaj videyo kustom pou fèt nesans, selebrasyon, oswa jis pou fè yon moun souri",
+      "cta": "Gade kreyatè yo",
+      "searchPlaceholder": "Chèche kreyatè yo..."
+    },
+    "featured": {
+      "title": "Kreyatè ki nan devan yo",
+      "viewAll": "Gade tout",
+      "verified": "Verifye"
+    },
+    "categories": {
+      "title": "Gade pa kategori",
+      "music": "Mizisyen yo",
+      "musicDesc": "Konpa, rap, ak lòt ankò",
+      "comedy": "Komèdyen yo",
+      "comedyDesc": "Ri garanti",
+      "actors": "Aktè yo",
+      "actorsDesc": "Vedèt sinema ak televizyon",
+      "sports": "Atlèt yo",
+      "sportsDesc": "Ewo espò yo",
+      "influencers": "Enfliyansè yo",
+      "influencersDesc": "Vedèt rezo sosyal yo",
+      "artists": "Atis yo",
+      "artistsDesc": "Atis vizyèl yo",
+      "radio": "Animatè radyo yo",
+      "radioDesc": "Vwa Ayiti a",
+      "activists": "Aktivis yo",
+      "activistsDesc": "Moun k ap fè chanjman yo",
+      "creatorsCount": "kreyatè yo"
+    },
+    "howItWorks": {
+      "title": "Kijan Ann Pale fonksyone",
+      "step1Title": "Gade & Rezève",
+      "step1Desc": "Jwenn kreyatè Ayisyen ou pi renmen an epi rezève yon videyo pèsonalize",
+      "step2Title": "Resevwa videyo",
+      "step2Desc": "Jwenn mesaj videyo kustom ou nan 7 jou",
+      "step3Title": "Fè yon moun souri",
+      "step3Desc": "Pataje videyo a epi kreye moman inoubliyab"
+    },
+    "testimonials": {
+      "title": "Sa moun yo ap di"
+    },
+    "socialProof": {
+      "title": "Sa kominote nou an ap di",
+      "subtitle": "Vin jwenn dè milye moun kontan ak kreyatè yo k ap konekte ak videyo pèsonalize yo"
+    },
+    "cta": {
+      "title": "Pare pou kòmanse?",
+      "subtitle": "Antre nan milye kliyan kontan",
+      "browseCreators": "Gade kreyatè yo",
+      "becomeCreator": "Vin yon kreyatè"
+    }
+  },
+  "browse": {
+    "title": "Gade kreyatè yo",
+    "searchPlaceholder": "Chèche pa non oswa kategori...",
+    "filters": {
+      "title": "Filtre",
+      "category": "Kategori",
+      "priceRange": "Pri",
+      "responseTime": "Tan repons",
+      "rating": "Evalyasyon",
+      "language": "Lang",
+      "clear": "Efase filtre yo",
+      "apply": "Aplike filtre yo"
+    },
+    "sort": {
+      "popular": "Pi popilè",
+      "priceAsc": "Pri: Ba a Wo",
+      "priceDesc": "Pri: Wo a Ba",
+      "rating": "Pi wo evalyasyon",
+      "newest": "Pi nouvo"
+    },
+    "results": {
+      "showing": "Montre",
+      "of": "nan",
+      "results": "rezilta",
+      "noResults": "Pa jwenn kreyatè",
+      "tryAdjusting": "Eseye ajiste filtre ou yo"
+    },
+    "creator": {
+      "responseTime": "Tan repons",
+      "reviews": "kòmantè",
+      "starting": "Apati de",
+      "book": "Rezève kounye a"
+    }
+  },
+  "creator": {
+    "profile": {
+      "verified": "Kreyatè verifye",
+      "responseTime": "Anjeneral reponn nan",
+      "languages": "Lang",
+      "memberSince": "Manm depi",
+      "videosCompleted": "Videyo fini",
+      "rating": "evalyasyon",
+      "reviews": "kòmantè",
+      "bio": "Konsènan",
+      "services": "Sèvis",
+      "samples": "Egzanp videyo",
+      "bookNow": "Rezève kounye a",
+      "share": "Pataje pwofil",
+      "favorite": "Ajoute nan favori"
+    },
+    "booking": {
+      "title": "Rezève yon videyo nan men",
+      "selectOccasion": "Chwazi okazyon",
+      "writeMessage": "Ekri mesaj ou",
+      "deliveryOptions": "Opsyon livrezon",
+      "review": "Revize & Peye",
+      "occasions": {
+        "birthday": "Fèt nesans",
+        "anniversary": "Anivèsè",
+        "congratulations": "Felisitasyon",
+        "getWell": "Bon retablisman",
+        "roast": "Pase nan betiz",
+        "pepTalk": "Ankourajman",
+        "other": "Lòt"
+      },
+      "messageDetails": {
+        "forWho": "Pou ki moun?",
+        "fromWho": "Nan men ki moun?",
+        "pronouns": "Pwonon yo",
+        "instructions": "Enstriksyon pou kreyatè",
+        "charactersRemaining": "karaktè ki rete"
+      },
+      "delivery": {
+        "standard": "Livrezon estanda (7 jou)",
+        "express": "Livrezon ekspres (24 èdtan)",
+        "scheduled": "Pwograme pou pita",
+        "makePublic": "Pèmèt kreyatè itilize videyo sa piblikman"
+      },
+      "payment": {
+        "summary": "Rezime kòmand",
+        "videoMessage": "Mesaj videyo",
+        "delivery": "Livrezon",
+        "serviceFee": "Frè sèvis",
+        "total": "Total",
+        "promoCode": "Kòd pwomo",
+        "apply": "Aplike"
+      }
+    },
+    "dashboard": {
+      "title": "Tablo bò kreyatè",
+      "welcome": "Byenvini ankò",
+      "today": "Jodi a",
+      "thisWeek": "Semèn sa a",
+      "thisMonth": "Mwa sa a",
+      "stats": {
+        "pendingRequests": "Demann k ap tann",
+        "completedVideos": "Videyo fini",
+        "totalEarnings": "Kòb total",
+        "averageRating": "Nòt mwayèn"
+      },
+      "menu": {
+        "overview": "Apèsi",
+        "requests": "Demann",
+        "analytics": "Analitik",
+        "content": "Kontni",
+        "finances": "Finans",
+        "settings": "Paramèt"
+      }
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Tablo bò administratè",
+      "systemHealth": "Sante sistèm",
+      "activeUsers": "Itilizatè aktif",
+      "revenue": "Revni",
+      "issues": "Pwoblèm ouvè"
+    }
+  },
+  "footer": {
+    "company": "Konpayi",
+    "about": "Konsènan nou",
+    "careers": "Karyè",
+    "press": "Laprès",
+    "blog": "Blog",
+    "support": "Sipò",
+    "helpCenter": "Sant èd",
+    "safety": "Sekirite",
+    "community": "Prensip kominote",
+    "contact": "Kontak",
+    "legal": "Legal",
+    "terms": "Kondisyon itilizasyon",
+    "privacy": "Politik konfidansyalite",
+    "cookies": "Politik cookies",
+    "copyright": "© 2024 Ann Pale. Tout dwa rezève."
+  },
+  "errors": {
+    "404": {
+      "title": "Paj pa jwenn",
+      "heading": "404",
+      "message": "Padon, nou pa jwenn paj w ap chèche a. Li ka deplase oswa li pa egziste.",
+      "action": "Ale nan akèy",
+      "browseCreators": "Gade kreyatè yo",
+      "getHelp": "Jwenn èd"
+    },
+    "500": {
+      "title": "Gen yon bagay ki mal pase!",
+      "message": "Nou rankontre yon erè nou pa t atann. Tanpri eseye ankò oswa kontakte sipò si pwoblèm nan kontinye.",
+      "action": "Eseye ankò",
+      "goHome": "Ale nan akèy",
+      "errorDetails": "Detay erè (devlopman sèlman)"
+    },
+    "offline": {
+      "title": "Ou pa sou entènèt",
+      "message": "Tanpri tcheke koneksyon entènèt ou epi eseye ankò."
+    },
+    "unauthorized": {
+      "title": "Aksè pa otorize",
+      "message": "Ou pa gen pèmisyon pou aksede paj sa a.",
+      "action": "Retounen"
+    },
+    "forbidden": {
+      "title": "Aksè entèdi",
+      "message": "Kontni sa a limite.",
+      "action": "Retounen lakay"
+    }
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "homepage": {
+    "badges": {
+      "popular": "Popilè",
+      "fast_response": "Repons vit",
+      "verified": "verifye",
+      "new": "New",
+      "trending": "Tandans",
+      "online_now": "Sou entènèt Koulye a,",
+      "available": "Disponib"
+    },
+    "buttons": {
+      "book_now": "Liv kounye a",
+      "browse_creators": "Kreyatè Browse",
+      "get_started": "Jwenn te kòmanse",
+      "learn_more": "Aprann plis",
+      "view_all": "Gade Tout",
+      "see_more": "Gade plis",
+      "contact": "Kontak",
+      "send_message": "Voye mesaj",
+      "quick_book": "Rapid Liv"
+    },
+    "featured_creators": {
+      "title": "Kreyatè chin an tap",
+      "response_time": "lè repons",
+      "languages": "Lang",
+      "starting_at": "Kòmanse nan",
+      "per_video": "pa videyo",
+      "hours": "Èdtan",
+      "days": "Jou",
+      "videos_delivered": "videyo yo delivre"
+    },
+    "search": {
+      "placeholder": "Kreyatè rechèch ...",
+      "search_by_name": "Chèche non oswa kategori",
+      "popular_searches": "Rechèch popilè",
+      "recent_searches": "Rechèch resan",
+      "suggestions": "Sijesyon"
+    }
+  },
+  "browse": {
+    "filters": {
+      "all_categories": "Tout kategori",
+      "price_range": "Ranje pri",
+      "under_50": "Anba $50",
+      "50_to_100": "$50 - $100",
+      "100_to_200": "$ 100 - $200",
+      "over_200": "Plis pase $200",
+      "response_time": "Tan repons",
+      "within_24_hours": "Nan 24 èdtan",
+      "within_2_days": "Nan 2 jou",
+      "within_7_days": "Nan 7 jou",
+      "rating": "Rating",
+      "4_stars_up": "4+ Zetwal yo",
+      "availability": "Disponiblite",
+      "available_now": "disponib kounye a",
+      "clear_all": "klè tout"
+    },
+    "sort": {
+      "sort_by": "Klase pa",
+      "most_popular": "Ki pi popilè",
+      "price_low_high": "Pri: Ba a segondè",
+      "price_high_low": "Pri: Segondè nan ba",
+      "highest_rated": "Pi wo rated",
+      "fastest_response": "Repons pi rapid",
+      "newest": "Nouvèl"
+    },
+    "results": {
+      "showing_results": "Showing {count} results",
+      "no_results": "Pa gen kreyatè yo te jwenn",
+      "try_different": "Eseye ajiste filtè ou oswa tèm rechèch"
+    }
+  },
+  "creator": {
+    "profile": {
+      "about": "Sou",
+      "reviews": "Revize",
+      "videos": "Videyo",
+      "occasions": "Okazyon",
+      "response_time": "Tipikman reponn nan",
+      "member_since": "Manm depi",
+      "videos_completed": "Videyo ranpli",
+      "languages_spoken": "Lang yo pale",
+      "share_profile": "Pataje Pwofil",
+      "add_to_favorites": "Ajoute nan Favorites",
+      "report": "Rapò"
+    },
+    "dashboard": {
+      "welcome_back": "Byenvini",
+      "pending_requests": "Demann anons",
+      "completed_today": "Ranpli jodi a",
+      "earnings_this_week": "Salè semèn sa a",
+      "average_rating": "Rating mwayèn",
+      "new_requests": "Nouvo demann",
+      "in_progress": "Nan Pwogrè",
+      "ready_for_review": "Pare pou Revizyon"
+    },
+    "stats": {
+      "total_earnings": "Salè total",
+      "total_videos": "Total Videyo",
+      "response_rate": "Pousantaj repons",
+      "completion_rate": "Pousantaj konplete",
+      "average_delivery": "Mwayèn livrezon"
+    }
+  },
+  "booking": {
+    "steps": {
+      "select_occasion": "Chwazi Okazyon",
+      "provide_details": "Bay detay",
+      "review_payment": "Revize &amak pèman",
+      "confirmation": "Konfimasyon"
+    },
+    "occasions": {
+      "birthday": "Anivèsè",
+      "anniversary": "Anivèsè",
+      "graduation": "Gradyasyon",
+      "wedding": "Maryaj",
+      "congratulations": "Konpliman",
+      "get_well": "Jwenn byen",
+      "motivation": "Motivasyon",
+      "roast": "griye",
+      "other": "Lòt"
+    },
+    "form": {
+      "who_is_this_for": "Kiyès sa ye pou sa?",
+      "their_name": "Non yo",
+      "from_who": "Kiyès?",
+      "your_name": "Non ou",
+      "special_instructions": "Enstriksyon espesyal",
+      "make_it_public": "Pèmèt kreyatè yo pataje videyo sa a piblikman",
+      "delivery_date": "Dat livrezon",
+      "standard_delivery": "Livrezon Estanda (7 jou)",
+      "express_delivery": "Eksprime livrezon (24 èdtan)"
+    },
+    "payment": {
+      "order_summary": "Rezime kòmand",
+      "video_message": "Mesaj videyo",
+      "service_fee": "Frè sèvis",
+      "delivery_fee": "Frè livrezon",
+      "total": "Total",
+      "apply_promo": "Aplike Kòd Pwomo",
+      "secure_payment": "Peman sekirite",
+      "money_back_guarantee": "Lajan tounen garanti"
+    }
+  },
+  "auth": {
+    "login": {
+      "welcome_back": "Byenvini",
+      "sign_in_account": "Siyen nan kont Ann Pale ou",
+      "email": "Imel",
+      "password": "Modpas",
+      "remember_me": "Sonje mwen",
+      "forgot_password": "Bliye modpas?",
+      "sign_in": "Antre",
+      "no_account": "Pa gen yon kont?",
+      "sign_up": "Enskri",
+      "or_continue_with": "Oswa kontinye avèk",
+      "demo_accounts": "Kont Demo",
+      "try_demo": "Eseye platfòm la ak kont demo sa yo",
+      "use_demo": "Sèvi ak Demo"
+    },
+    "signup": {
+      "join_ann_pale": "Antre nan Ann Pale",
+      "create_account": "Kreye kont ou",
+      "first_name": "Prenon",
+      "last_name": "Siyati ou",
+      "confirm_password": "Konfime Modpas",
+      "account_type": "kalite kont",
+      "customer": "Kliyan",
+      "creator": "Kreyatè",
+      "agree_terms": "Mwen dakò pou kondisyon sèvis ak Règleman sou enfòmasyon prive",
+      "create": "Kreye Kont",
+      "have_account": "Deja gen yon kont?",
+      "log_in": "Ouvri sesyon an"
+    }
+  },
+  "common": {
+    "navigation": {
+      "home": "Lakay",
+      "browse": "Browse",
+      "how_it_works": "Ki jan li fonksyone",
+      "for_creators": "Pou Kreyatè yo",
+      "help": "Anmwe",
+      "sign_in": "Antre",
+      "sign_out": "Siyen",
+      "my_account": "Kont mwen",
+      "dashboard": "tablodbò",
+      "settings": "Anviwònman"
+    },
+    "actions": {
+      "save": "Sove",
+      "cancel": "Anile",
+      "edit": "Edit",
+      "delete": "efase",
+      "share": "Pataje",
+      "copy": "Kopi",
+      "download": "Rale li",
+      "upload": "Upload",
+      "refresh": "Rafrechi",
+      "back": "Do",
+      "next": "Pwochen",
+      "previous": "Ansyen",
+      "close": "Fèmen",
+      "confirm": "Konfime",
+      "submit": "Soumèt"
+    },
+    "status": {
+      "loading": "Chaje ...",
+      "processing": "Pwosesis ...",
+      "success": "Siksè",
+      "error": "Erè",
+      "warning": "Avètisman",
+      "info": "Info",
+      "pending": "Anons",
+      "completed": "Ranpli",
+      "failed": "Echwe",
+      "cancelled": "anile"
+    },
+    "time": {
+      "just_now": "Jis kounye a",
+      "minutes_ago": "{count} minutes ago",
+      "hours_ago": "{count} hours ago",
+      "days_ago": "{count} days de sago",
+      "weeks_ago": "{count} weeks ago",
+      "months_ago": "{count} mwa ago",
+      "years_ago": "{count} Years de sago"
+    }
+  },
+  "footer": {
+    "company": {
+      "about_us": "Enfòmasyon pou nou",
+      "careers": "Karyè",
+      "press": "Près",
+      "blog": "Blog",
+      "contact": "Kontak"
+    },
+    "support": {
+      "help_center": "Sant Èd",
+      "safety": "Sekirite",
+      "community_guidelines": "Direktiv Kominote",
+      "creator_resources": "Resous Kreyatè"
+    },
+    "legal": {
+      "terms_of_service": "Regleman Sèvis",
+      "privacy_policy": "Règleman sou konfidansyalite sou konfidansyalite",
+      "cookie_policy": "Règleman bonbon",
+      "dmca": "DMCA"
+    },
+    "social": {
+      "follow_us": "Swiv nou",
+      "newsletter": "Bildè",
+      "stay_updated": "Rete mete ajou ak dènye nouvèl yo"
+    }
+  },
+  "errors": {
+    "generic": "Gen yon bagay ki te pase mal. Tanpri eseye ankò.",
+    "network": "Rezo erè. Tanpri tcheke koneksyon ou.",
+    "not_found": "Paj yo pa jwenn",
+    "unauthorized": "Ou pa otorize pou w wè paj sa a",
+    "forbidden": "Aksè entèdi",
+    "server_error": "Sèvè erè. Tanpri eseye ankò pita.",
+    "validation": {
+      "required": "Jaden sa a obligatwa",
+      "email_invalid": "Tanpri antre nan yon adrès imèl ki valab",
+      "password_weak": "Modpas dwe omwen 8 karaktè",
+      "passwords_mismatch": "Modpas pa matche ak"
+    }
+  }
+}

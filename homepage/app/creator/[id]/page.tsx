@@ -1,344 +1,241 @@
 "use client"
 
+import * as React from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, Heart, Clock, MessageCircle, Play, Shield } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import { 
+  Star, 
+  Heart, 
+  Clock, 
+  MessageCircle, 
+  Play, 
+  Shield,
+  Share2,
+  CheckCircle,
+  Calendar,
+  Globe,
+  DollarSign,
+  TrendingUp,
+  Award,
+  Users,
+  Video,
+  ThumbsUp,
+  MapPin,
+  Music,
+  Sparkles,
+  Gift,
+  Zap,
+  ChevronRight,
+  ChevronDown,
+  ExternalLink,
+  Instagram,
+  Twitter,
+  Facebook,
+  Youtube,
+  MoreHorizontal
+} from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useParams } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { useLanguage } from "@/contexts/language-context"
+import { getTranslation } from "@/lib/translations"
+import CreatorHeroSection from "@/components/creator/creator-hero-section"
+import CreatorVideoGallery from "@/components/creator/creator-video-gallery"
+import CreatorReviews from "@/components/creator/creator-reviews"
+import CreatorBookingWidget from "@/components/creator/creator-booking-widget"
+import CreatorSocialProof from "@/components/creator/creator-social-proof"
+import CreatorPricingTiers from "@/components/creator/creator-pricing-tiers"
+import CreatorAvailability from "@/components/creator/creator-availability"
+import CreatorSimilar from "@/components/creator/creator-similar"
+import CreatorVideoGrid from "@/components/creator/creator-video-grid"
+import CreatorBookingPackages from "@/components/creator/creator-booking-packages"
+import CreatorBookingSidebar from "@/components/creator/creator-booking-sidebar"
 
 const creatorsData = {
   "1": {
     id: 1,
     name: "Wyclef Jean",
     category: "Musician",
+    tagline: "Grammy Award Winner • Former Fugees Member",
     price: 150,
     rating: 4.9,
-    reviews: 1247,
+    totalReviews: 1247,
     image: "/images/wyclef-jean.png",
+    coverImage: "/placeholder.jpg",
     responseTime: "24hr",
     verified: true,
-    bio: "Grammy-winning musician, producer, and humanitarian. Former member of the Fugees and solo artist with hits like 'Hips Don't Lie' and 'Gone Till November'. Proud Haitian-American artist.",
-    completedVideos: 1247,
-    languages: ["English", "Haitian Creole", "French"],
-    specialties: ["Birthday wishes", "Congratulations", "Motivational messages", "Music dedications"],
+    featured: true,
+    trending: true,
+    bio: "Grammy-winning musician, producer, and humanitarian. Former member of the Fugees and solo artist with hits like 'Hips Don't Lie' and 'Gone Till November'. Proud Haitian-American artist bringing joy through personalized messages.",
+    extendedBio: {
+      career: "Over 30 years in the music industry with multiple Grammy wins and nominations. Collaborated with artists like Shakira, Carlos Santana, and many more.",
+      personal: "Passionate about Haiti and education. Founded Yéle Haiti to provide aid and support to the Haitian community.",
+      message: "I love connecting with fans through Ann Pale! Every message is special to me."
+    },
+    stats: {
+      completedVideos: 1247,
+      responseTime: "24hr",
+      onTimeDelivery: 98,
+      repeatCustomers: 34,
+      avgRating: 4.9,
+      totalEarned: "$186,500"
+    },
+    languages: [
+      { code: "en", name: "English", flag: "🇺🇸" },
+      { code: "ht", name: "Kreyòl", flag: "🇭🇹" },
+      { code: "fr", name: "Français", flag: "🇫🇷" }
+    ],
+    specialties: [
+      { name: "Birthday wishes", icon: "🎂", popular: true },
+      { name: "Congratulations", icon: "🎉", popular: true },
+      { name: "Motivational messages", icon: "💪" },
+      { name: "Music dedications", icon: "🎵" },
+      { name: "Cultural celebrations", icon: "🇭🇹" },
+      { name: "Wedding messages", icon: "💍" }
+    ],
+    pricingTiers: [
+      {
+        id: "standard",
+        name: "Standard Message",
+        price: 150,
+        features: ["Up to 90 seconds", "Delivered in 7 days", "Basic personalization"],
+        popular: false
+      },
+      {
+        id: "express",
+        name: "Express Delivery",
+        price: 225,
+        features: ["Up to 90 seconds", "Delivered in 24 hours", "Priority queue"],
+        popular: true
+      },
+      {
+        id: "premium",
+        name: "Premium Experience",
+        price: 350,
+        features: ["Up to 3 minutes", "Delivered in 24 hours", "Song performance included", "Behind-the-scenes content"],
+        popular: false
+      }
+    ],
+    availability: {
+      nextAvailable: "Today",
+      calendar: {
+        today: true,
+        tomorrow: true,
+        thisWeek: true
+      },
+      bookingSlots: 15
+    },
+    socialMedia: {
+      instagram: "@wyclefjean",
+      twitter: "@wyclef",
+      facebook: "wyclefjean",
+      youtube: "wyclefjeanVEVO"
+    },
+    badges: [
+      { name: "Grammy Winner", icon: "🏆", color: "gold" },
+      { name: "Top Creator", icon: "⭐", color: "purple" },
+      { name: "Fast Responder", icon: "⚡", color: "blue" },
+      { name: "Haitian Pride", icon: "🇭🇹", color: "red" }
+    ],
     sampleVideos: [
-      { id: 1, title: "Birthday Message", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Congratulations", thumbnail: "/placeholder.svg?height=200&width=300" },
+      { 
+        id: 1, 
+        title: "Birthday Message for Marie", 
+        thumbnail: "/placeholder.svg?height=200&width=300",
+        duration: "1:23",
+        views: 15234,
+        category: "Birthday"
+      },
+      { 
+        id: 2, 
+        title: "Graduation Congratulations", 
+        thumbnail: "/placeholder.svg?height=200&width=300",
+        duration: "1:45",
+        views: 8921,
+        category: "Congratulations"
+      },
+      {
+        id: 3,
+        title: "Anniversary Song",
+        thumbnail: "/placeholder.svg?height=200&width=300",
+        duration: "2:10",
+        views: 12456,
+        category: "Anniversary"
+      },
+      {
+        id: 4,
+        title: "Motivational Monday",
+        thumbnail: "/placeholder.svg?height=200&width=300",
+        duration: "1:30",
+        views: 6789,
+        category: "Motivation"
+      }
     ],
     reviews: [
       {
         id: 1,
         user: "Marie L.",
+        avatar: "/placeholder-user.jpg",
         rating: 5,
-        comment: "Wyclef made my daughter's birthday so special! He sang happy birthday in Creole and it was perfect!",
+        comment: "Wyclef made my daughter's birthday so special! He sang happy birthday in Creole and even added a personal touch by mentioning her favorite song. Worth every penny!",
         date: "2 days ago",
+        verified: true,
+        helpful: 45,
+        videoThumbnail: "/placeholder.svg?height=100&width=150"
       },
       {
         id: 2,
         user: "Jean P.",
+        avatar: "/placeholder-user.jpg",
         rating: 5,
-        comment: "Amazing video for my graduation! Very personal and heartfelt. Worth every penny!",
+        comment: "Amazing video for my graduation! Very personal and heartfelt. The whole family was moved to tears. Mèsi anpil!",
         date: "1 week ago",
+        verified: true,
+        helpful: 32
       },
-    ],
-  },
-  "2": {
-    id: 2,
-    name: "Ti Jo Zenny",
-    category: "Comedian",
-    price: 85,
-    rating: 4.8,
-    reviews: 456,
-    image: "/images/ti-jo-zenny.jpg",
-    responseTime: "2 days",
-    verified: true,
-    bio: "Beloved Haitian comedian known for his hilarious sketches and social commentary. Ti Jo brings laughter and joy to every performance with his unique style and wit.",
-    completedVideos: 456,
-    languages: ["Haitian Creole", "French", "English"],
-    specialties: ["Comedy messages", "Birthday roasts", "Motivational humor", "Cultural jokes"],
-    sampleVideos: [
-      { id: 1, title: "Birthday Roast", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Motivational Comedy", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
       {
-        id: 1,
-        user: "Pierre M.",
-        rating: 5,
-        comment: "Ti Jo made my friend's birthday unforgettable! So funny and personal!",
-        date: "1 week ago",
-      },
-    ],
-  },
-  "4": {
-    id: 4,
-    name: "Richard Cave",
-    category: "Actor",
-    price: 120,
-    rating: 4.9,
-    reviews: 678,
-    image: "/images/richard-cave.jpg",
-    responseTime: "3 days",
-    verified: true,
-    bio: "Acclaimed Haitian actor known for his powerful performances in film and television. Richard brings depth and authenticity to every role and message.",
-    completedVideos: 678,
-    languages: ["English", "Haitian Creole", "French"],
-    specialties: ["Dramatic messages", "Congratulations", "Inspirational speeches", "Character voices"],
-    sampleVideos: [
-      { id: 1, title: "Graduation Speech", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Motivational Message", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
+        id: 3,
         user: "Sarah D.",
+        avatar: "/placeholder-user.jpg",
         rating: 5,
-        comment: "Richard's message was so powerful and moving. Exactly what we needed!",
-        date: "3 days ago",
-      },
+        comment: "Wyclef went above and beyond! Not only did he deliver the message quickly, but he also included a mini performance. My husband was speechless!",
+        date: "2 weeks ago",
+        verified: true,
+        helpful: 28
+      }
     ],
-  },
-  "5": {
-    id: 5,
-    name: "Michael Brun",
-    category: "DJ/Producer",
-    price: 200,
-    rating: 4.8,
-    reviews: 892,
-    image: "/images/michael-brun.jpg",
-    responseTime: "2 days",
-    verified: true,
-    bio: "World-renowned Haitian DJ and producer who has performed at major festivals worldwide. Michael blends electronic music with Haitian culture, creating unique experiences.",
-    completedVideos: 892,
-    languages: ["English", "Haitian Creole", "French"],
-    specialties: ["Party messages", "Music production tips", "Cultural pride", "Festival shout-outs"],
-    sampleVideos: [
-      { id: 1, title: "Festival Greeting", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Music Motivation", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "David K.",
-        rating: 5,
-        comment: "Michael's energy is infectious! Perfect message for our music event!",
-        date: "1 day ago",
-      },
-    ],
-  },
-  "6": {
-    id: 6,
-    name: "Rutshelle Guillaume",
-    category: "Singer",
-    price: 85,
-    rating: 4.9,
-    reviews: 634,
-    image: "/images/rutshelle-guillaume.jpg",
-    responseTime: "1 day",
-    verified: true,
-    bio: "Rising star in Haitian music with a powerful voice and captivating stage presence. Rutshelle brings passion and soul to every performance and message.",
-    completedVideos: 634,
-    languages: ["Haitian Creole", "French", "English"],
-    specialties: ["Song dedications", "Birthday serenades", "Love messages", "Inspirational songs"],
-    sampleVideos: [
-      { id: 1, title: "Birthday Serenade", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Love Song Dedication", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Michel R.",
-        rating: 5,
-        comment: "Rutshelle's voice is angelic! The perfect birthday surprise for my wife!",
-        date: "2 days ago",
-      },
-    ],
-  },
-  "7": {
-    id: 7,
-    name: "Kenny",
-    category: "Singer",
-    price: 95,
-    rating: 4.6,
-    reviews: 423,
-    image: "/images/kenny.jpg",
-    responseTime: "2 days",
-    verified: true,
-    bio: "Soulful Haitian singer with a smooth voice and contemporary R&B style. Kenny creates heartfelt musical moments that touch the soul.",
-    completedVideos: 423,
-    languages: ["English", "Haitian Creole", "French"],
-    specialties: ["R&B serenades", "Love songs", "Birthday ballads", "Smooth dedications"],
-    sampleVideos: [
-      { id: 1, title: "R&B Love Song", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Birthday Ballad", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Lisa M.",
-        rating: 5,
-        comment: "Kenny's voice is so smooth and romantic! Perfect anniversary gift!",
-        date: "2 days ago",
-      },
-    ],
-  },
-  "8": {
-    id: 8,
-    name: "Carel Pedre",
-    category: "Radio Host",
-    price: 110,
-    rating: 4.8,
-    reviews: 567,
-    image: "/images/carel-pedre.jpg",
-    responseTime: "1 day",
-    verified: true,
-    bio: "Popular Haitian radio personality and media mogul. Known for his engaging voice and connection with the Haitian community worldwide.",
-    completedVideos: 567,
-    languages: ["Haitian Creole", "French", "English"],
-    specialties: ["News-style messages", "Announcements", "Shout-outs", "Community messages"],
-    sampleVideos: [
-      { id: 1, title: "Special Announcement", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Community Shout-out", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Nadine L.",
-        rating: 5,
-        comment: "Carel's message was so professional and heartfelt. Perfect for our event!",
-        date: "1 day ago",
-      },
-    ],
-  },
-  "9": {
-    id: 9,
-    name: "DJ K9",
-    category: "DJ",
-    price: 65,
-    rating: 4.7,
-    reviews: 234,
-    image: "/images/dj-k9.jpg",
-    responseTime: "24hr",
-    verified: true,
-    bio: "Energetic DJ known for mixing the hottest Haitian and international tracks. DJ K9 brings the party energy to every message and interaction.",
-    completedVideos: 234,
-    languages: ["Haitian Creole", "English"],
-    specialties: ["Party messages", "DJ drops", "Hype messages", "Music recommendations"],
-    sampleVideos: [
-      { id: 1, title: "Party Hype Message", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Custom DJ Drop", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Alex T.",
-        rating: 5,
-        comment: "DJ K9 brought so much energy! Perfect for our party announcement!",
-        date: "1 day ago",
-      },
-    ],
-  },
-  "10": {
-    id: 10,
-    name: "DJ Bullet",
-    category: "DJ",
-    price: 70,
-    rating: 4.6,
-    reviews: 189,
-    image: "/images/dj-bullet.jpg",
-    responseTime: "1 day",
-    verified: true,
-    bio: "Dynamic Haitian DJ with signature braids and high-energy performances. DJ Bullet brings the heat to every track and every message.",
-    completedVideos: 189,
-    languages: ["Haitian Creole", "English"],
-    specialties: ["Club messages", "Hype videos", "Party announcements", "Music shout-outs"],
-    sampleVideos: [
-      { id: 1, title: "Club Hype", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Party Announcement", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Marcus J.",
-        rating: 5,
-        comment: "DJ Bullet's energy is unmatched! Got everyone hyped for the event!",
-        date: "2 days ago",
-      },
-    ],
-  },
-  "11": {
-    id: 11,
-    name: "J Perry",
-    category: "Singer",
-    price: 90,
-    rating: 4.8,
-    reviews: 345,
-    image: "/images/jonathan-perry.jpg",
-    responseTime: "2 days",
-    verified: true,
-    bio: "Talented Haitian singer-songwriter with a smooth voice and contemporary style. J Perry creates memorable musical moments for every occasion.",
-    completedVideos: 345,
-    languages: ["English", "Haitian Creole"],
-    specialties: ["R&B messages", "Love songs", "Birthday songs", "Congratulations"],
-    sampleVideos: [
-      { id: 1, title: "Love Song Message", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Birthday Song", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Jessica M.",
-        rating: 5,
-        comment: "J Perry's voice is incredible! Made our anniversary so special!",
-        date: "3 days ago",
-      },
-    ],
-  },
-  "13": {
-    id: 13,
-    name: "Reynaldo Martino",
-    category: "Singer",
-    price: 105,
-    rating: 4.8,
-    reviews: 312,
-    image: "/images/reynaldo-martino.jpg",
-    responseTime: "2 days",
-    verified: true,
-    bio: "Versatile Haitian singer with a passion for both traditional and modern music. Reynaldo brings authenticity and heart to every performance.",
-    completedVideos: 312,
-    languages: ["Haitian Creole", "French", "English"],
-    specialties: ["Traditional songs", "Modern hits", "Cultural messages", "Family dedications"],
-    sampleVideos: [
-      { id: 1, title: "Traditional Song", thumbnail: "/placeholder.svg?height=200&width=300" },
-      { id: 2, title: "Family Message", thumbnail: "/placeholder.svg?height=200&width=300" },
-    ],
-    reviews: [
-      {
-        id: 1,
-        user: "Marie C.",
-        rating: 5,
-        comment: "Reynaldo sang a beautiful traditional song for my grandmother. She cried tears of joy!",
-        date: "4 days ago",
-      },
-    ],
-  },
+    similarCreators: [
+      { id: 2, name: "Michael Brun", category: "DJ/Producer", price: 200, rating: 4.8 },
+      { id: 6, name: "Rutshelle Guillaume", category: "Singer", price: 85, rating: 4.9 },
+      { id: 13, name: "J Perry", category: "Singer", price: 90, rating: 4.8 }
+    ]
+  }
 }
 
 export default function CreatorProfilePage() {
   const params = useParams()
+  const { language } = useLanguage()
   const creatorId = params.id as string
-  const creator = creatorsData[creatorId as keyof typeof creatorsData]
+  const creator = creatorsData[creatorId as keyof typeof creatorsData] || creatorsData["1"]
+  
+  const [isLiked, setIsLiked] = React.useState(false)
+  const [expandedBio, setExpandedBio] = React.useState(false)
+  const [selectedTier, setSelectedTier] = React.useState("express")
 
   if (!creator) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Creator not found</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {getTranslation("creatorNotFound", language)}
+          </h1>
           <Button asChild>
-            <Link href="/browse">Browse Creators</Link>
+            <Link href="/browse">{getTranslation("browseCreators", language)}</Link>
           </Button>
         </div>
       </div>
@@ -346,201 +243,455 @@ export default function CreatorProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      {/* Decorative Cultural Emojis */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 100, repeat: Infinity, ease: "linear" }}
+          className="absolute top-20 left-10 text-6xl opacity-5"
+        >
+          🎵
+        </motion.div>
+        <motion.div 
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
+          className="absolute top-40 right-20 text-7xl opacity-5"
+        >
+          🎭
+        </motion.div>
+        <motion.div 
+          animate={{ rotate: -360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-32 left-20 text-8xl opacity-5"
+        >
+          🎨
+        </motion.div>
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 5, repeat: Infinity }}
+          className="absolute bottom-20 right-16 text-6xl opacity-5"
+        >
+          🌺
+        </motion.div>
+      </div>
+
+      {/* Hero Section with Cover Image */}
+      <div className="relative h-96 bg-gradient-to-r from-purple-600 to-pink-600 overflow-hidden">
+        {creator.coverImage && (
+          <Image
+            src={creator.coverImage}
+            alt={`${creator.name} cover`}
+            fill
+            className="object-cover opacity-50"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        
+        {/* Navigation Bar */}
+        <div className="absolute top-0 left-0 right-0 z-20">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <Link href="/" className="text-2xl font-bold text-white flex items-center gap-2">
                 <span>🎤</span>
                 <span>Ann Pale</span>
               </Link>
-              <nav className="hidden md:flex items-center space-x-6">
-                <Link href="/browse" className="text-gray-600 hover:text-gray-900">
-                  Browse
+              <nav className="hidden md:flex items-center gap-6">
+                <Link href="/browse" className="text-white/90 hover:text-white">
+                  {getTranslation("browse", language)}
                 </Link>
-                <Link href="/categories" className="text-gray-600 hover:text-gray-900">
-                  Categories
-                </Link>
-                <Link href="/how-it-works" className="text-gray-600 hover:text-gray-900">
-                  How it works
+                <Link href="/categories" className="text-white/90 hover:text-white">
+                  {getTranslation("categories", language)}
                 </Link>
               </nav>
             </div>
-
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-gray-600" asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700" asChild>
-                <Link href="/signup">Sign up</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Creator Header */}
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-          <div>
-            <div className="relative">
-              <Image
-                src={creator.image || "/placeholder.svg"}
-                alt={creator.name}
-                width={400}
-                height={400}
-                className="w-full h-96 object-cover rounded-lg"
-              />
-              {creator.verified && (
-                <Badge className="absolute top-4 left-4 bg-blue-600">
-                  <Shield className="h-3 w-3 mr-1" />
-                  Verified
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center space-x-2 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">{creator.name}</h1>
-              <Button size="icon" variant="ghost">
-                <Heart className="h-5 w-5" />
-              </Button>
-            </div>
-
-            <p className="text-xl text-purple-600 mb-4">{creator.category}</p>
-
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="flex items-center space-x-1">
-                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold">{creator.rating}</span>
-                <span className="text-gray-500">({creator.reviews.toLocaleString()} reviews)</span>
-              </div>
-              <div className="flex items-center space-x-1 text-gray-500">
-                <Clock className="h-4 w-4" />
-                <span>Responds in {creator.responseTime}</span>
-              </div>
-            </div>
-
-            <p className="text-gray-600 mb-6 leading-relaxed">{creator.bio}</p>
-
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-purple-600">{creator.completedVideos.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Videos completed</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600">{creator.responseTime}</div>
-                  <div className="text-sm text-gray-600">Avg response time</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-3">
-              <Button size="lg" className="bg-purple-600 hover:bg-purple-700" asChild>
-                <Link href={`/book/${creator.id}`}>
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  Book Video Message - ${creator.price}
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline">
-                <Heart className="h-5 w-5 mr-2" />
-                Add to Favorites
-              </Button>
-            </div>
           </div>
         </div>
 
-        {/* Tabs Section */}
-        <Tabs defaultValue="about" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="about">About</TabsTrigger>
-            <TabsTrigger value="samples">Sample Videos</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="about" className="mt-6">
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Languages</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {creator.languages.map((language) => (
-                      <Badge key={language} variant="secondary">
-                        {language}
-                      </Badge>
-                    ))}
+        {/* Creator Info Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="container mx-auto">
+            <div className="flex items-end gap-6">
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
+                  <Image
+                    src={creator.image || "/placeholder.svg"}
+                    alt={creator.name}
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {creator.verified && (
+                  <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full p-2">
+                    <CheckCircle className="h-6 w-6" />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
+              
+              <div className="flex-1 text-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-4xl font-bold">{creator.name}</h1>
+                  {creator.badges.map((badge, index) => (
+                    <span key={index} className="text-2xl" title={badge.name}>
+                      {badge.icon}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xl opacity-90 mb-2">{creator.tagline}</p>
+                <div className="flex items-center gap-4">
+                  <Badge className="bg-white/20 text-white border-white/30">
+                    {creator.category}
+                  </Badge>
+                  {creator.featured && (
+                    <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-400/30">
+                      <Star className="h-3 w-3 mr-1" />
+                      Featured
+                    </Badge>
+                  )}
+                  {creator.trending && (
+                    <Badge className="bg-green-500/20 text-green-300 border-green-400/30">
+                      <TrendingUp className="h-3 w-3 mr-1" />
+                      Trending
+                    </Badge>
+                  )}
+                </div>
+              </div>
 
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Specialties</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {creator.specialties.map((specialty) => (
-                      <Badge key={specialty} variant="outline">
-                        {specialty}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex gap-2">
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="bg-white/10 backdrop-blur hover:bg-white/20"
+                  onClick={() => setIsLiked(!isLiked)}
+                >
+                  <Heart className={`h-5 w-5 ${isLiked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="bg-white/10 backdrop-blur hover:bg-white/20"
+                >
+                  <Share2 className="h-5 w-5 text-white" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="bg-white/10 backdrop-blur hover:bg-white/20"
+                >
+                  <MoreHorizontal className="h-5 w-5 text-white" />
+                </Button>
+              </div>
             </div>
-          </TabsContent>
+          </div>
+        </div>
+      </div>
 
-          <TabsContent value="samples" className="mt-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {creator.sampleVideos.map((video) => (
-                <Card key={video.id} className="cursor-pointer hover:shadow-lg transition-shadow">
-                  <CardContent className="p-0">
-                    <div className="relative">
-                      <Image
-                        src={video.thumbnail || "/placeholder.svg"}
-                        alt={video.title}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                        <Play className="h-12 w-12 text-white" />
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Stats Bar */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {creator.stats.completedVideos.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-gray-600">Videos</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {creator.rating}
+                    </div>
+                    <div className="text-sm text-gray-600">Rating</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {creator.stats.onTimeDelivery}%
+                    </div>
+                    <div className="text-sm text-gray-600">On Time</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {creator.stats.repeatCustomers}%
+                    </div>
+                    <div className="text-sm text-gray-600">Repeat</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bio Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-purple-600" />
+                  About {creator.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed mb-4">{creator.bio}</p>
+                
+                <AnimatePresence>
+                  {expandedBio && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Career Highlights</h4>
+                        <p className="text-gray-700">{creator.extendedBio.career}</p>
                       </div>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold">{video.title}</h4>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Personal Touch</h4>
+                        <p className="text-gray-700">{creator.extendedBio.personal}</p>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <p className="text-purple-900 italic">"{creator.extendedBio.message}"</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <Button
+                  variant="ghost"
+                  onClick={() => setExpandedBio(!expandedBio)}
+                  className="mt-4"
+                >
+                  {expandedBio ? (
+                    <>Show Less <ChevronDown className="ml-2 h-4 w-4 rotate-180" /></>
+                  ) : (
+                    <>Read More <ChevronDown className="ml-2 h-4 w-4" /></>
+                  )}
+                </Button>
 
-          <TabsContent value="reviews" className="mt-6">
-            <div className="space-y-6">
-              {creator.reviews.map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold">{review.user}</span>
-                        <div className="flex items-center">
-                          {Array.from({ length: review.rating }).map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          ))}
+                <Separator className="my-6" />
+
+                {/* Languages & Specialties */}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-purple-600" />
+                      Languages
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {creator.languages.map((lang) => (
+                        <Badge key={lang.code} variant="secondary" className="px-3 py-1">
+                          <span className="mr-1">{lang.flag}</span>
+                          {lang.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-purple-600" />
+                      Specialties
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {creator.specialties.map((specialty) => (
+                        <Badge 
+                          key={specialty.name} 
+                          variant={specialty.popular ? "default" : "outline"}
+                          className={specialty.popular ? "bg-purple-600" : ""}
+                        >
+                          <span className="mr-1">{specialty.icon}</span>
+                          {specialty.name}
+                          {specialty.popular && <Zap className="ml-1 h-3 w-3" />}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media */}
+                <div className="mt-6 pt-6 border-t">
+                  <h4 className="font-semibold text-gray-900 mb-3">Follow on Social Media</h4>
+                  <div className="flex gap-3">
+                    {creator.socialMedia.instagram && (
+                      <Button size="sm" variant="outline">
+                        <Instagram className="h-4 w-4 mr-2" />
+                        Instagram
+                      </Button>
+                    )}
+                    {creator.socialMedia.twitter && (
+                      <Button size="sm" variant="outline">
+                        <Twitter className="h-4 w-4 mr-2" />
+                        Twitter
+                      </Button>
+                    )}
+                    {creator.socialMedia.youtube && (
+                      <Button size="sm" variant="outline">
+                        <Youtube className="h-4 w-4 mr-2" />
+                        YouTube
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Enhanced Video Gallery */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <CreatorVideoGrid 
+                videos={creator.sampleVideos.map(v => ({
+                  ...v,
+                  rating: 4.8 + Math.random() * 0.2,
+                  featured: Math.random() > 0.7
+                }))}
+                creatorName={creator.name}
+              />
+            </div>
+
+            {/* Reviews Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-purple-600" />
+                    Reviews
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <span className="font-semibold">{creator.rating}</span>
+                    <span className="text-gray-500">({creator.totalReviews} reviews)</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {creator.reviews.map((review) => (
+                  <div key={review.id} className="border-b last:border-0 pb-4 last:pb-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold">
+                          {review.user.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{review.user}</span>
+                            {review.verified && (
+                              <Badge variant="secondary" className="text-xs">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Verified
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex">
+                              {[...Array(review.rating)].map((_, i) => (
+                                <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-500">{review.date}</span>
+                          </div>
                         </div>
                       </div>
-                      <span className="text-sm text-gray-500">{review.date}</span>
                     </div>
-                    <p className="text-gray-600">{review.comment}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                    <p className="text-gray-700 mb-3">{review.comment}</p>
+                    {review.videoThumbnail && (
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <Image
+                          src={review.videoThumbnail}
+                          alt="Review video"
+                          width={60}
+                          height={40}
+                          className="rounded"
+                        />
+                        <span className="text-sm text-gray-600">Video attached</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-4 mt-3">
+                      <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-purple-600">
+                        <ThumbsUp className="h-4 w-4" />
+                        Helpful ({review.helpful})
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                <Button variant="outline" className="w-full mt-4">
+                  View All Reviews
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Booking Sidebar */}
+          <div className="space-y-6 lg:sticky lg:top-20 h-fit">
+            {/* Simplified Booking Widget */}
+            <CreatorBookingSidebar
+              creatorId={creator.id}
+              creatorName={creator.name}
+              basePrice={creator.price}
+              responseTime={creator.responseTime}
+              completedVideos={creator.stats.completedVideos}
+              rating={creator.rating}
+              nextAvailable={creator.availability.nextAvailable}
+              bookingSlots={creator.availability.bookingSlots}
+            />
+
+            {/* Similar Creators */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Similar Creators</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {creator.similarCreators.map((similar) => (
+                  <Link
+                    key={similar.id}
+                    href={`/creator/${similar.id}`}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold">
+                      {similar.name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{similar.name}</p>
+                      <p className="text-xs text-gray-500">{similar.category} • ${similar.price}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs">{similar.rating}</span>
+                    </div>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Full-width Booking Packages Section */}
+        <div className="mt-12" id="packages">
+          <Card className="overflow-hidden border-2 border-purple-200">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <Sparkles className="h-6 w-6 text-purple-600" />
+                Choose Your Video Package
+              </CardTitle>
+              <p className="text-gray-600 mt-2">
+                Select the perfect package for your personalized video message from {creator.name}
+              </p>
+            </CardHeader>
+            <CardContent className="p-8">
+              <CreatorBookingPackages 
+                creatorId={creator.id}
+                creatorName={creator.name}
+                basePrice={creator.price}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

@@ -1,0 +1,269 @@
+{
+  "homepage": {
+    "badges": {
+      "popular": "Populaire",
+      "fast_response": "Réponse rapide",
+      "verified": "Vérifié",
+      "new": "Nouveau",
+      "trending": "Tendances",
+      "online_now": "En ligne maintenant",
+      "available": "Disponible"
+    },
+    "buttons": {
+      "book_now": "Réservez maintenant",
+      "browse_creators": "Parcourir les créateurs",
+      "get_started": "Démarrer",
+      "learn_more": "Pour en savoir plus",
+      "view_all": "Voir tout",
+      "see_more": "Voir plus",
+      "contact": "Contact",
+      "send_message": "Envoyer un message",
+      "quick_book": "Livre rapide"
+    },
+    "featured_creators": {
+      "title": "Créateurs en vedette",
+      "response_time": "Temps de réponse",
+      "languages": "Traduction",
+      "starting_at": "À partir de",
+      "per_video": "par vidéo",
+      "hours": "Heures",
+      "days": "Jours",
+      "videos_delivered": "Vidéos livrées"
+    },
+    "search": {
+      "placeholder": "Rechercher des créateurs...",
+      "search_by_name": "Recherche par nom ou par catégorie",
+      "popular_searches": "Recherches populaires",
+      "recent_searches": "Recherches récentes",
+      "suggestions": "Suggestions"
+    }
+  },
+  "browse": {
+    "filters": {
+      "all_categories": "Toutes les catégories",
+      "price_range": "Fourchette de prix",
+      "under_50": "Moins de 50 $",
+      "50_to_100": "50 $ à 100 $",
+      "100_to_200": "De 100 $ à 200 $",
+      "over_200": "Plus de 200 $",
+      "response_time": "Temps de réponse",
+      "within_24_hours": "Dans les 24 heures",
+      "within_2_days": "Dans les 2 jours",
+      "within_7_days": "Dans les 7 jours",
+      "rating": "Notation",
+      "4_stars_up": "4+ étoiles",
+      "availability": "Disponibilité",
+      "available_now": "Disponible dès maintenant",
+      "clear_all": "Effacer tout"
+    },
+    "sort": {
+      "sort_by": "Trier par",
+      "most_popular": "Les plus populaires",
+      "price_low_high": "Prix : Du plus bas au plus élevé",
+      "price_high_low": "Prix : Du plus élevé au plus bas",
+      "highest_rated": "Les mieux notés",
+      "fastest_response": "Réponse la plus rapide",
+      "newest": "Nouveau"
+    },
+    "results": {
+      "showing_results": "Affichage des résultats {count}",
+      "no_results": "Aucun créateur trouvé",
+      "try_different": "Essayez d’ajuster vos filtres ou vos termes de recherche"
+    }
+  },
+  "creator": {
+    "profile": {
+      "about": "Environ",
+      "reviews": "Critiques",
+      "videos": "Vidéos",
+      "occasions": "Occasions",
+      "response_time": "Répond généralement en",
+      "member_since": "Membre depuis",
+      "videos_completed": "Vidéos terminées",
+      "languages_spoken": "Langues parlées",
+      "share_profile": "Partager le profil",
+      "add_to_favorites": "Ajouter aux favoris",
+      "report": "Rapport"
+    },
+    "dashboard": {
+      "welcome_back": "Bienvenue",
+      "pending_requests": "Demandes en attente",
+      "completed_today": "Terminé aujourd’hui",
+      "earnings_this_week": "Résultats de la semaine",
+      "average_rating": "Note moyenne",
+      "new_requests": "Nouvelles demandes",
+      "in_progress": "En cours",
+      "ready_for_review": "Prêt pour l’examen"
+    },
+    "stats": {
+      "total_earnings": "Gains totaux",
+      "total_videos": "Nombre total de vidéos",
+      "response_rate": "Taux de réponse",
+      "completion_rate": "Taux d’achèvement",
+      "average_delivery": "Délai moyen de livraison"
+    }
+  },
+  "booking": {
+    "steps": {
+      "select_occasion": "Sélectionner une occasion",
+      "provide_details": "Fournir des détails",
+      "review_payment": "Examen et paiement",
+      "confirmation": "Confirmation"
+    },
+    "occasions": {
+      "birthday": "Anniversaire",
+      "anniversary": "Anniversaire",
+      "graduation": "Graduation",
+      "wedding": "Mariage",
+      "congratulations": "Félicitations",
+      "get_well": "Guérir",
+      "motivation": "Motivation",
+      "roast": "Rôtir",
+      "other": "Autre"
+    },
+    "form": {
+      "who_is_this_for": "À qui s’adresse-t-il ?",
+      "their_name": "Leur nom",
+      "from_who": "De qui ?",
+      "your_name": "Votre nom",
+      "special_instructions": "Instructions spéciales",
+      "make_it_public": "Autoriser le créateur à partager cette vidéo publiquement",
+      "delivery_date": "Date de livraison",
+      "standard_delivery": "Livraison standard (7 jours)",
+      "express_delivery": "Livraison express (24 heures)"
+    },
+    "payment": {
+      "order_summary": "Résumé de la commande",
+      "video_message": "Message vidéo",
+      "service_fee": "Frais de service",
+      "delivery_fee": "Frais de livraison",
+      "total": "Total",
+      "apply_promo": "Appliquer le code promotionnel",
+      "secure_payment": "Paiement sécurisé",
+      "money_back_guarantee": "Garantie de remboursement"
+    }
+  },
+  "auth": {
+    "login": {
+      "welcome_back": "Bienvenue",
+      "sign_in_account": "Connectez-vous à votre compte Ann Pale",
+      "email": "Messagerie électronique",
+      "password": "Mot de passe",
+      "remember_me": "Souvenez-vous de moi",
+      "forgot_password": "Mot de passe oublié ?",
+      "sign_in": "Connexion",
+      "no_account": "Vous n’avez pas de compte ?",
+      "sign_up": "S’enregistrer",
+      "or_continue_with": "Ou continuez avec",
+      "demo_accounts": "Comptes démo",
+      "try_demo": "Essayez la plateforme avec ces comptes de démonstration",
+      "use_demo": "Utiliser la démo"
+    },
+    "signup": {
+      "join_ann_pale": "Rejoignez Ann Pale",
+      "create_account": "Créez votre compte",
+      "first_name": "Prénom",
+      "last_name": "Nom",
+      "confirm_password": "Confirmer le mot de passe",
+      "account_type": "Type de compte",
+      "customer": "Client",
+      "creator": "Créateur",
+      "agree_terms": "J’accepte les conditions d’utilisation et la politique de confidentialité",
+      "create": "Créer un compte",
+      "have_account": "Vous avez déjà un compte ?",
+      "log_in": "S'identifier"
+    }
+  },
+  "common": {
+    "navigation": {
+      "home": "Domicile",
+      "browse": "Parcourir",
+      "how_it_works": "Comment ça marche",
+      "for_creators": "Pour les créateurs",
+      "help": "Aide",
+      "sign_in": "Connexion",
+      "sign_out": "Se déconnecter",
+      "my_account": "Mon compte",
+      "dashboard": "Tableau de bord",
+      "settings": "Paramètres"
+    },
+    "actions": {
+      "save": "Sauvegarder",
+      "cancel": "Annuler",
+      "edit": "Éditer",
+      "delete": "Supprimer",
+      "share": "Partager",
+      "copy": "Copier",
+      "download": "Télécharger",
+      "upload": "Télécharger",
+      "refresh": "Rafraîchir",
+      "back": "Précédent",
+      "next": "Prochain",
+      "previous": "Précédent",
+      "close": "Fermer",
+      "confirm": "Confirmer",
+      "submit": "Envoyer"
+    },
+    "status": {
+      "loading": "Chargement...",
+      "processing": "Traitement...",
+      "success": "Succès",
+      "error": "Erreur",
+      "warning": "Avertissement",
+      "info": "Info",
+      "pending": "En instance",
+      "completed": "Terminé",
+      "failed": "Raté",
+      "cancelled": "Annulé"
+    },
+    "time": {
+      "just_now": "Tout à l'heure",
+      "minutes_ago": "{compter} minutes il y a",
+      "hours_ago": "{count} heures il y a",
+      "days_ago": "il y a quelques jours",
+      "weeks_ago": "{compter} il y a quelques semaines",
+      "months_ago": "il y a quelques mois",
+      "years_ago": "il y a quelques années"
+    }
+  },
+  "footer": {
+    "company": {
+      "about_us": "Qui sommes-nous",
+      "careers": "Carrières",
+      "press": "Presser",
+      "blog": "Blog",
+      "contact": "Contact"
+    },
+    "support": {
+      "help_center": "Centre d’aide",
+      "safety": "Sécurité",
+      "community_guidelines": "Directives de la communauté",
+      "creator_resources": "Ressources pour les créateurs"
+    },
+    "legal": {
+      "terms_of_service": "Conditions d’utilisation",
+      "privacy_policy": "Politique de confidentialité",
+      "cookie_policy": "Politique en matière de cookies",
+      "dmca": "DMCA"
+    },
+    "social": {
+      "follow_us": "Suivez-nous",
+      "newsletter": "Bulletin",
+      "stay_updated": "Restez à jour avec les dernières nouvelles"
+    }
+  },
+  "errors": {
+    "generic": "Quelque chose a mal tourné. Veuillez réessayer.",
+    "network": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "not_found": "Page introuvable",
+    "unauthorized": "Vous n’êtes pas autorisé à consulter cette page",
+    "forbidden": "Accès interdit",
+    "server_error": "Erreur de serveur. Veuillez réessayer plus tard.",
+    "validation": {
+      "required": "Ce champ est obligatoire",
+      "email_invalid": "Veuillez saisir une adresse e-mail valide",
+      "password_weak": "Le mot de passe doit comporter au moins 8 caractères.",
+      "passwords_mismatch": "Les mots de passe ne correspondent pas"
+    }
+  }
+}

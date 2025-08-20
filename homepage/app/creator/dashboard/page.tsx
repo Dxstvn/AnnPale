@@ -1,273 +1,420 @@
 "use client"
 
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Video, Clock, DollarSign, Star, MessageCircle, Upload, Settings, LogOut } from "lucide-react"
-import Link from "next/link"
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { 
+  Video, 
+  Clock, 
+  DollarSign, 
+  Star, 
+  TrendingUp,
+  Users,
+  Calendar,
+  AlertCircle,
+  HelpCircle,
+  BarChart3,
+  Activity,
+  Target
+} from "lucide-react"
+import { CreatorPersona } from "@/components/creator/dashboard/CreatorPersona"
+import { WorkflowStages } from "@/components/creator/dashboard/WorkflowStages"
+import { EmotionalJourney, type EmotionalStage } from "@/components/creator/dashboard/EmotionalJourney"
+import { ImmediateStatus } from "@/components/creator/dashboard/ImmediateStatus"
+import { PerformanceOverview } from "@/components/creator/dashboard/PerformanceOverview"
+import { ManagementTools } from "@/components/creator/dashboard/ManagementTools"
+import { InsightsGrowth } from "@/components/creator/dashboard/InsightsGrowth"
+import { useLanguage } from "@/contexts/language-context"
 
-const mockStats = {
-  totalEarnings: 2450,
-  pendingRequests: 8,
-  completedVideos: 156,
-  averageRating: 4.8,
-  thisMonthEarnings: 890,
-  responseTime: "24hr",
+// Comprehensive mock data structure
+const dashboardData = {
+  creator: {
+    name: "Ti Jo",
+    avatar: "/images/creator-avatar.jpg",
+    level: "Rising Star",
+    memberSince: "2024-01-01"
+  },
+  stats: {
+    totalEarnings: 2450,
+    pendingRequests: 8,
+    completedVideos: 156,
+    averageRating: 4.8,
+    thisMonthEarnings: 890,
+    monthlyEarnings: 890,
+    responseTime: "24hr",
+    accountAge: 45,
+    followerCount: 2500,
+    todayEarnings: 245,
+    weekGrowth: 15.3,
+    monthGrowth: 28.7,
+    completionRate: 96,
+    customerSatisfaction: 94
+  },
+  pendingRequests: [
+    { id: 1, recipient: "Sarah", occasion: "Birthday", price: 85, hoursUntilDue: 6, isUrgent: true },
+    { id: 2, recipient: "Marcus", occasion: "Graduation", price: 85, hoursUntilDue: 18, isUrgent: false },
+    { id: 3, recipient: "Lisa & David", occasion: "Anniversary", price: 85, hoursUntilDue: 30, isUrgent: false },
+  ],
+  weeklyEarnings: [
+    { day: "Mon", amount: 120, change: 5 },
+    { day: "Tue", amount: 85, change: -10 },
+    { day: "Wed", amount: 170, change: 25 },
+    { day: "Thu", amount: 95, change: -5 },
+    { day: "Fri", amount: 200, change: 15 },
+    { day: "Sat", amount: 150, change: 10 },
+    { day: "Sun", amount: 180, change: 20 },
+  ],
+  topVideos: [
+    { id: 1, title: "Birthday message for Sarah", views: 1250, likes: 98, earnings: 85, rating: 4.9 },
+    { id: 2, title: "Graduation congratulations", views: 890, likes: 67, earnings: 85, rating: 4.8 },
+    { id: 3, title: "Anniversary wishes", views: 750, likes: 52, earnings: 85, rating: 4.7 },
+  ],
+  todayEvents: [
+    { id: 1, time: "9:00 AM", title: "Record birthday messages (3)", type: 'recording' as const, priority: 'high' as const },
+    { id: 2, time: "2:00 PM", title: "Response deadline - Marcus graduation", type: 'deadline' as const, priority: 'medium' as const },
+    { id: 3, time: "4:00 PM", title: "Customer call with Marie L.", type: 'meeting' as const, priority: 'low' as const },
+  ],
+  recentMessages: [
+    { id: 1, sender: "Marie L.", preview: "Thank you so much for the wonderful birthday message!", time: "10 min ago", unread: true, type: 'customer' as const },
+    { id: 2, sender: "Support Team", preview: "Your payment for this week has been processed", time: "1 hour ago", unread: false, type: 'system' as const },
+    { id: 3, sender: "Jean P.", preview: "Could you record the graduation message by tomorrow?", time: "3 hours ago", unread: true, type: 'customer' as const },
+  ],
+  contentLibrary: [
+    { id: 1, name: "Birthday Template v2.mp4", type: 'video' as const, size: "25.4 MB", lastModified: "2 days ago", tags: ["birthday", "template"] },
+    { id: 2, name: "Graduation Script.txt", type: 'script' as const, size: "2.1 KB", lastModified: "1 week ago", tags: ["graduation", "script"] },
+    { id: 3, name: "Anniversary Background.jpg", type: 'template' as const, size: "1.8 MB", lastModified: "3 days ago", tags: ["anniversary", "background"] },
+  ],
+  audienceInsights: [
+    { metric: "Avg Age", value: "28-34", change: 2, trend: 'up' as const },
+    { metric: "Repeat Rate", value: "45%", change: 8, trend: 'up' as const },
+    { metric: "Booking Time", value: "2.3 days", change: -5, trend: 'down' as const },
+    { metric: "Satisfaction", value: "94%", change: 1, trend: 'stable' as const },
+  ],
+  revenueOptimizations: [
+    { strategy: "Increase price for rush orders", impact: "+$300/month", difficulty: 'easy' as const, description: "Add 50% surcharge for requests due within 24 hours" },
+    { strategy: "Offer package deals", impact: "+$500/month", difficulty: 'medium' as const, description: "Bundle multiple videos at discounted rate" },
+    { strategy: "Premium tier pricing", impact: "+$800/month", difficulty: 'hard' as const, description: "Create VIP service with faster delivery" },
+  ],
+  growthRecommendations: [
+    { title: "Optimize your response time", priority: 'high' as const, category: 'efficiency' as const, description: "Reduce average response time from 24hr to 12hr to increase bookings", expectedImpact: "+20% conversion rate" },
+    { title: "Expand to wedding category", priority: 'medium' as const, category: 'content' as const, description: "High demand category with 40% higher average price", expectedImpact: "+$400/month potential" },
+    { title: "Social media promotion", priority: 'medium' as const, category: 'marketing' as const, description: "Share success stories and behind-the-scenes content", expectedImpact: "+15% organic bookings" },
+  ]
 }
 
-const recentRequests = [
-  {
-    id: 1,
-    customer: "Marie L.",
-    occasion: "Birthday",
-    recipient: "Sarah",
-    message: "Happy birthday message for my daughter Sarah who just turned 16...",
-    price: 85,
-    requestedDate: "2024-01-15",
-    dueDate: "2024-01-17",
-    status: "pending",
+// Dashboard translations
+const dashboardTranslations: Record<string, Record<string, string>> = {
+  welcome: {
+    en: "Welcome back",
+    fr: "Bon retour",
+    ht: "Byenveni ankò"
   },
-  {
-    id: 2,
-    customer: "Jean P.",
-    occasion: "Graduation",
-    recipient: "Marcus",
-    message: "Congratulations message for graduating from university...",
-    price: 85,
-    requestedDate: "2024-01-14",
-    dueDate: "2024-01-16",
-    status: "pending",
+  dashboard_subtitle: {
+    en: "Here's what's happening with your account today",
+    fr: "Voici ce qui se passe avec votre compte aujourd'hui",
+    ht: "Men sa k ap pase ak kont ou jodi a"
   },
-  {
-    id: 3,
-    customer: "Pierre M.",
-    occasion: "Anniversary",
-    recipient: "Lisa & David",
-    message: "5th wedding anniversary wishes for a lovely couple...",
-    price: 85,
-    requestedDate: "2024-01-13",
-    dueDate: "2024-01-15",
-    status: "completed",
+  total_earnings: {
+    en: "Total Earnings",
+    fr: "Revenus totaux",
+    ht: "Total kòb ou fè"
   },
-]
+  pending_requests: {
+    en: "Pending Requests",
+    fr: "Demandes en attente",
+    ht: "Demann k ap tann"
+  },
+  videos_completed: {
+    en: "Videos Completed",
+    fr: "Vidéos complétées",
+    ht: "Videyo ki fini"
+  },
+  average_rating: {
+    en: "Average Rating",
+    fr: "Note moyenne",
+    ht: "Nòt mwayèn"
+  },
+  response_time: {
+    en: "Response Time",
+    fr: "Temps de réponse",
+    ht: "Tan repons"
+  },
+  today_earnings: {
+    en: "Today's Earnings",
+    fr: "Revenus d'aujourd'hui",
+    ht: "Kòb jodi a"
+  },
+  this_week: {
+    en: "This Week",
+    fr: "Cette semaine",
+    ht: "Semèn sa a"
+  },
+  this_month: {
+    en: "This Month",
+    fr: "Ce mois",
+    ht: "Mwa sa a"
+  },
+  completion_rate: {
+    en: "Completion Rate",
+    fr: "Taux de complétion",
+    ht: "To konplesyon"
+  },
+  customer_satisfaction: {
+    en: "Customer Satisfaction",
+    fr: "Satisfaction client",
+    ht: "Satisfaksyon kliyan"
+  }
+}
 
 export default function CreatorDashboard() {
+  const { language } = useLanguage()
+  const [currentWorkflowStage, setCurrentWorkflowStage] = useState('review')
+  
+  // Get translated text
+  const t = (key: string) => {
+    return dashboardTranslations[key]?.[language] || dashboardTranslations[key]?.en || key
+  }
+  
+  // Determine emotional journey stage based on stats
+  const emotionalStage = useMemo((): EmotionalStage => {
+    const { stats } = dashboardData
+    if (stats.accountAge < 7) return 'onboarding'
+    if (stats.completedVideos === 0) return 'first-request'
+    if (stats.pendingRequests > 10) return 'busy'
+    if (stats.completedVideos > 100 && stats.monthlyEarnings > 2000) return 'success'
+    if (stats.completedVideos > 50 && stats.monthlyEarnings < 500) return 'plateau'
+    return 'growing'
+  }, [])
+
+  const handleStageAction = (stageId: string) => {
+    console.log('Stage action:', stageId)
+  }
+
+  const handleJourneyAction = (action: string) => {
+    console.log('Journey action:', action)
+  }
+
+  const handleAcceptRequest = (id: number) => {
+    console.log('Accept request:', id)
+  }
+
+  const handleDeclineRequest = (id: number) => {
+    console.log('Decline request:', id)
+  }
+
+  const handleRecordVideo = (id: number) => {
+    console.log('Record video for request:', id)
+  }
+
+  const handleViewAllRequests = () => {
+    console.log('View all requests')
+  }
+
+  const handleSendMessage = (message: string) => {
+    console.log('Send message:', message)
+  }
+
+  const handleBulkAction = (action: string, items: number[]) => {
+    console.log('Bulk action:', action, items)
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                <span>🎤</span>
-                <span>Ann Pale</span>
-              </Link>
-              <Badge variant="secondary">Creator Dashboard</Badge>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
+    <TooltipProvider>
+      <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
+        {/* Welcome Section with Breadcrumb */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Ti Jo!</h1>
-          <p className="text-gray-600">Here's what's happening with your account today.</p>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {t('welcome')}, {dashboardData.creator.name}!
+            </h1>
+            <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              {dashboardData.creator.level}
+            </Badge>
+          </div>
+          <p className="text-gray-600">{t('dashboard_subtitle')}</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Earnings</p>
-                  <p className="text-2xl font-bold text-gray-900">${mockStats.totalEarnings}</p>
+        {/* Key Metrics Grid - Responsive with auto-fit */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+          {/* Today's Earnings */}
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('today_earnings')}</p>
+                <p className="text-2xl font-bold text-gray-900">${dashboardData.stats.todayEarnings}</p>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                  <span className="text-sm text-green-600">+{dashboardData.stats.weekGrowth}%</span>
+                  <span className="text-xs text-gray-500 ml-1">{t('this_week')}</span>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
               </div>
-            </CardContent>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                  <p className="text-2xl font-bold text-gray-900">{mockStats.pendingRequests}</p>
+          {/* Pending Requests */}
+          <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('pending_requests')}</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.pendingRequests}</p>
+                <div className="flex items-center mt-2">
+                  <AlertCircle className="h-4 w-4 text-orange-600 mr-1" />
+                  <span className="text-sm text-orange-600">3 urgent</span>
                 </div>
-                <Clock className="h-8 w-8 text-orange-600" />
               </div>
-            </CardContent>
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Videos Completed</p>
-                  <p className="text-2xl font-bold text-gray-900">{mockStats.completedVideos}</p>
+          {/* Completion Rate */}
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('completion_rate')}</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.completionRate}%</p>
+                <div className="flex items-center mt-2">
+                  <Activity className="h-4 w-4 text-blue-600 mr-1" />
+                  <span className="text-sm text-gray-500">Excellent</span>
                 </div>
-                <Video className="h-8 w-8 text-blue-600" />
               </div>
-            </CardContent>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Target className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Average Rating</p>
-                  <p className="text-2xl font-bold text-gray-900">{mockStats.averageRating}</p>
-                </div>
-                <Star className="h-8 w-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Recent Requests */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Recent Requests</CardTitle>
-                <Button asChild>
-                  <Link href="/creator/requests">View All</Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentRequests.map((request) => (
-                    <div key={request.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-semibold">
-                            {request.occasion} for {request.recipient}
-                          </h3>
-                          <Badge variant={request.status === "pending" ? "default" : "secondary"}>
-                            {request.status}
-                          </Badge>
-                        </div>
-                        <span className="font-bold text-green-600">${request.price}</span>
-                      </div>
-                      <p className="text-gray-600 text-sm mb-2">From: {request.customer}</p>
-                      <p className="text-gray-700 text-sm mb-3">{request.message}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>Requested: {request.requestedDate}</span>
-                        <span>Due: {request.dueDate}</span>
-                      </div>
-                      {request.status === "pending" && (
-                        <div className="flex space-x-2 mt-3">
-                          <Button size="sm" asChild>
-                            <Link href={`/creator/upload?request=${request.id}`}>
-                              <Upload className="h-4 w-4 mr-1" />
-                              Record Video
-                            </Link>
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                            Message Customer
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+          {/* Average Rating */}
+          <Card className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('average_rating')}</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.averageRating}</p>
+                <div className="flex items-center mt-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-3 w-3 ${
+                        i < Math.floor(dashboardData.stats.averageRating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                    />
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Star className="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
+          </Card>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full" asChild>
-                  <Link href="/creator/requests">
-                    <Clock className="h-4 w-4 mr-2" />
-                    View Pending Requests
-                  </Link>
-                </Button>
-                <Button className="w-full bg-transparent" variant="outline" asChild>
-                  <Link href="/creator/upload">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Video
-                  </Link>
-                </Button>
-                <Button className="w-full bg-transparent" variant="outline" asChild>
-                  <Link href="/creator/profile">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Performance */}
-            <Card>
-              <CardHeader>
-                <CardTitle>This Month</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Earnings</span>
-                    <span className="font-semibold text-green-600">${mockStats.thisMonthEarnings}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Videos Created</span>
-                    <span className="font-semibold">12</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Response Time</span>
-                    <span className="font-semibold">{mockStats.responseTime}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Rating</span>
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-semibold">{mockStats.averageRating}</span>
-                    </div>
-                  </div>
+          {/* Customer Satisfaction */}
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('customer_satisfaction')}</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.customerSatisfaction}%</p>
+                <div className="flex items-center mt-2">
+                  <Users className="h-4 w-4 text-purple-600 mr-1" />
+                  <span className="text-sm text-purple-600">+{dashboardData.stats.monthGrowth}%</span>
+                  <span className="text-xs text-gray-500 ml-1">{t('this_month')}</span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <BarChart3 className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </Card>
+        </div>
 
-            {/* Tips */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Creator Tips</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <p className="font-medium text-blue-900">💡 Quick Response</p>
-                    <p className="text-blue-800">Respond to requests within 24 hours to maintain high ratings!</p>
-                  </div>
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <p className="font-medium text-green-900">🎯 Personal Touch</p>
-                    <p className="text-green-800">Use the customer's name and specific details for better reviews.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Level 1: Immediate Status (Above fold) - Fixed padding */}
+        <section className="mb-8">
+          <ImmediateStatus
+            pendingRequests={dashboardData.pendingRequests}
+            todayEarnings={dashboardData.stats.todayEarnings}
+            urgentDeadlines={dashboardData.pendingRequests.filter(r => r.isUrgent).length}
+            onAccept={handleAcceptRequest}
+            onDecline={handleDeclineRequest}
+            onRecord={handleRecordVideo}
+            onViewAll={handleViewAllRequests}
+          />
+        </section>
+
+        {/* Level 2: Performance Overview - Fixed chart spacing */}
+        <section className="mb-8">
+          <PerformanceOverview
+            weeklyEarnings={dashboardData.weeklyEarnings}
+            completionRate={dashboardData.stats.completionRate}
+            ratingTrend={0.2}
+            averageRating={dashboardData.stats.averageRating}
+            topVideos={dashboardData.topVideos}
+            totalViews={15420}
+            repeatCustomers={45}
+            onViewAnalytics={() => console.log('View analytics')}
+          />
+        </section>
+
+        {/* Workflow & Journey Grid - Responsive grid with minmax */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Workflow Stages - Fixed progress indicators */}
+          <WorkflowStages 
+            currentStage={currentWorkflowStage}
+            pendingRequests={dashboardData.stats.pendingRequests}
+            todayEarnings={dashboardData.stats.todayEarnings}
+            onStageAction={handleStageAction}
+          />
+          
+          {/* Right Column Grid */}
+          <div className="grid grid-cols-1 gap-6">
+            <EmotionalJourney 
+              stage={emotionalStage}
+              stats={dashboardData.stats}
+              onAction={handleJourneyAction}
+            />
+            <CreatorPersona stats={dashboardData.stats} />
           </div>
         </div>
+
+        {/* Level 3: Management Tools - Fixed action button alignment */}
+        <section className="mb-8">
+          <ManagementTools
+            todayEvents={dashboardData.todayEvents}
+            recentMessages={dashboardData.recentMessages}
+            contentLibrary={dashboardData.contentLibrary}
+            onScheduleEvent={() => console.log('Schedule event')}
+            onSendMessage={handleSendMessage}
+            onBulkAction={handleBulkAction}
+          />
+        </section>
+
+        {/* Level 4: Insights & Growth */}
+        <section>
+          <InsightsGrowth
+            audienceInsights={dashboardData.audienceInsights}
+            revenueOptimizations={dashboardData.revenueOptimizations}
+            growthRecommendations={dashboardData.growthRecommendations}
+            marketTrends={{
+              demandScore: 78,
+              competitionLevel: 'Medium',
+              trendingCategories: ['Birthday', 'Graduation', 'Holiday Greetings']
+            }}
+            onImplementRecommendation={(id) => console.log('Implement:', id)}
+            onViewDetailedReport={() => console.log('View detailed report')}
+          />
+        </section>
       </div>
-    </div>
+    </TooltipProvider>
   )
 }

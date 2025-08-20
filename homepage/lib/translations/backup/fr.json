@@ -1,0 +1,373 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "view": "Voir",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "share": "Partager",
+    "copy": "Copier",
+    "copied": "Copié!",
+    "required": "Requis",
+    "optional": "Optionnel"
+  },
+  "nav": {
+    "welcome": "Bienvenue à Ann Pale",
+    "browse": "Parcourir",
+    "categories": "Catégories",
+    "howItWorks": "Comment ça marche",
+    "forBusiness": "Pour les entreprises",
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "logout": "Se déconnecter",
+    "profile": "Profil",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "help": "Aide",
+    "about": "À propos",
+    "contact": "Contact",
+    "blog": "Blog",
+    "careers": "Carrières",
+    "press": "Presse",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Politique de cookies"
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous à votre compte",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié?",
+      "submit": "Se connecter",
+      "noAccount": "Vous n'avez pas de compte?",
+      "signupLink": "S'inscrire",
+      "orContinueWith": "Ou continuer avec",
+      "errors": {
+        "invalidCredentials": "E-mail ou mot de passe invalide",
+        "accountLocked": "Le compte est verrouillé. Veuillez contacter le support.",
+        "tooManyAttempts": "Trop de tentatives de connexion. Veuillez réessayer plus tard."
+      }
+    },
+    "signup": {
+      "title": "Créez votre compte",
+      "subtitle": "Rejoignez la communauté Ann Pale",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "accountType": "Type de compte",
+      "fan": "Fan",
+      "creator": "Créateur",
+      "agreeToTerms": "J'accepte les conditions d'utilisation et la politique de confidentialité",
+      "submit": "Créer un compte",
+      "haveAccount": "Vous avez déjà un compte?",
+      "loginLink": "Se connecter",
+      "step1": "Informations personnelles",
+      "step2": "Type de compte",
+      "step3": "Vérification",
+      "errors": {
+        "emailExists": "Un compte avec cet e-mail existe déjà",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordTooWeak": "Le mot de passe est trop faible",
+        "invalidEmail": "Veuillez entrer une adresse e-mail valide"
+      }
+    },
+    "passwordReset": {
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Entrez votre e-mail pour recevoir les instructions",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien",
+      "backToLogin": "Retour à la connexion",
+      "success": "Vérifiez votre e-mail pour les instructions",
+      "newPassword": "Nouveau mot de passe",
+      "confirmNewPassword": "Confirmer le nouveau mot de passe",
+      "resetSubmit": "Réinitialiser le mot de passe"
+    },
+    "errors": {
+      "emailRequired": "L'e-mail est requis",
+      "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "demo": {
+      "title": "Comptes de démonstration"
+    },
+    "socialProof": "Rejoignez plus de 10 000 utilisateurs satisfaits",
+    "trust": {
+      "secure": "Sécurisé et crypté",
+      "users": "Fait confiance par des milliers",
+      "rating": "Note moyenne de 4,9/5",
+      "verified": "Créateurs vérifiés"
+    },
+    "security": {
+      "badge": "Cryptage SSL 256 bits"
+    },
+    "testimonials": {
+      "quote1": "Ann Pale m'a aidé à contacter mon artiste préféré pour l'anniversaire de ma fille!",
+      "role1": "Client satisfait",
+      "quote2": "La plateforme est facile à utiliser et les créateurs sont incroyables!",
+      "role2": "Organisateur d'événements",
+      "quote3": "J'adore pouvoir surprendre ma famille avec des messages personnalisés.",
+      "role3": "Donneur de cadeaux"
+    },
+    "providers": {
+      "google": "Google",
+      "facebook": "Facebook",
+      "apple": "Apple"
+    },
+    "passwordStrength": {
+      "weak": "Mot de passe faible",
+      "medium": "Force moyenne",
+      "strong": "Mot de passe fort",
+      "requirements": {
+        "length": "Au moins 8 caractères",
+        "uppercase": "Une lettre majuscule",
+        "lowercase": "Une lettre minuscule",
+        "number": "Un chiffre",
+        "special": "Un caractère spécial"
+      }
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Obtenez des vidéos personnalisées de vos créateurs haïtiens préférés",
+      "subtitle": "Réservez des messages vidéo personnalisés pour les anniversaires, les célébrations, ou juste pour faire sourire quelqu'un",
+      "cta": "Parcourir les créateurs",
+      "searchPlaceholder": "Rechercher des créateurs..."
+    },
+    "featured": {
+      "title": "Créateurs en vedette",
+      "viewAll": "Voir tout",
+      "verified": "Vérifié"
+    },
+    "categories": {
+      "title": "Parcourir par catégorie",
+      "music": "Musiciens",
+      "musicDesc": "Kompa, rap et plus",
+      "comedy": "Comédiens",
+      "comedyDesc": "Rire garanti",
+      "actors": "Acteurs",
+      "actorsDesc": "Stars du cinéma et de la télé",
+      "sports": "Athlètes",
+      "sportsDesc": "Héros du sport",
+      "influencers": "Influenceurs",
+      "influencersDesc": "Stars des réseaux sociaux",
+      "artists": "Artistes",
+      "artistsDesc": "Artistes visuels",
+      "radio": "Animateurs radio",
+      "radioDesc": "Voix d'Haïti",
+      "activists": "Activistes",
+      "activistsDesc": "Agents de changement",
+      "creatorsCount": "créateurs"
+    },
+    "howItWorks": {
+      "title": "Comment fonctionne Ann Pale",
+      "step1Title": "Parcourir et réserver",
+      "step1Desc": "Trouvez votre créateur haïtien préféré et réservez une vidéo personnalisée",
+      "step2Title": "Recevoir la vidéo",
+      "step2Desc": "Obtenez votre message vidéo personnalisé dans les 7 jours",
+      "step3Title": "Faire sourire quelqu'un",
+      "step3Desc": "Partagez la vidéo et créez des moments inoubliables"
+    },
+    "testimonials": {
+      "title": "Ce que les gens disent"
+    },
+    "socialProof": {
+      "title": "Ce que dit notre communauté",
+      "subtitle": "Rejoignez des milliers de fans et de créateurs qui se connectent grâce à des vidéos personnalisées"
+    },
+    "cta": {
+      "title": "Prêt à commencer?",
+      "subtitle": "Rejoignez des milliers de clients satisfaits",
+      "browseCreators": "Parcourir les créateurs",
+      "becomeCreator": "Devenir créateur"
+    }
+  },
+  "browse": {
+    "title": "Parcourir les créateurs",
+    "searchPlaceholder": "Rechercher par nom ou catégorie...",
+    "filters": {
+      "title": "Filtres",
+      "category": "Catégorie",
+      "priceRange": "Gamme de prix",
+      "responseTime": "Temps de réponse",
+      "rating": "Évaluation",
+      "language": "Langue",
+      "clear": "Effacer les filtres",
+      "apply": "Appliquer les filtres"
+    },
+    "sort": {
+      "popular": "Plus populaire",
+      "priceAsc": "Prix: Bas à Élevé",
+      "priceDesc": "Prix: Élevé à Bas",
+      "rating": "Mieux noté",
+      "newest": "Plus récent"
+    },
+    "results": {
+      "showing": "Affichage",
+      "of": "de",
+      "results": "résultats",
+      "noResults": "Aucun créateur trouvé",
+      "tryAdjusting": "Essayez d'ajuster vos filtres"
+    },
+    "creator": {
+      "responseTime": "Temps de réponse",
+      "reviews": "avis",
+      "starting": "À partir de",
+      "book": "Réserver maintenant"
+    }
+  },
+  "creator": {
+    "profile": {
+      "verified": "Créateur vérifié",
+      "responseTime": "Répond généralement en",
+      "languages": "Langues",
+      "memberSince": "Membre depuis",
+      "videosCompleted": "Vidéos complétées",
+      "rating": "évaluation",
+      "reviews": "avis",
+      "bio": "À propos",
+      "services": "Services",
+      "samples": "Exemples de vidéos",
+      "bookNow": "Réserver maintenant",
+      "share": "Partager le profil",
+      "favorite": "Ajouter aux favoris"
+    },
+    "booking": {
+      "title": "Réserver une vidéo de",
+      "selectOccasion": "Sélectionner l'occasion",
+      "writeMessage": "Écrire votre message",
+      "deliveryOptions": "Options de livraison",
+      "review": "Réviser et payer",
+      "occasions": {
+        "birthday": "Anniversaire",
+        "anniversary": "Anniversaire de mariage",
+        "congratulations": "Félicitations",
+        "getWell": "Bon rétablissement",
+        "roast": "Rôtir",
+        "pepTalk": "Encouragement",
+        "other": "Autre"
+      },
+      "messageDetails": {
+        "forWho": "Pour qui est-ce?",
+        "fromWho": "De qui?",
+        "pronouns": "Leurs pronoms",
+        "instructions": "Instructions pour le créateur",
+        "charactersRemaining": "caractères restants"
+      },
+      "delivery": {
+        "standard": "Livraison standard (7 jours)",
+        "express": "Livraison express (24 heures)",
+        "scheduled": "Planifier pour plus tard",
+        "makePublic": "Permettre au créateur d'utiliser cette vidéo publiquement"
+      },
+      "payment": {
+        "summary": "Résumé de la commande",
+        "videoMessage": "Message vidéo",
+        "delivery": "Livraison",
+        "serviceFee": "Frais de service",
+        "total": "Total",
+        "promoCode": "Code promo",
+        "apply": "Appliquer"
+      }
+    },
+    "dashboard": {
+      "title": "Tableau de bord créateur",
+      "welcome": "Bon retour",
+      "today": "Aujourd'hui",
+      "thisWeek": "Cette semaine",
+      "thisMonth": "Ce mois",
+      "stats": {
+        "pendingRequests": "Demandes en attente",
+        "completedVideos": "Vidéos complétées",
+        "totalEarnings": "Revenus totaux",
+        "averageRating": "Note moyenne"
+      },
+      "menu": {
+        "overview": "Aperçu",
+        "requests": "Demandes",
+        "analytics": "Analytique",
+        "content": "Contenu",
+        "finances": "Finances",
+        "settings": "Paramètres"
+      }
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Tableau de bord administrateur",
+      "systemHealth": "Santé du système",
+      "activeUsers": "Utilisateurs actifs",
+      "revenue": "Revenus",
+      "issues": "Problèmes ouverts"
+    }
+  },
+  "footer": {
+    "company": "Entreprise",
+    "about": "À propos de nous",
+    "careers": "Carrières",
+    "press": "Presse",
+    "blog": "Blog",
+    "support": "Support",
+    "helpCenter": "Centre d'aide",
+    "safety": "Sécurité",
+    "community": "Directives communautaires",
+    "contact": "Contact",
+    "legal": "Légal",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Politique de cookies",
+    "copyright": "© 2024 Ann Pale. Tous droits réservés."
+  },
+  "errors": {
+    "404": {
+      "title": "Page non trouvée",
+      "heading": "404",
+      "message": "Désolé, nous n'avons pas trouvé la page que vous recherchez. Elle a peut-être été déplacée ou n'existe pas.",
+      "action": "Aller à l'accueil",
+      "browseCreators": "Parcourir les créateurs",
+      "getHelp": "Obtenir de l'aide"
+    },
+    "500": {
+      "title": "Quelque chose s'est mal passé!",
+      "message": "Nous avons rencontré une erreur inattendue. Veuillez réessayer ou contacter le support si le problème persiste.",
+      "action": "Réessayer",
+      "goHome": "Aller à l'accueil",
+      "errorDetails": "Détails de l'erreur (développement uniquement)"
+    },
+    "offline": {
+      "title": "Vous êtes hors ligne",
+      "message": "Veuillez vérifier votre connexion Internet et réessayer."
+    },
+    "unauthorized": {
+      "title": "Accès non autorisé",
+      "message": "Vous n'avez pas la permission d'accéder à cette page.",
+      "action": "Retourner"
+    },
+    "forbidden": {
+      "title": "Accès interdit",
+      "message": "Ce contenu est restreint.",
+      "action": "Retour à l'accueil"
+    }
+  }
+}

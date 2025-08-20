@@ -1,0 +1,317 @@
+"use client"
+
+import { ReactNode, useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
+import {
+  Home,
+  Heart,
+  Video,
+  Phone,
+  Radio,
+  Package,
+  MessageSquare,
+  CreditCard,
+  Settings,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  HelpCircle,
+  Bell,
+  Calendar,
+  Star,
+  Clock,
+  TrendingUp,
+  Sparkles
+} from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
+
+interface CustomerLayoutProps {
+  children: ReactNode
+}
+
+const navigation = [
+  { name: "Dashboard", href: "/customer/dashboard", icon: Home, helpKey: "dashboard_help" },
+  { name: "Favorites", href: "/customer/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
+  { name: "Bookings", href: "/customer/bookings", icon: Video, helpKey: "bookings_help" },
+  { name: "Video Calls", href: "/customer/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
+  { name: "Live Streams", href: "/customer/livestreams", icon: Radio, helpKey: "livestreams_help" },
+  { name: "Orders", href: "/customer/orders", icon: Package, helpKey: "orders_help" },
+  { name: "Messages", href: "/customer/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
+  { name: "Settings", href: "/customer/settings", icon: Settings, helpKey: "settings_help" },
+]
+
+// Help tooltips in multiple languages
+const helpTooltips: Record<string, Record<string, string>> = {
+  dashboard_help: {
+    en: "View your activity overview and upcoming events",
+    fr: "Consultez votre aperçu d'activité et événements à venir",
+    ht: "Gade rezime aktivite ou ak evènman k ap vini yo"
+  },
+  favorites_help: {
+    en: "Manage your favorite creators and get notified of their activities",
+    fr: "Gérez vos créateurs favoris et soyez notifié de leurs activités",
+    ht: "Jere kreyatè pi renmen ou yo epi resevwa notifikasyon sou aktivite yo"
+  },
+  bookings_help: {
+    en: "View and manage your video message bookings",
+    fr: "Consultez et gérez vos réservations de messages vidéo",
+    ht: "Gade ak jere rezèvasyon mesaj videyo ou yo"
+  },
+  calls_help: {
+    en: "Schedule and join video calls with creators",
+    fr: "Planifiez et rejoignez des appels vidéo avec les créateurs",
+    ht: "Pwograme epi rantre nan apèl videyo ak kreyatè yo"
+  },
+  livestreams_help: {
+    en: "Browse and watch live streams from your favorite creators",
+    fr: "Parcourez et regardez les diffusions en direct de vos créateurs préférés",
+    ht: "Navige epi gade emisyon an dirèk kreyatè ou renmen yo"
+  },
+  orders_help: {
+    en: "Track your order history and download videos",
+    fr: "Suivez votre historique de commandes et téléchargez des vidéos",
+    ht: "Swiv istwa kòmand ou epi telechaje videyo"
+  },
+  messages_help: {
+    en: "Communicate with creators about your bookings",
+    fr: "Communiquez avec les créateurs à propos de vos réservations",
+    ht: "Kominike ak kreyatè yo sou rezèvasyon ou yo"
+  },
+  settings_help: {
+    en: "Configure your account preferences and notifications",
+    fr: "Configurez vos préférences de compte et notifications",
+    ht: "Konfigire preferans kont ou ak notifikasyon"
+  }
+}
+
+export default function CustomerLayout({ children }: CustomerLayoutProps) {
+  const pathname = usePathname()
+  const { language } = useLanguage()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  const getHelpText = (helpKey: string) => {
+    return helpTooltips[helpKey]?.[language] || helpTooltips[helpKey]?.en || ""
+  }
+
+  return (
+    <TooltipProvider>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+        <div className="flex relative">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden fixed top-4 left-4 z-50 bg-white shadow-md hover:shadow-lg transition-all"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+
+          {/* Sidebar Overlay for Mobile */}
+          {isSidebarOpen && (
+            <div
+              className="lg:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
+          {/* Sidebar */}
+          <aside 
+            className={cn(
+              "bg-white shadow-lg min-h-screen transition-all duration-300 z-40",
+              // Mobile styles
+              "fixed lg:sticky top-0",
+              isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+              // Desktop styles
+              isSidebarCollapsed ? "lg:w-20" : "lg:w-64"
+            )}
+          >
+            {/* Sidebar Header */}
+            <div className={cn(
+              "p-6 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50",
+              isSidebarCollapsed && "lg:p-4"
+            )}>
+              {!isSidebarCollapsed && (
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50" />
+                    <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
+                      <Sparkles className="h-5 w-5 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      My Dashboard
+                    </h2>
+                    <p className="text-xs text-gray-600">Customer Portal</p>
+                  </div>
+                </div>
+              )}
+              {isSidebarCollapsed && (
+                <div className="mx-auto bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+              )}
+              
+              {/* Desktop Collapse Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden lg:flex hover:bg-white/50"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              >
+                {isSidebarCollapsed ? (
+                  <ChevronRight className="h-4 w-4" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            {/* Navigation */}
+            <nav className="px-4 py-6 space-y-1">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+                
+                return (
+                  <Tooltip key={item.name} delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group relative",
+                          isActive
+                            ? "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 shadow-sm"
+                            : "text-gray-700 hover:bg-gray-100 hover:text-purple-600",
+                          isSidebarCollapsed && "lg:justify-center lg:px-3"
+                        )}
+                      >
+                        <item.icon className={cn(
+                          "h-5 w-5 flex-shrink-0",
+                          isActive && "text-purple-600"
+                        )} />
+                        
+                        {!isSidebarCollapsed && (
+                          <>
+                            <span className="flex-1">{item.name}</span>
+                            
+                            {/* Badge */}
+                            {item.badge && (
+                              <Badge 
+                                variant={item.badge === "New" ? "default" : "secondary"}
+                                className={cn(
+                                  "ml-auto",
+                                  item.badge === "New" && "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                                )}
+                              >
+                                {item.badge}
+                              </Badge>
+                            )}
+                            
+                            {/* Help Icon with Tooltip */}
+                            <Tooltip delayDuration={0}>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 opacity-0 group-hover:opacity-50 transition-opacity" />
+                              </TooltipTrigger>
+                              <TooltipContent side="right" className="max-w-xs">
+                                <p className="text-sm">{getHelpText(item.helpKey)}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
+                        
+                        {/* Active Indicator */}
+                        {isActive && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-600 to-pink-600 rounded-r-full" />
+                        )}
+                      </Link>
+                    </TooltipTrigger>
+                    
+                    {/* Tooltip for collapsed sidebar */}
+                    {isSidebarCollapsed && (
+                      <TooltipContent side="right">
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          {item.badge && (
+                            <Badge variant="secondary" className="mt-1">
+                              {item.badge}
+                            </Badge>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1">
+                            {getHelpText(item.helpKey)}
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                )
+              })}
+            </nav>
+
+            {/* Quick Stats (Desktop Only) */}
+            {!isSidebarCollapsed && (
+              <div className="hidden lg:block px-6 py-4 border-t border-gray-200">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      Next Call
+                    </span>
+                    <span className="font-semibold text-purple-600">2:00 PM</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Video className="h-4 w-4" />
+                      Pending Videos
+                    </span>
+                    <span className="font-semibold text-orange-600">3</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Radio className="h-4 w-4" />
+                      Live Now
+                    </span>
+                    <span className="font-semibold text-green-600">12</span>
+                  </div>
+                </div>
+
+                {/* Notification Bell */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Notifications
+                    <Badge variant="secondary" className="ml-2 bg-white text-purple-600">
+                      8
+                    </Badge>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </aside>
+
+          {/* Main Content */}
+          <main className={cn(
+            "flex-1 min-h-screen",
+            "lg:ml-0", // Remove margin since sidebar is sticky
+            "pt-16 lg:pt-0" // Add padding top for mobile menu button
+          )}>
+            {children}
+          </main>
+        </div>
+      </div>
+    </TooltipProvider>
+  )
+}

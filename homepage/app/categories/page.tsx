@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import { Header } from "@/components/layouts/header"
 
 const categories = [
   {
@@ -63,40 +64,9 @@ const categories = [
 
 export default function CategoriesPage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                <span>🎤</span>
-                <span>Ann Pale</span>
-              </Link>
-              <nav className="hidden md:flex items-center space-x-6">
-                <Link href="/browse" className="text-gray-600 hover:text-gray-900">
-                  Browse
-                </Link>
-                <Link href="/categories" className="text-purple-600 font-medium">
-                  Categories
-                </Link>
-                <Link href="/how-it-works" className="text-gray-600 hover:text-gray-900">
-                  How it works
-                </Link>
-              </nav>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-gray-600" asChild>
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700" asChild>
-                <Link href="/signup">Sign up</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div>
+      <Header />  
+      <div className="min-h-screen bg-white">
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
@@ -152,6 +122,7 @@ export default function CategoriesPage() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }

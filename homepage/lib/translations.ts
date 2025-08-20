@@ -291,11 +291,78 @@ export const translations = {
     fr: "Tous droits réservés",
     ht: "Tout dwa yo rezève",
   },
+  noCreatorsFound: {
+    en: "No creators found",
+    fr: "Aucun créateur trouvé",
+    ht: "Pa gen kreyatè yo jwenn",
+  },
+  tryAdjustingFilters: {
+    en: "Try adjusting your filters or search",
+    fr: "Essayez d'ajuster vos filtres ou votre recherche",
+    ht: "Eseye ajiste filtè ou rechèch ou",
+  },
+  clearFilters: {
+    en: "Clear all filters",
+    fr: "Effacer tous les filtres",
+    ht: "Efase tout filtè yo",
+  },
+  showing: {
+    en: "Showing",
+    fr: "Affichage de",
+    ht: "Montre",
+  },
+  results: {
+    en: "results",
+    fr: "résultats",
+    ht: "rezilta",
+  },
+  sortPopular: {
+    en: "Most Popular",
+    fr: "Plus populaire",
+    ht: "Pi popilè",
+  },
+  sortPriceAsc: {
+    en: "Price: Low to High",
+    fr: "Prix: Bas à Élevé",
+    ht: "Pri: Ba a Wo",
+  },
+  sortPriceDesc: {
+    en: "Price: High to Low",
+    fr: "Prix: Élevé à Bas",
+    ht: "Pri: Wo a Ba",
+  },
+  sortRating: {
+    en: "Highest Rated",
+    fr: "Mieux notés",
+    ht: "Pi wo evalye",
+  },
+  sortNewest: {
+    en: "Newest",
+    fr: "Plus récents",
+    ht: "Pi nouvo",
+  },
+  creatorNotFound: {
+    en: "Creator not found",
+    fr: "Créateur non trouvé",
+    ht: "Kreyatè pa jwenn",
+  },
 }
 
 export type Language = "en" | "fr" | "ht"
 export type TranslationKey = keyof typeof translations
 
 export function getTranslation(key: TranslationKey, language: Language): string {
-  return translations[key][language] || translations[key].en
+  // Check if the key exists in translations
+  if (!translations[key]) {
+    console.warn(`Translation key '${key}' not found`)
+    return key.toString()
+  }
+  
+  // Check if the language exists for this key
+  if (!translations[key][language]) {
+    console.warn(`Translation for key '${key}' not found in language '${language}', falling back to English`)
+    return translations[key].en || key.toString()
+  }
+  
+  return translations[key][language]
 }

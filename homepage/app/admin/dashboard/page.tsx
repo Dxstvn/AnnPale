@@ -1,5 +1,7 @@
 "use client"
 
+import { AdminLayout } from "@/components/admin/admin-layout"
+import { AuthGuard } from "@/components/auth/auth-guard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -33,6 +35,7 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
+import { AvatarWithFallback, CreatorAvatar } from "@/components/ui/avatar-with-fallback"
 
 const dashboardStats = {
   totalUsers: 12450,
@@ -215,7 +218,7 @@ const topCreators = [
   },
 ]
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedCreator, setSelectedCreator] = useState<any>(null)
@@ -281,85 +284,84 @@ export default function AdminDashboard() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                <span>🎤</span>
-                <span>Ann Pale</span>
-              </Link>
-              <Badge variant="destructive">Admin Dashboard</Badge>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage your platform, creators, and orders from here.</p>
-        </div>
+    <>
+      {/* Welcome Section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+        <p className="text-gray-600">Manage your platform, creators, and orders from here.</p>
+      </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Users</p>
-                  <p className="text-2xl font-bold text-gray-900">{dashboardStats.totalUsers.toLocaleString()}</p>
-                </div>
-                <Users className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">${dashboardStats.totalRevenue.toLocaleString()}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Creators</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {creators.filter((c) => c.status === "active").length}
+                  <p className="text-sm font-medium text-blue-700">Total Users</p>
+                  <p className="text-3xl font-bold text-blue-900">{dashboardStats.totalUsers.toLocaleString()}</p>
+                  <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    +{dashboardStats.monthlyGrowth}% this month
                   </p>
                 </div>
-                <Video className="h-8 w-8 text-purple-600" />
+                <div className="h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-all">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Videos Created</p>
-                  <p className="text-2xl font-bold text-gray-900">{dashboardStats.totalVideos.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-green-700">Total Revenue</p>
+                  <p className="text-3xl font-bold text-green-900">${dashboardStats.totalRevenue.toLocaleString()}</p>
+                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    +22% from last month
+                  </p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-orange-600" />
+                <div className="h-12 w-12 bg-green-600 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-all">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700">Active Creators</p>
+                  <p className="text-3xl font-bold text-purple-900">
+                    {creators.filter((c) => c.status === "active").length}
+                  </p>
+                  <p className="text-xs text-purple-600 mt-2">
+                    <span className="text-orange-600 font-semibold">{creators.filter((c) => c.status === "pending").length}</span> pending approval
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                  <Video className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-xl transition-all">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-orange-700">Videos Created</p>
+                  <p className="text-3xl font-bold text-orange-900">{dashboardStats.totalVideos.toLocaleString()}</p>
+                  <p className="text-xs text-orange-600 mt-2 flex items-center gap-1">
+                    <Star className="h-3 w-3" />
+                    {dashboardStats.averageRating} avg rating
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -378,10 +380,15 @@ export default function AdminDashboard() {
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Recent Orders */}
               <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Recent Orders</CardTitle>
-                    <Button variant="outline" onClick={() => setStatusFilter("all")}>
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all">
+                  <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                        <DollarSign className="h-4 w-4 text-white" />
+                      </div>
+                      Recent Orders
+                    </CardTitle>
+                    <Button variant="outline" size="sm" className="bg-white" onClick={() => setStatusFilter("all")}>
                       View All
                     </Button>
                   </CardHeader>
@@ -410,10 +417,12 @@ export default function AdminDashboard() {
               {/* Sidebar */}
               <div className="space-y-6">
                 {/* Pending Approvals */}
-                <Card>
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-yellow-50 hover:shadow-xl transition-all">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <AlertTriangle className="h-5 w-5 text-orange-600" />
+                      <div className="h-8 w-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                        <AlertTriangle className="h-4 w-4 text-white" />
+                      </div>
                       <span>Pending Approvals</span>
                     </CardTitle>
                   </CardHeader>
@@ -453,9 +462,14 @@ export default function AdminDashboard() {
                 </Card>
 
                 {/* Top Performers */}
-                <Card>
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-all">
                   <CardHeader>
-                    <CardTitle>Top Creators This Month</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="h-8 w-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                        <Star className="h-4 w-4 text-white" />
+                      </div>
+                      Top Creators This Month
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -464,12 +478,11 @@ export default function AdminDashboard() {
                           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-600 text-sm font-bold">
                             {index + 1}
                           </div>
-                          <Image
-                            src={creator.image || "/placeholder.svg"}
-                            alt={creator.name}
-                            width={40}
-                            height={40}
-                            className="rounded-full"
+                          <CreatorAvatar
+                            src={creator.image}
+                            name={creator.name}
+                            size="sm"
+                            verified={creator.verified}
                           />
                           <div className="flex-1">
                             <p className="font-semibold text-sm">{creator.name}</p>
@@ -663,12 +676,11 @@ export default function AdminDashboard() {
                     <div key={creator.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <Image
-                            src={creator.image || "/placeholder.svg"}
-                            alt={creator.name}
-                            width={60}
-                            height={60}
-                            className="rounded-full"
+                          <CreatorAvatar
+                            src={creator.image}
+                            name={creator.name}
+                            size="lg"
+                            verified={creator.verified}
                           />
                           <div>
                             <div className="flex items-center space-x-2 mb-1">
@@ -852,7 +864,6 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
 
       {/* Creator Details Dialog */}
       <Dialog open={isCreatorDialogOpen} onOpenChange={setIsCreatorDialogOpen}>
@@ -863,12 +874,11 @@ export default function AdminDashboard() {
           {selectedCreator && (
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
-                <Image
-                  src={selectedCreator.image || "/placeholder.svg"}
-                  alt={selectedCreator.name}
-                  width={80}
-                  height={80}
-                  className="rounded-full"
+                <CreatorAvatar
+                  src={selectedCreator.image}
+                  name={selectedCreator.name}
+                  size="xl"
+                  verified={selectedCreator.verified}
                 />
                 <div>
                   <h3 className="text-xl font-semibold">{selectedCreator.stageName}</h3>
@@ -1024,6 +1034,16 @@ export default function AdminDashboard() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
+  )
+}
+
+export default function AdminDashboard() {
+  return (
+    <AuthGuard requireAuth requireRole="admin">
+      <AdminLayout>
+        <AdminDashboardContent />
+      </AdminLayout>
+    </AuthGuard>
   )
 }

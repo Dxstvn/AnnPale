@@ -1,0 +1,614 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "required": "Required",
+    "optional": "Optional",
+    "navigation": {
+      "home": "Home",
+      "browse": "Browse",
+      "how_it_works": "How It Works",
+      "for_creators": "For Creators",
+      "help": "Help",
+      "sign_in": "Sign In",
+      "sign_out": "Sign Out",
+      "my_account": "My Account",
+      "dashboard": "Dashboard",
+      "settings": "Settings"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "share": "Share",
+      "copy": "Copy",
+      "download": "Download",
+      "upload": "Upload",
+      "refresh": "Refresh",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "close": "Close",
+      "confirm": "Confirm",
+      "submit": "Submit"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing...",
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "info": "Info",
+      "pending": "Pending",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "time": {
+      "just_now": "Just now",
+      "minutes_ago": "{count} minutes ago",
+      "hours_ago": "{count} hours ago",
+      "days_ago": "{count} days ago",
+      "weeks_ago": "{count} weeks ago",
+      "months_ago": "{count} months ago",
+      "years_ago": "{count} years ago"
+    }
+  },
+  "nav": {
+    "welcome": "Welcome to Ann Pale",
+    "browse": "Browse",
+    "categories": "Categories",
+    "howItWorks": "How it works",
+    "forBusiness": "For Business",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "profile": "Profile",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "help": "Help",
+    "about": "About",
+    "contact": "Contact",
+    "blog": "Blog",
+    "careers": "Careers",
+    "press": "Press",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Log in to your account",
+      "email": "Email",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "orContinueWith": "Or continue with",
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "accountLocked": "Account is locked. Please contact support.",
+        "tooManyAttempts": "Too many login attempts. Please try again later."
+      },
+      "welcome_back": "Welcome Back",
+      "sign_in_account": "Sign in to your Ann Pale account",
+      "remember_me": "Remember me",
+      "forgot_password": "Forgot password?",
+      "sign_in": "Sign In",
+      "no_account": "Don't have an account?",
+      "sign_up": "Sign up",
+      "or_continue_with": "Or continue with",
+      "demo_accounts": "Demo Accounts",
+      "try_demo": "Try the platform with these demo accounts",
+      "use_demo": "Use Demo"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Join the Ann Pale community",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "accountType": "Account type",
+      "fan": "Fan",
+      "creator": "Creator",
+      "agreeToTerms": "I agree to the Terms of Service and Privacy Policy",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "step1": "Personal Information",
+      "step2": "Account Type",
+      "step3": "Verification",
+      "errors": {
+        "emailExists": "An account with this email already exists",
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooWeak": "Password is too weak",
+        "invalidEmail": "Please enter a valid email address"
+      },
+      "join_ann_pale": "Join Ann Pale",
+      "create_account": "Create your account",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "confirm_password": "Confirm Password",
+      "account_type": "Account Type",
+      "customer": "Customer",
+      "agree_terms": "I agree to the Terms of Service and Privacy Policy",
+      "create": "Create Account",
+      "have_account": "Already have an account?",
+      "log_in": "Log in"
+    },
+    "passwordReset": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email to receive reset instructions",
+      "email": "Email address",
+      "submit": "Send reset link",
+      "backToLogin": "Back to login",
+      "success": "Check your email for reset instructions",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "resetSubmit": "Reset password"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "generic": "An error occurred. Please try again."
+    },
+    "demo": {
+      "title": "Demo Accounts"
+    },
+    "socialProof": "Join 10,000+ happy users",
+    "trust": {
+      "secure": "Secure & Encrypted",
+      "users": "Trusted by thousands",
+      "rating": "4.9/5 average rating",
+      "verified": "Verified creators"
+    },
+    "security": {
+      "badge": "256-bit SSL Encryption"
+    },
+    "testimonials": {
+      "quote1": "Ann Pale helped me connect with my favorite artist for my daughter's birthday!",
+      "role1": "Happy Customer",
+      "quote2": "The platform is easy to use and the creators are amazing!",
+      "role2": "Event Planner",
+      "quote3": "I love being able to surprise my family with personalized messages.",
+      "role3": "Gift Giver"
+    },
+    "providers": {
+      "google": "Google",
+      "facebook": "Facebook",
+      "apple": "Apple"
+    },
+    "passwordStrength": {
+      "weak": "Weak password",
+      "medium": "Medium strength",
+      "strong": "Strong password",
+      "requirements": {
+        "length": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "number": "One number",
+        "special": "One special character"
+      }
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Get personalized videos from your favorite Haitian creators",
+      "subtitle": "Book custom video messages for birthdays, celebrations, or just to make someone smile",
+      "cta": "Browse creators",
+      "searchPlaceholder": "Search creators..."
+    },
+    "featured": {
+      "title": "Featured Creators",
+      "viewAll": "View all",
+      "verified": "Verified"
+    },
+    "categories": {
+      "title": "Browse by category",
+      "music": "Musicians",
+      "musicDesc": "Kompa, rap, and more",
+      "comedy": "Comedians",
+      "comedyDesc": "Laughter guaranteed",
+      "actors": "Actors",
+      "actorsDesc": "Film & TV stars",
+      "sports": "Athletes",
+      "sportsDesc": "Sports heroes",
+      "influencers": "Influencers",
+      "influencersDesc": "Social media stars",
+      "artists": "Artists",
+      "artistsDesc": "Visual artists",
+      "radio": "Radio Hosts",
+      "radioDesc": "Voice of Haiti",
+      "activists": "Activists",
+      "activistsDesc": "Change makers",
+      "creatorsCount": "creators"
+    },
+    "howItWorks": {
+      "title": "How Ann Pale Works",
+      "step1Title": "Browse & Book",
+      "step1Desc": "Find your favorite Haitian creator and book a personalized video",
+      "step2Title": "Receive Video",
+      "step2Desc": "Get your custom video message within 7 days",
+      "step3Title": "Make Someone Smile",
+      "step3Desc": "Share the video and create unforgettable moments"
+    },
+    "testimonials": {
+      "title": "What people are saying"
+    },
+    "socialProof": {
+      "title": "What Our Community Says",
+      "subtitle": "Join thousands of happy fans and creators connecting through personalized videos"
+    },
+    "cta": {
+      "title": "Ready to get started?",
+      "subtitle": "Join thousands of happy customers",
+      "browseCreators": "Browse creators",
+      "becomeCreator": "Become a creator"
+    }
+  },
+  "browse": {
+    "title": "Browse Creators",
+    "searchPlaceholder": "Search by name or category...",
+    "filters": {
+      "title": "Filters",
+      "category": "Category",
+      "priceRange": "Price Range",
+      "responseTime": "Response Time",
+      "rating": "Rating",
+      "language": "Language",
+      "clear": "Clear filters",
+      "apply": "Apply filters",
+      "all_categories": "All Categories",
+      "price_range": "Price Range",
+      "under_50": "Under $50",
+      "50_to_100": "$50 - $100",
+      "100_to_200": "$100 - $200",
+      "over_200": "Over $200",
+      "response_time": "Response Time",
+      "within_24_hours": "Within 24 hours",
+      "within_2_days": "Within 2 days",
+      "within_7_days": "Within 7 days",
+      "4_stars_up": "4+ Stars",
+      "availability": "Availability",
+      "available_now": "Available Now",
+      "clear_all": "Clear All"
+    },
+    "sort": {
+      "popular": "Most Popular",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "rating": "Highest Rated",
+      "newest": "Newest",
+      "sort_by": "Sort by",
+      "most_popular": "Most Popular",
+      "price_low_high": "Price: Low to High",
+      "price_high_low": "Price: High to Low",
+      "highest_rated": "Highest Rated",
+      "fastest_response": "Fastest Response"
+    },
+    "results": {
+      "showing": "Showing",
+      "of": "of",
+      "results": "results",
+      "noResults": "No creators found",
+      "tryAdjusting": "Try adjusting your filters",
+      "showing_results": "Showing {count} results",
+      "no_results": "No creators found",
+      "try_different": "Try adjusting your filters or search terms"
+    },
+    "creator": {
+      "responseTime": "Response time",
+      "reviews": "reviews",
+      "starting": "Starting at",
+      "book": "Book now"
+    }
+  },
+  "creator": {
+    "profile": {
+      "verified": "Verified Creator",
+      "responseTime": "Typically responds in",
+      "languages": "Languages",
+      "memberSince": "Member since",
+      "videosCompleted": "Videos completed",
+      "rating": "rating",
+      "reviews": "Reviews",
+      "bio": "About",
+      "services": "Services",
+      "samples": "Sample Videos",
+      "bookNow": "Book Now",
+      "share": "Share Profile",
+      "favorite": "Add to Favorites",
+      "about": "About",
+      "videos": "Videos",
+      "occasions": "Occasions",
+      "response_time": "Typically responds in",
+      "member_since": "Member since",
+      "videos_completed": "Videos completed",
+      "languages_spoken": "Languages spoken",
+      "share_profile": "Share Profile",
+      "add_to_favorites": "Add to Favorites",
+      "report": "Report"
+    },
+    "booking": {
+      "title": "Book a Video from",
+      "selectOccasion": "Select Occasion",
+      "writeMessage": "Write Your Message",
+      "deliveryOptions": "Delivery Options",
+      "review": "Review & Pay",
+      "occasions": {
+        "birthday": "Birthday",
+        "anniversary": "Anniversary",
+        "congratulations": "Congratulations",
+        "getWell": "Get Well",
+        "roast": "Roast",
+        "pepTalk": "Pep Talk",
+        "other": "Other"
+      },
+      "messageDetails": {
+        "forWho": "Who is this for?",
+        "fromWho": "From who?",
+        "pronouns": "Their pronouns",
+        "instructions": "Instructions for creator",
+        "charactersRemaining": "characters remaining"
+      },
+      "delivery": {
+        "standard": "Standard Delivery (7 days)",
+        "express": "Express Delivery (24 hours)",
+        "scheduled": "Schedule for later",
+        "makePublic": "Allow creator to use this video publicly"
+      },
+      "payment": {
+        "summary": "Order Summary",
+        "videoMessage": "Video Message",
+        "delivery": "Delivery",
+        "serviceFee": "Service Fee",
+        "total": "Total",
+        "promoCode": "Promo Code",
+        "apply": "Apply"
+      }
+    },
+    "dashboard": {
+      "title": "Creator Dashboard",
+      "welcome": "Welcome back",
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "stats": {
+        "pendingRequests": "Pending Requests",
+        "completedVideos": "Completed Videos",
+        "totalEarnings": "Total Earnings",
+        "averageRating": "Average Rating"
+      },
+      "menu": {
+        "overview": "Overview",
+        "requests": "Requests",
+        "analytics": "Analytics",
+        "content": "Content",
+        "finances": "Finances",
+        "settings": "Settings"
+      },
+      "welcome_back": "Welcome back",
+      "pending_requests": "Pending Requests",
+      "completed_today": "Completed Today",
+      "earnings_this_week": "Earnings This Week",
+      "average_rating": "Average Rating",
+      "new_requests": "New Requests",
+      "in_progress": "In Progress",
+      "ready_for_review": "Ready for Review"
+    },
+    "stats": {
+      "total_earnings": "Total Earnings",
+      "total_videos": "Total Videos",
+      "response_rate": "Response Rate",
+      "completion_rate": "Completion Rate",
+      "average_delivery": "Average Delivery Time"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "systemHealth": "System Health",
+      "activeUsers": "Active Users",
+      "revenue": "Revenue",
+      "issues": "Open Issues"
+    }
+  },
+  "footer": {
+    "company": {
+      "0": "C",
+      "1": "o",
+      "2": "m",
+      "3": "p",
+      "4": "a",
+      "5": "n",
+      "6": "y",
+      "about_us": "About Us",
+      "careers": "Careers",
+      "press": "Press",
+      "blog": "Blog",
+      "contact": "Contact"
+    },
+    "about": "About Us",
+    "careers": "Careers",
+    "press": "Press",
+    "blog": "Blog",
+    "support": {
+      "0": "S",
+      "1": "u",
+      "2": "p",
+      "3": "p",
+      "4": "o",
+      "5": "r",
+      "6": "t",
+      "help_center": "Help Center",
+      "safety": "Safety",
+      "community_guidelines": "Community Guidelines",
+      "creator_resources": "Creator Resources"
+    },
+    "helpCenter": "Help Center",
+    "safety": "Safety",
+    "community": "Community Guidelines",
+    "contact": "Contact",
+    "legal": {
+      "0": "L",
+      "1": "e",
+      "2": "g",
+      "3": "a",
+      "4": "l",
+      "terms_of_service": "Terms of Service",
+      "privacy_policy": "Privacy Policy",
+      "cookie_policy": "Cookie Policy",
+      "dmca": "DMCA"
+    },
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "copyright": "© 2024 Ann Pale. All rights reserved.",
+    "social": {
+      "follow_us": "Follow Us",
+      "newsletter": "Newsletter",
+      "stay_updated": "Stay updated with the latest news"
+    }
+  },
+  "errors": {
+    "404": {
+      "title": "Page not found",
+      "heading": "404",
+      "message": "Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist.",
+      "action": "Go to homepage",
+      "browseCreators": "Browse creators",
+      "getHelp": "Get help"
+    },
+    "500": {
+      "title": "Something went wrong!",
+      "message": "We encountered an unexpected error. Please try again or contact support if the problem persists.",
+      "action": "Try again",
+      "goHome": "Go to homepage",
+      "errorDetails": "Error details (development only)"
+    },
+    "offline": {
+      "title": "You're offline",
+      "message": "Please check your internet connection and try again."
+    },
+    "unauthorized": "You are not authorized to view this page",
+    "forbidden": "Access forbidden",
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "not_found": "Page not found",
+    "server_error": "Server error. Please try again later.",
+    "validation": {
+      "required": "This field is required",
+      "email_invalid": "Please enter a valid email address",
+      "password_weak": "Password must be at least 8 characters",
+      "passwords_mismatch": "Passwords do not match"
+    }
+  },
+  "homepage": {
+    "badges": {
+      "popular": "Popular",
+      "fast_response": "Fast Response",
+      "verified": "Verified",
+      "new": "New",
+      "trending": "Trending",
+      "online_now": "Online Now",
+      "available": "Available"
+    },
+    "buttons": {
+      "book_now": "Book Now",
+      "browse_creators": "Browse Creators",
+      "get_started": "Get Started",
+      "learn_more": "Learn More",
+      "view_all": "View All",
+      "see_more": "See More",
+      "contact": "Contact",
+      "send_message": "Send Message",
+      "quick_book": "Quick Book"
+    },
+    "featured_creators": {
+      "title": "Featured Creators",
+      "response_time": "Response time",
+      "languages": "languages",
+      "starting_at": "Starting at",
+      "per_video": "per video",
+      "hours": "hours",
+      "days": "days",
+      "videos_delivered": "videos delivered"
+    },
+    "search": {
+      "placeholder": "Search creators...",
+      "search_by_name": "Search by name or category",
+      "popular_searches": "Popular Searches",
+      "recent_searches": "Recent Searches",
+      "suggestions": "Suggestions"
+    }
+  },
+  "booking": {
+    "steps": {
+      "select_occasion": "Select Occasion",
+      "provide_details": "Provide Details",
+      "review_payment": "Review & Payment",
+      "confirmation": "Confirmation"
+    },
+    "occasions": {
+      "birthday": "Birthday",
+      "anniversary": "Anniversary",
+      "graduation": "Graduation",
+      "wedding": "Wedding",
+      "congratulations": "Congratulations",
+      "get_well": "Get Well",
+      "motivation": "Motivation",
+      "roast": "Roast",
+      "other": "Other"
+    },
+    "form": {
+      "who_is_this_for": "Who is this for?",
+      "their_name": "Their name",
+      "from_who": "From who?",
+      "your_name": "Your name",
+      "special_instructions": "Special instructions",
+      "make_it_public": "Allow creator to share this video publicly",
+      "delivery_date": "Delivery date",
+      "standard_delivery": "Standard Delivery (7 days)",
+      "express_delivery": "Express Delivery (24 hours)"
+    },
+    "payment": {
+      "order_summary": "Order Summary",
+      "video_message": "Video Message",
+      "service_fee": "Service Fee",
+      "delivery_fee": "Delivery Fee",
+      "total": "Total",
+      "apply_promo": "Apply Promo Code",
+      "secure_payment": "Secure Payment",
+      "money_back_guarantee": "Money Back Guarantee"
+    }
+  }
+}
