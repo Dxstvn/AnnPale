@@ -41,14 +41,14 @@ interface CustomerLayoutProps {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/customer/dashboard", icon: Home, helpKey: "dashboard_help" },
-  { name: "Favorites", href: "/customer/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
-  { name: "Bookings", href: "/customer/bookings", icon: Video, helpKey: "bookings_help" },
-  { name: "Video Calls", href: "/customer/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
-  { name: "Live Streams", href: "/customer/livestreams", icon: Radio, helpKey: "livestreams_help" },
-  { name: "Orders", href: "/customer/orders", icon: Package, helpKey: "orders_help" },
-  { name: "Messages", href: "/customer/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
-  { name: "Settings", href: "/customer/settings", icon: Settings, helpKey: "settings_help" },
+  { name: "Dashboard", href: "/fan/dashboard", icon: Home, helpKey: "dashboard_help" },
+  { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
+  { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
+  { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
+  { name: "Live Streams", href: "/fan/livestreams", icon: Radio, helpKey: "livestreams_help" },
+  { name: "Orders", href: "/fan/orders", icon: Package, helpKey: "orders_help" },
+  { name: "Messages", href: "/fan/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
+  { name: "Settings", href: "/fan/settings", icon: Settings, helpKey: "settings_help" },
 ]
 
 // Help tooltips in multiple languages

@@ -611,7 +611,7 @@ export default function CustomerDashboard() {
                       Upcoming Events
                     </span>
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href="/customer/bookings">
+                      <Link href="/fan/bookings">
                         View All
                         <ArrowRight className="h-4 w-4 ml-1" />
                       </Link>
@@ -686,7 +686,7 @@ export default function CustomerDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/customer/calls">
+                    <Link href="/fan/calls">
                       <Phone className="h-4 w-4 mr-2" />
                       Book Video Call
                     </Link>
@@ -698,13 +698,13 @@ export default function CustomerDashboard() {
                     </Link>
                   </Button>
                   <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/customer/livestreams">
+                    <Link href="/fan/livestreams">
                       <Radio className="h-4 w-4 mr-2" />
                       Browse Live Streams
                     </Link>
                   </Button>
                   <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/customer/favorites">
+                    <Link href="/fan/favorites">
                       <Heart className="h-4 w-4 mr-2" />
                       View Favorites
                     </Link>
@@ -751,7 +751,7 @@ export default function CustomerDashboard() {
                   Favorite Creators
                 </span>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href="/customer/favorites">
+                  <Link href="/fan/favorites">
                     View All
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Link>

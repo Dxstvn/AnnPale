@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ? '/creator/dashboard'
         : mockUser.role === 'admin'
         ? '/admin/dashboard' 
-        : '/customer/dashboard'
+        : '/fan/dashboard'
       
       console.log('Navigating to:', targetPath)
       
@@ -205,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (role === 'admin') {
         router.push('/admin/dashboard')
       } else {
-        router.push('/customer/dashboard')
+        router.push('/fan/dashboard')
       }
     } catch (error) {
       console.error('Signup failed:', error)

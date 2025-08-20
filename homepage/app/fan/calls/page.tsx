@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { VideoCallBooking } from "@/components/customer/video-call-booking"
+import { VideoCallBooking } from "@/components/fan/video-call-booking"
 import {
   Phone,
   Video,

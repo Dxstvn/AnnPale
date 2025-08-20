@@ -292,7 +292,7 @@ export default function CustomerFavoritesPage() {
                       variant="outline"
                       asChild
                     >
-                      <Link href={`/customer/calls?creator=${creator.id}`}>
+                      <Link href={`/fan/calls?creator=${creator.id}`}>
                         <Phone className="h-4 w-4 mr-1" />
                         Call
                       </Link>

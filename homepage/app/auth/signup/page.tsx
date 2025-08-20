@@ -50,12 +50,12 @@ const translations = {
     fr: "Type de compte",
     ht: "Kalite kont"
   },
-  customer: {
-    en: "Customer",
-    fr: "Client",
-    ht: "Kliyan"
+  fan: {
+    en: "Fan",
+    fr: "Fan",
+    ht: "Fanatik"
   },
-  customerDesc: {
+  fanDesc: {
     en: "Request personalized videos from creators",
     fr: "Demander des vidéos personnalisées aux créateurs",
     ht: "Mande videyo pèsonalize nan men kreyatè"
@@ -122,7 +122,7 @@ export default function SignUpPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    accountType: "customer" as "customer" | "creator",
+    accountType: "fan" as "fan" | "creator",
     agreeToTerms: false
   })
 
@@ -252,25 +252,25 @@ export default function SignUpPage() {
                 <Label>{t("accountType")}</Label>
                 <RadioGroup
                   value={formData.accountType}
-                  onValueChange={(value: "customer" | "creator") => 
+                  onValueChange={(value: "fan" | "creator") => 
                     setFormData({ ...formData, accountType: value })
                   }
                   disabled={isLoading}
                 >
                   <div className={cn(
                     "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
-                    formData.accountType === "customer" 
+                    formData.accountType === "fan" 
                       ? "border-purple-600 bg-purple-50" 
                       : "border-gray-200 hover:border-gray-300"
                   )}>
-                    <RadioGroupItem value="customer" id="customer" />
-                    <Label htmlFor="customer" className="cursor-pointer flex-1">
+                    <RadioGroupItem value="fan" id="fan" />
+                    <Label htmlFor="fan" className="cursor-pointer flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <User className="w-4 h-4" />
-                        <span className="font-medium">{t("customer")}</span>
+                        <span className="font-medium">{t("fan")}</span>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {t("customerDesc")}
+                        {t("fanDesc")}
                       </p>
                     </Label>
                   </div>
