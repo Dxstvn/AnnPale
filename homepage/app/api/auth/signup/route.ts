@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 const signupSchema = z.object({
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       type: 'magiclink',
       email: validatedData.email,
       options: {
-        redirectTo: `${process.env.FRONTEND_URL}/auth/callback`
+        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? 'http://localhost:3000' : 'https://ann-pale.vercel.app'}/auth/callback`
       }
     })
 
