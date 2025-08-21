@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 
 export function UserMenu() {
-  const { user, logout } = useAuth()
+  const { user, logout } = useSupabaseAuth()
   const router = useRouter()
 
   if (!user) return null

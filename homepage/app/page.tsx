@@ -4,6 +4,7 @@ import React, { Suspense, lazy } from 'react'
 import dynamic from 'next/dynamic'
 import { useLanguage } from '@/contexts/language-context'
 import { LandingHeader } from '@/components/layouts/landing-header'
+import { Footer } from '@/components/navigation/footer'
 
 // Eagerly load above-fold components
 import HeroSection from '@/components/homepage/hero-section'
@@ -120,6 +121,9 @@ export default function HomePage() {
           </section>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

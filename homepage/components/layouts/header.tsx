@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useLanguage } from "@/contexts/language-context"
-import { useAuth } from "@/contexts/auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/navigation/user-menu"
 import {
@@ -26,7 +26,7 @@ const languages: { code: Language; name: string; flag: string }[] = [
 
 export function Header() {
   const { language, setLanguage } = useLanguage()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useSupabaseAuth()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -112,7 +112,7 @@ export function Header() {
             <UserMenu />
           ) : (
             <>
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button 
                   variant="outline"
                   className="border-purple-200 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 hover:shadow-md hover:translate-y-[-2px] transition-all"
@@ -120,7 +120,7 @@ export function Header() {
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/signup">
+              <Link href="/signup">
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Join Now
@@ -296,7 +296,7 @@ export function Header() {
                 ) : (
                   <div className="space-y-3">
                     <Link
-                      href="/auth/login"
+                      href="/login"
                       onClick={() => setMobileMenuOpen(false)}
                       className="block"
                     >
@@ -308,7 +308,7 @@ export function Header() {
                       </Button>
                     </Link>
                     <Link
-                      href="/auth/signup"
+                      href="/signup"
                       onClick={() => setMobileMenuOpen(false)}
                       className="block"
                     >

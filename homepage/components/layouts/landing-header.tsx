@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useLanguage } from "@/contexts/language-context"
-import { useAuth } from "@/contexts/auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/navigation/user-menu"
 import {
@@ -26,7 +26,7 @@ const languages: { code: Language; name: string; flag: string }[] = [
 
 export function LandingHeader() {
   const { language, setLanguage } = useLanguage()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useSupabaseAuth()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 

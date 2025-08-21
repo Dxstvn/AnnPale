@@ -2,9 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+// Password must have: min 6 chars, 1 lowercase, 1 uppercase, 1 number, 1 symbol
+const passwordSchema = z.string()
+  .min(6, 'Password must be at least 6 characters')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number')
+  .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character')
+
 const signupSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: passwordSchema,
   name: z.string().min(2),
   role: z.enum(['fan', 'creator']),
   language: z.enum(['en', 'fr', 'ht']).optional().default('en')

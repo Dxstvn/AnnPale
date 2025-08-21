@@ -64,8 +64,8 @@ RETURNS TRIGGER AS $$
 DECLARE
   user_role user_role;
 BEGIN
-  -- Check if this is the admin email
-  IF NEW.email = 'jasmindustin@gmail.com' THEN
+  -- Check if this is an admin email
+  IF NEW.email IN ('jasmindustin@gmail.com', 'loicjasmin@gmail.com') THEN
     user_role := 'admin';
   ELSE
     -- Default to 'fan' role, will be updated during signup process

@@ -40,13 +40,13 @@ import {
   Award
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
-import { useAuth } from "@/contexts/auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { cn } from "@/lib/utils"
 import { Globe } from "lucide-react"
 
 export default function CustomerDashboard() {
   const { language } = useLanguage()
-  const { user } = useAuth()
+  const { user } = useSupabaseAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
