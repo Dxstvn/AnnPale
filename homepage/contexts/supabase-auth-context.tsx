@@ -150,20 +150,22 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
   const loginWithProvider = async (provider: 'google' | 'apple' | 'twitter') => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, email: '' })
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
       })
 
-      const data = await response.json()
-
-      if (data.url) {
-        // Redirect to OAuth provider
-        window.location.href = data.url
+      if (error) {
+        console.error('OAuth login error:', error)
+        throw error
       }
+
+      // The browser will be redirected to the OAuth provider
     } catch (error) {
       console.error('OAuth login error:', error)
+      throw error
     }
   }
 
