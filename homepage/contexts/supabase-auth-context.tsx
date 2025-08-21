@@ -150,10 +150,15 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
   const loginWithProvider = async (provider: 'google' | 'apple' | 'twitter') => {
     try {
+      // Use production URL in production, local in development
+      const redirectUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://www.annpale.com/auth/callback'
+        : `${window.location.origin}/auth/callback`
+        
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: redirectUrl
         }
       })
 
