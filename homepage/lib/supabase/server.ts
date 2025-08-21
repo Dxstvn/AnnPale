@@ -37,9 +37,25 @@ export async function createClient() {
 }
 
 // Admin client with service role for backend operations
+// TEMPORARILY DISABLED DUE TO KEY EXPOSURE - AWAITING ROTATION
+// Uncomment after getting new service role key from Supabase support
+/*
 export const supabaseAdmin = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+)
+*/
+
+// Temporary fallback - use anon key with limited permissions
+export const supabaseAdmin = createSupabaseClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   {
     auth: {
       autoRefreshToken: false,

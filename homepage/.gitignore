@@ -19,6 +19,10 @@ yarn-error.log*
 # env files
 .env*
 
+# backend env files (extra safety)
+../backend/.env*
+backend/.env*
+
 # vercel
 .vercel
 
