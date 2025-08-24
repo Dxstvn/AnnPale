@@ -92,7 +92,7 @@ export async function middleware(request: NextRequest) {
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
     
     // Log the profile fetch result
     console.log(`[Middleware] Profile fetch for ${user.id}: ${profile ? 'found' : 'not found'}, error: ${profileError?.message || 'none'}`)

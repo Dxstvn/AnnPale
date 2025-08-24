@@ -5,6 +5,7 @@ import "./globals.css"
 import { LanguageProvider } from "@/contexts/language-context"
 import { SupabaseAuthProvider } from "@/contexts/supabase-auth-context"
 import { Toaster } from "@/components/ui/toaster"
+import { ProfileRedirect } from "@/components/auth/profile-redirect"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <LanguageProvider>
           <SupabaseAuthProvider>
+            <ProfileRedirect />
             {children}
             <Toaster />
           </SupabaseAuthProvider>

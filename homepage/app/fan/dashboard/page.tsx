@@ -46,7 +46,7 @@ import { Globe } from "lucide-react"
 
 export default function CustomerDashboard() {
   const { language } = useLanguage()
-  const { user, isLoading } = useSupabaseAuth()
+  const { user, isLoading, isAuthenticated } = useSupabaseAuth()
   const [activeTab, setActiveTab] = useState("overview")
   
   // Show loading while checking auth
