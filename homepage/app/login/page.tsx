@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { useToast } from "@/components/ui/use-toast"
@@ -23,9 +23,36 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
-  const { login, loginWithProvider } = useSupabaseAuth()
+  const { login, loginWithProvider, isAuthenticated, user } = useSupabaseAuth()
   const { toast } = useToast()
   const router = useRouter()
+
+  // Check for OAuth errors in URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const error = params.get('error')
+    
+    if (error) {
+      toast({
+        title: "Authentication Error",
+        description: decodeURIComponent(error),
+        variant: "destructive",
+      })
+      // Clean up the URL
+      window.history.replaceState({}, document.title, '/login')
+    }
+  }, [toast])
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const redirectPath = 
+        user.role === 'admin' ? '/admin/dashboard' :
+        user.role === 'creator' ? '/creator/dashboard' :
+        '/fan/dashboard'
+      router.push(redirectPath)
+    }
+  }, [isAuthenticated, user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,7 +91,7 @@ export default function LoginPage() {
     } catch (error) {
       toast({
         title: "Login failed",
-        description: `Failed to login with ${provider}. Please try again.`,
+        description: `Failed to login with ${provider === 'twitter' ? 'X' : provider}. Please try again.`,
         variant: "destructive",
       })
       setOauthLoading(null)

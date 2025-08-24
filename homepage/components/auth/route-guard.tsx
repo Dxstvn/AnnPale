@@ -15,7 +15,7 @@ export function RouteGuard({
   children, 
   requireAuth = true,
   requireRole,
-  redirectTo = "/auth/login"
+  redirectTo = "/login"
 }: RouteGuardProps) {
   const router = useRouter()
   const pathname = usePathname()

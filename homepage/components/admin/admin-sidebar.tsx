@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
@@ -239,6 +240,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ userRole = "super_admin", userPermissions = [] }: AdminSidebarProps) {
   const pathname = usePathname()
+  const { logout } = useSupabaseAuth()
   const [expandedItems, setExpandedItems] = useState<string[]>(["Users", "Finance"])
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
@@ -338,9 +340,13 @@ export function AdminSidebar({ userRole = "super_admin", userPermissions = [] }:
         </div>
       </ScrollArea>
       <div className="border-t px-3 py-4">
-        <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={() => logout()}
+        >
           <LogOut className="mr-2 h-4 w-4" />
-          Logout
+          Sign Out
         </Button>
       </div>
     </>

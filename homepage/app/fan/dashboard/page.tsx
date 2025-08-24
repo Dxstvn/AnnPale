@@ -46,8 +46,26 @@ import { Globe } from "lucide-react"
 
 export default function CustomerDashboard() {
   const { language } = useLanguage()
-  const { user } = useSupabaseAuth()
+  const { user, isLoading } = useSupabaseAuth()
   const [activeTab, setActiveTab] = useState("overview")
+  
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    window.location.href = '/login'
+    return null
+  }
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("popular")

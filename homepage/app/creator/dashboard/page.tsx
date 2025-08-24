@@ -32,6 +32,7 @@ import { PerformanceOverview } from "@/components/creator/dashboard/PerformanceO
 import { ManagementTools } from "@/components/creator/dashboard/ManagementTools"
 import { InsightsGrowth } from "@/components/creator/dashboard/InsightsGrowth"
 import { useLanguage } from "@/contexts/language-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 
 // Comprehensive mock data structure
 const dashboardData = {
@@ -175,6 +176,7 @@ const dashboardTranslations: Record<string, Record<string, string>> = {
 
 export default function CreatorDashboard() {
   const { language } = useLanguage()
+  const { user, isLoading } = useSupabaseAuth()
   const [currentWorkflowStage, setCurrentWorkflowStage] = useState('review')
   
   // Get translated text

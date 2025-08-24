@@ -1,0 +1,305 @@
+"use client"
+
+import { useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Loader2 } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+
+export default function AuthCallbackPage() {
+  const [error, setError] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [isTimeout, setIsTimeout] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
+  const hasProcessed = useRef(false)
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout
+    
+    // Set a timeout to prevent infinite loading
+    timeout = setTimeout(() => {
+      if (!error && !isProcessing) {
+        console.error('Timeout reached after 30 seconds')
+        setIsTimeout(true)
+        setError('Authentication is taking too long. Please try again.')
+      }
+    }, 30000) // 30 second timeout (increased from 10)
+
+    const handleCallback = async () => {
+      // Prevent multiple executions (React StrictMode can cause double mount)
+      if (hasProcessed.current || isProcessing) {
+        console.log('Already processed or processing, skipping duplicate call')
+        return
+      }
+      hasProcessed.current = true
+      setIsProcessing(true)
+      console.log('Starting auth callback processing at:', new Date().toISOString())
+
+      try {
+        // First check if we already have a session (OAuth might have auto-completed)
+        const { data: { session: currentSession }, error: sessionCheckError } = await supabase.auth.getSession()
+        
+        console.log('Session check result:', { 
+          hasSession: !!currentSession, 
+          error: sessionCheckError?.message,
+          userId: currentSession?.user?.id,
+          email: currentSession?.user?.email 
+        })
+        
+        if (currentSession) {
+          console.log('Session already exists, skipping code exchange')
+          console.log('User authenticated:', currentSession.user.email)
+          
+          // Clear the timeout since we're done
+          clearTimeout(timeout)
+          
+          // Get user profile to determine redirect
+          console.log('Fetching profile for user:', currentSession.user.id)
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', currentSession.user.id)
+            .single()
+          
+          console.log('Profile fetch result:', { profile, error: profileError?.message })
+          
+          if (profileError) {
+            console.error('Profile fetch error:', profileError)
+            // If profile doesn't exist, create it
+            if (profileError.code === 'PGRST116') {
+              console.log('Profile not found, creating default profile...')
+              const { data: newProfile, error: createError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: currentSession.user.id,
+                  email: currentSession.user.email,
+                  name: currentSession.user.user_metadata?.full_name || 
+                        currentSession.user.user_metadata?.name || 
+                        currentSession.user.email?.split('@')[0] || 
+                        'User',
+                  role: 'fan',
+                  avatar_url: currentSession.user.user_metadata?.avatar_url || 
+                             currentSession.user.user_metadata?.picture || 
+                             null,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                })
+                .select('role')
+                .single()
+              
+              if (createError) {
+                console.error('Failed to create profile:', createError)
+                // Default to fan dashboard if profile creation fails
+                console.log('Defaulting to fan dashboard')
+                router.push('/fan/dashboard')
+                return
+              }
+              
+              console.log('Profile created:', newProfile)
+              profile = newProfile
+            } else {
+              // Other profile error, default to fan dashboard
+              console.log('Profile error, defaulting to fan dashboard')
+              router.push('/fan/dashboard')
+              return
+            }
+          }
+          
+          // Redirect based on role
+          const redirectPath = 
+            profile?.role === 'admin' ? '/admin/dashboard' :
+            profile?.role === 'creator' ? '/creator/dashboard' :
+            '/fan/dashboard'
+          
+          console.log('Redirecting to:', redirectPath)
+          router.push(redirectPath)
+          return
+        }
+
+        // Get parameters from URL
+        const searchParams = new URLSearchParams(window.location.search)
+        const errorParam = searchParams.get('error')
+        const errorDescription = searchParams.get('error_description')
+
+        if (errorParam) {
+          setError(errorDescription || errorParam)
+          return
+        }
+
+        // For PKCE flow, we need to check if there's a code in the URL
+        // and let Supabase handle the exchange automatically
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const code = searchParams.get('code') || hashParams.get('code')
+        
+        if (!code) {
+          setError('No authorization code received')
+          return
+        }
+
+        console.log('Code found in URL, attempting exchange...')
+        console.log('Starting exchange at:', new Date().toISOString())
+        
+        // For PKCE flow, Supabase needs to retrieve the code_verifier from storage
+        // The exchangeCodeForSession should be called without parameters for auto-detection
+        let { data, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
+        
+        console.log('Exchange completed at:', new Date().toISOString())
+        console.log('Exchange result - data:', data ? 'Present' : 'None', 'error:', sessionError?.message || 'None')
+        
+        if (sessionError) {
+          console.error('Session exchange error:', sessionError)
+          
+          // If it's an invalid grant error, the code might have been used
+          if (sessionError.message.includes('invalid_grant') || sessionError.message.includes('Authorization code')) {
+            // Check if we actually have a session already
+            console.log('Code might be expired/used, checking for existing session...')
+            const { data: { session: existingSession } } = await supabase.auth.getSession()
+            
+            if (existingSession) {
+              console.log('Found existing session, continuing with it')
+              // Create a data object with the existing session
+              data = { session: existingSession, user: existingSession.user }
+            } else {
+              clearTimeout(timeout)
+              setError('Authorization code has expired or already been used. Please try logging in again.')
+              return
+            }
+          } else {
+            clearTimeout(timeout)
+            setError(sessionError.message)
+            return
+          }
+        }
+
+        if (!data?.user) {
+          console.error('No user in session data')
+          setError('Failed to authenticate user')
+          return
+        }
+
+        console.log('User authenticated:', data.user.email)
+
+        // Wait a moment for the session to be established
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        // Get the current session to ensure we're authenticated
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          console.error('No session after exchange')
+          setError('Failed to establish session')
+          return
+        }
+
+        // Get user profile to determine role
+        let { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+
+        // If profile doesn't exist, create it for OAuth users
+        if (profileError && profileError.code === 'PGRST116') {
+          console.log('Profile not found, creating profile for OAuth user')
+          
+          // Extract user metadata from OAuth provider
+          const userMetadata = session.user.user_metadata
+          const name = userMetadata?.full_name || userMetadata?.name || session.user.email?.split('@')[0] || 'User'
+          
+          // Create profile with default role as 'fan'
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: session.user.id,
+              email: session.user.email,
+              name: name,
+              role: 'fan', // Default role for OAuth users
+              avatar_url: userMetadata?.avatar_url || userMetadata?.picture || null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .select('role')
+            .single()
+          
+          if (createError) {
+            console.error('Profile creation error:', createError)
+            setError('Failed to create user profile. Please try again.')
+            return
+          }
+          
+          profile = newProfile
+          console.log('Profile created successfully:', profile)
+        } else if (profileError) {
+          console.error('Profile fetch error:', profileError)
+        }
+
+        console.log('User profile:', profile)
+
+        // Redirect to success page which will handle role-based redirect
+        console.log('Authentication successful, redirecting to success page')
+        console.log('Profile role:', profile?.role)
+        clearTimeout(timeout) // Clear timeout before redirect
+        
+        // Redirect to success page
+        router.push('/auth/success')
+      } catch (err) {
+        console.error('Auth callback error:', err)
+        clearTimeout(timeout)
+        setError('An unexpected error occurred during authentication')
+      }
+    }
+
+    handleCallback()
+
+    // Cleanup timeout on unmount or when processing completes
+    return () => clearTimeout(timeout)
+  }, [router, supabase])
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="text-red-600">Authentication Error</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => router.push('/login')}
+                className="flex-1"
+                variant="default"
+              >
+                Back to Login
+              </Button>
+              <Button
+                onClick={() => router.push('/signup')}
+                className="flex-1"
+                variant="outline"
+              >
+                Sign Up
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <Card className="max-w-md w-full">
+        <CardHeader>
+          <CardTitle className="text-center">Completing Authentication</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600 mb-4" />
+          <p className="text-gray-600 text-center">
+            Please wait while we complete your sign in...
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

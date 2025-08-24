@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { 
@@ -32,7 +33,8 @@ import {
   Star,
   Clock,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  LogOut
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 
@@ -98,6 +100,7 @@ const helpTooltips: Record<string, Record<string, string>> = {
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
   const pathname = usePathname()
   const { language } = useLanguage()
+  const { logout } = useSupabaseAuth()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
@@ -300,6 +303,36 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                 </div>
               </div>
             )}
+
+            {/* Sign Out Button */}
+            <div className={cn(
+              "mt-auto border-t border-gray-200",
+              isSidebarCollapsed ? "p-2" : "p-4"
+            )}>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={async () => {
+                      setIsSidebarOpen(false)
+                      await logout()
+                    }}
+                    className={cn(
+                      "flex items-center gap-3 w-full rounded-lg text-sm font-medium transition-all",
+                      "text-red-600 hover:bg-red-50 hover:text-red-700",
+                      isSidebarCollapsed ? "justify-center p-3" : "px-4 py-3"
+                    )}
+                  >
+                    <LogOut className="h-5 w-5 flex-shrink-0" />
+                    {!isSidebarCollapsed && <span>Sign Out</span>}
+                  </button>
+                </TooltipTrigger>
+                {isSidebarCollapsed && (
+                  <TooltipContent side="right">
+                    <p>Sign Out</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </div>
           </aside>
 
           {/* Main Content */}

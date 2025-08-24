@@ -14,7 +14,14 @@ const updateProfileSchema = z.object({
 // GET /api/auth/profile - Get current user profile
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value
+    // Try to get token from Authorization header first (Bearer token)
+    const authHeader = request.headers.get('authorization')
+    let token = authHeader?.replace('Bearer ', '')
+    
+    // Fall back to cookie if no Authorization header
+    if (!token) {
+      token = request.cookies.get('auth-token')?.value
+    }
 
     if (!token) {
       return NextResponse.json(
@@ -62,7 +69,14 @@ export async function GET(request: NextRequest) {
 // PUT /api/auth/profile - Update current user profile
 export async function PUT(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value
+    // Try to get token from Authorization header first (Bearer token)
+    const authHeader = request.headers.get('authorization')
+    let token = authHeader?.replace('Bearer ', '')
+    
+    // Fall back to cookie if no Authorization header
+    if (!token) {
+      token = request.cookies.get('auth-token')?.value
+    }
 
     if (!token) {
       return NextResponse.json(

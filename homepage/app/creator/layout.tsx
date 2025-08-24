@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { 
@@ -107,6 +108,7 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { language } = useLanguage()
+  const { logout } = useSupabaseAuth()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
@@ -270,10 +272,9 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                   <button
-                    onClick={() => {
-                      // Navigate to homepage (simulating sign out)
-                      router.push('/')
+                    onClick={async () => {
                       setIsSidebarOpen(false)
+                      await logout()
                     }}
                     className={cn(
                       "flex items-center gap-3 w-full rounded-lg text-sm font-medium transition-all",
