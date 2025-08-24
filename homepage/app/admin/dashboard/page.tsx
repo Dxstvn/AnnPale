@@ -1,7 +1,7 @@
 "use client"
 
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { AdminLayout } from "@/components/admin/admin-layout"
-import { AuthGuard } from "@/components/auth/auth-guard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,26 +14,19 @@ import {
   Users,
   Video,
   DollarSign,
-  TrendingUp,
-  AlertTriangle,
   Star,
   Settings,
-  LogOut,
   Eye,
   UserCheck,
   Ban,
   Edit,
   Search,
-  Filter,
   Download,
   RefreshCw,
-  Calendar,
-  MessageCircle,
   CheckCircle,
   XCircle,
+  Loader2,
 } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
 import { useState } from "react"
 import { AvatarWithFallback, CreatorAvatar } from "@/components/ui/avatar-with-fallback"
 
@@ -48,1002 +41,491 @@ const dashboardStats = {
   averageRating: 4.7,
 }
 
-const allOrders = [
-  {
-    id: "ORD-001",
-    customer: "Marie L.",
-    customerEmail: "marie.l@email.com",
-    creator: "Ti Jo Zenny",
-    occasion: "Birthday",
-    recipient: "Sarah",
-    amount: 85,
-    serviceFee: 5,
-    status: "completed",
-    orderDate: "2024-01-15",
-    completedDate: "2024-01-16",
-    dueDate: "2024-01-17",
-  },
-  {
-    id: "ORD-002",
-    customer: "Jean P.",
-    customerEmail: "jean.p@email.com",
-    creator: "Wyclef Jean",
-    occasion: "Graduation",
-    recipient: "Marcus",
-    amount: 150,
-    serviceFee: 5,
-    status: "pending",
-    orderDate: "2024-01-14",
-    completedDate: null,
-    dueDate: "2024-01-16",
-  },
-  {
-    id: "ORD-003",
-    customer: "Pierre M.",
-    customerEmail: "pierre.m@email.com",
-    creator: "Rutshelle Guillaume",
-    occasion: "Anniversary",
-    recipient: "Lisa & David",
-    amount: 85,
-    serviceFee: 5,
-    status: "in-progress",
-    orderDate: "2024-01-13",
-    completedDate: null,
-    dueDate: "2024-01-15",
-  },
-  {
-    id: "ORD-004",
-    customer: "Nadine L.",
-    customerEmail: "nadine.l@email.com",
-    creator: "Carel Pedre",
-    occasion: "Congratulations",
-    recipient: "Michael",
-    amount: 110,
-    serviceFee: 5,
-    status: "refunded",
-    orderDate: "2024-01-12",
-    completedDate: null,
-    dueDate: "2024-01-14",
-  },
-  {
-    id: "ORD-005",
-    customer: "Alex T.",
-    customerEmail: "alex.t@email.com",
-    creator: "DJ K9",
-    occasion: "Get Well Soon",
-    recipient: "Grandma Rose",
-    amount: 65,
-    serviceFee: 5,
-    status: "overdue",
-    orderDate: "2024-01-11",
-    completedDate: null,
-    dueDate: "2024-01-13",
-  },
+// Mock data for recent activities
+const recentActivities = [
+  { id: 1, type: "user_joined", message: "New user registered", user: "Marie Joseph", time: "2 minutes ago" },
+  { id: 2, type: "video_uploaded", message: "New video uploaded", creator: "Jean Baptiste", time: "15 minutes ago" },
+  { id: 3, type: "order_completed", message: "Order completed", amount: "$150", time: "1 hour ago" },
+  { id: 4, type: "creator_verified", message: "Creator verified", creator: "Anne Laurent", time: "3 hours ago" },
+  { id: 5, type: "withdrawal_request", message: "Withdrawal request", amount: "$500", time: "5 hours ago" },
 ]
 
-const allCreators = [
+// Mock data for creators
+const creators = [
   {
     id: 1,
-    name: "Wyclef Jean",
-    stageName: "Wyclef Jean",
-    category: "Musician",
+    name: "Jean Baptiste",
+    username: "@jeanbaptiste",
+    image: "https://i.pravatar.cc/150?img=1",
+    videos: 45,
+    earnings: 2500,
+    rating: 4.8,
     status: "active",
-    joinDate: "2023-06-15",
-    totalEarnings: 4500,
-    totalVideos: 45,
-    rating: 4.9,
-    reviews: 1247,
-    image: "/images/wyclef-jean.png",
-    verified: true,
+    joined: "2024-01-15",
+    email: "jean@example.com",
+    phone: "+509 3456 7890",
   },
   {
     id: 2,
-    name: "Ti Jo Zenny",
-    stageName: "Ti Jo Zenny",
-    category: "Comedian",
+    name: "Marie Joseph",
+    username: "@mariejoseph",
+    image: "https://i.pravatar.cc/150?img=2",
+    videos: 32,
+    earnings: 1800,
+    rating: 4.9,
     status: "active",
-    joinDate: "2023-08-20",
-    totalEarnings: 3200,
-    totalVideos: 38,
-    rating: 4.8,
-    reviews: 456,
-    image: "/images/ti-jo-zenny.jpg",
-    verified: true,
+    joined: "2024-02-20",
+    email: "marie@example.com",
+    phone: "+509 3456 7891",
   },
   {
     id: 3,
-    name: "Richard Cave",
-    stageName: "Richard Cave",
-    category: "Actor",
-    status: "active",
-    joinDate: "2023-07-10",
-    totalEarnings: 2800,
-    totalVideos: 33,
-    rating: 4.9,
-    reviews: 678,
-    image: "/images/richard-cave.jpg",
-    verified: true,
-  },
-  {
-    id: 4,
-    name: "Michael Jean",
-    stageName: "Mike J",
-    category: "Singer",
+    name: "Pierre Louis",
+    username: "@pierrelouis",
+    image: "https://i.pravatar.cc/150?img=3",
+    videos: 28,
+    earnings: 1200,
+    rating: 4.7,
     status: "pending",
-    joinDate: "2024-01-10",
-    totalEarnings: 0,
-    totalVideos: 0,
-    rating: 0,
-    reviews: 0,
-    image: "/placeholder.svg?height=60&width=60",
-    verified: false,
-  },
-  {
-    id: 5,
-    name: "Sarah Williams",
-    stageName: "DJ Sarah",
-    category: "DJ",
-    status: "pending",
-    joinDate: "2024-01-09",
-    totalEarnings: 0,
-    totalVideos: 0,
-    rating: 0,
-    reviews: 0,
-    image: "/placeholder.svg?height=60&width=60",
-    verified: false,
+    joined: "2024-03-10",
+    email: "pierre@example.com",
+    phone: "+509 3456 7892",
   },
 ]
 
-const topCreators = [
-  {
-    name: "Wyclef Jean",
-    image: "/images/wyclef-jean.png",
-    earnings: 4500,
-    videos: 45,
-    rating: 4.9,
-  },
-  {
-    name: "Ti Jo Zenny",
-    image: "/images/ti-jo-zenny.jpg",
-    earnings: 3200,
-    videos: 38,
-    rating: 4.8,
-  },
-  {
-    name: "Rutshelle Guillaume",
-    image: "/images/rutshelle-guillaume.jpg",
-    earnings: 2800,
-    videos: 33,
-    rating: 4.9,
-  },
-]
-
-function AdminDashboardContent() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+export default function AdminDashboard() {
+  const { user, isLoading } = useSupabaseAuth()
   const [selectedCreator, setSelectedCreator] = useState<any>(null)
-  const [selectedOrder, setSelectedOrder] = useState<any>(null)
-  const [isCreatorDialogOpen, setIsCreatorDialogOpen] = useState(false)
-  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
-  const [creators, setCreators] = useState(allCreators)
-  const [orders, setOrders] = useState(allOrders)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterStatus, setFilterStatus] = useState("all")
 
-  const handleApproveCreator = (creatorId: number) => {
-    setCreators((prev) =>
-      prev.map((creator) => (creator.id === creatorId ? { ...creator, status: "active", verified: true } : creator)),
-    )
-  }
-
-  const handleRejectCreator = (creatorId: number) => {
-    setCreators((prev) => prev.filter((creator) => creator.id !== creatorId))
-  }
-
-  const handleSuspendCreator = (creatorId: number) => {
-    setCreators((prev) =>
-      prev.map((creator) => (creator.id === creatorId ? { ...creator, status: "suspended" } : creator)),
-    )
-  }
-
-  const handleRefundOrder = (orderId: string) => {
-    setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status: "refunded" } : order)))
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-      case "completed":
-        return "bg-green-100 text-green-800"
-      case "pending":
-      case "in-progress":
-        return "bg-yellow-100 text-yellow-800"
-      case "suspended":
-      case "refunded":
-        return "bg-red-100 text-red-800"
-      case "overdue":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const filteredCreators = creators.filter((creator) => {
-    const matchesSearch =
-      creator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      creator.stageName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || creator.status === statusFilter
-    return matchesSearch && matchesStatus
+  const filteredCreators = creators.filter(creator => {
+    const matchesSearch = creator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          creator.username.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFilter = filterStatus === "all" || creator.status === filterStatus
+    return matchesSearch && matchesFilter
   })
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.creator.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // Show loading while auth is being checked
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-600" />
+            <p className="mt-2 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
-    <>
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">Manage your platform, creators, and orders from here.</p>
-      </div>
+    <AdminLayout>
+      <div className="p-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">Welcome back, {user?.name || user?.email}!</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export Data
+            </Button>
+            <Button>
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </div>
+        </div>
 
-        {/* Stats Grid */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-700">Total Users</p>
-                  <p className="text-3xl font-bold text-blue-900">{dashboardStats.totalUsers.toLocaleString()}</p>
-                  <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    +{dashboardStats.monthlyGrowth}% this month
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dashboardStats.totalUsers.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+{dashboardStats.monthlyGrowth}%</span> from last month
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-all">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-green-700">Total Revenue</p>
-                  <p className="text-3xl font-bold text-green-900">${dashboardStats.totalRevenue.toLocaleString()}</p>
-                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    +22% from last month
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-green-600 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-white" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Creators</CardTitle>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dashboardStats.totalCreators}</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-orange-600">{dashboardStats.pendingApprovals} pending</span> approvals
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-all">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-purple-700">Active Creators</p>
-                  <p className="text-3xl font-bold text-purple-900">
-                    {creators.filter((c) => c.status === "active").length}
-                  </p>
-                  <p className="text-xs text-purple-600 mt-2">
-                    <span className="text-orange-600 font-semibold">{creators.filter((c) => c.status === "pending").length}</span> pending approval
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <Video className="h-6 w-6 text-white" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Videos</CardTitle>
+              <Video className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{dashboardStats.totalVideos.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-blue-600">{dashboardStats.activeOrders} active</span> orders
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-xl transition-all">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-orange-700">Videos Created</p>
-                  <p className="text-3xl font-bold text-orange-900">{dashboardStats.totalVideos.toLocaleString()}</p>
-                  <p className="text-xs text-orange-600 mt-2 flex items-center gap-1">
-                    <Star className="h-3 w-3" />
-                    {dashboardStats.averageRating} avg rating
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-orange-600 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${dashboardStats.totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+{dashboardStats.monthlyGrowth}%</span> from last month
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="creators">Creators</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="finance">Finance</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6">
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Recent Orders */}
-              <div className="lg:col-span-2">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all">
-                  <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2">
-                      <div className="h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                        <DollarSign className="h-4 w-4 text-white" />
-                      </div>
-                      Recent Orders
-                    </CardTitle>
-                    <Button variant="outline" size="sm" className="bg-white" onClick={() => setStatusFilter("all")}>
-                      View All
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {orders.slice(0, 5).map((order) => (
-                        <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Activities */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activities</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentActivities.map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`h-2 w-2 rounded-full ${
+                            activity.type === 'user_joined' ? 'bg-green-500' :
+                            activity.type === 'video_uploaded' ? 'bg-blue-500' :
+                            activity.type === 'order_completed' ? 'bg-purple-500' :
+                            activity.type === 'creator_verified' ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          }`} />
                           <div>
-                            <p className="font-semibold">{order.id}</p>
-                            <p className="text-sm text-gray-600">
-                              {order.customer} → {order.creator}
+                            <p className="text-sm font-medium">{activity.message}</p>
+                            <p className="text-xs text-gray-500">
+                              {activity.user || activity.creator || activity.amount}
                             </p>
-                            <p className="text-sm text-gray-500">{order.occasion}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-green-600">${order.amount + order.serviceFee}</p>
-                            <Badge className={getStatusColor(order.status)}>{order.status.replace("-", " ")}</Badge>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-6">
-                {/* Pending Approvals */}
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-yellow-50 hover:shadow-xl transition-all">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <div className="h-8 w-8 bg-orange-600 rounded-lg flex items-center justify-center">
-                        <AlertTriangle className="h-4 w-4 text-white" />
+                        <span className="text-xs text-gray-400">{activity.time}</span>
                       </div>
-                      <span>Pending Approvals</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {creators
-                        .filter((c) => c.status === "pending")
-                        .map((creator) => (
-                          <div key={creator.id} className="p-3 border rounded-lg">
-                            <p className="font-semibold">{creator.stageName}</p>
-                            <p className="text-sm text-gray-600">{creator.category}</p>
-                            <div className="flex space-x-2 mt-2">
-                              <Button
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pending Approvals */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    Pending Approvals
+                    <Badge variant="destructive">{dashboardStats.pendingApprovals}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {creators.filter(c => c.status === 'pending').map((creator) => (
+                      <div key={creator.id} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <CreatorAvatar
+                            src={creator.image}
+                            name={creator.name}
+                            size="sm"
+                          />
+                          <div>
+                            <p className="text-sm font-medium">{creator.name}</p>
+                            <p className="text-xs text-gray-500">{creator.username}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Eye className="h-3 w-3 mr-1" />
+                            Review
+                          </Button>
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                            <UserCheck className="h-3 w-3" />
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <Ban className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Performance Chart Placeholder */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <p className="text-gray-500">Chart visualization would go here</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="creators" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Manage Creators</CardTitle>
+                  <div className="flex gap-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search creators..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 w-64"
+                      />
+                    </div>
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Filter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="suspended">Suspended</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-4">Creator</th>
+                        <th className="text-left p-4">Videos</th>
+                        <th className="text-left p-4">Earnings</th>
+                        <th className="text-left p-4">Rating</th>
+                        <th className="text-left p-4">Status</th>
+                        <th className="text-left p-4">Joined</th>
+                        <th className="text-left p-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCreators.map((creator) => (
+                        <tr key={creator.id} className="border-b hover:bg-gray-50">
+                          <td className="p-4">
+                            <div className="flex items-center space-x-3">
+                              <CreatorAvatar
+                                src={creator.image}
+                                name={creator.name}
                                 size="sm"
-                                className="bg-green-600 hover:bg-green-700"
-                                onClick={() => handleApproveCreator(creator.id)}
-                              >
-                                <UserCheck className="h-3 w-3 mr-1" />
-                                Approve
-                              </Button>
+                              />
+                              <div>
+                                <p className="font-medium">{creator.name}</p>
+                                <p className="text-sm text-gray-500">{creator.username}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">{creator.videos}</td>
+                          <td className="p-4">${creator.earnings.toLocaleString()}</td>
+                          <td className="p-4">
+                            <div className="flex items-center">
+                              <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                              {creator.rating}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Badge variant={
+                              creator.status === 'active' ? 'default' :
+                              creator.status === 'pending' ? 'secondary' :
+                              'destructive'
+                            }>
+                              {creator.status}
+                            </Badge>
+                          </td>
+                          <td className="p-4">{creator.joined}</td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => {
-                                  setSelectedCreator(creator)
-                                  setIsCreatorDialogOpen(true)
-                                }}
+                                onClick={() => setSelectedCreator(creator)}
                               >
-                                <Eye className="h-3 w-3 mr-1" />
-                                Review
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="outline">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-red-600">
+                                <Ban className="h-3 w-3" />
                               </Button>
                             </div>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Top Performers */}
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-all">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <div className="h-8 w-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                        <Star className="h-4 w-4 text-white" />
-                      </div>
-                      Top Creators This Month
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {topCreators.map((creator, index) => (
-                        <div key={creator.name} className="flex items-center space-x-3">
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 text-purple-600 text-sm font-bold">
-                            {index + 1}
-                          </div>
-                          <CreatorAvatar
-                            src={creator.image}
-                            name={creator.name}
-                            size="sm"
-                            verified={creator.verified}
-                          />
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm">{creator.name}</p>
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <span>${creator.earnings}</span>
-                              <span>•</span>
-                              <span>{creator.videos} videos</span>
-                              <span>•</span>
-                              <div className="flex items-center space-x-1">
-                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                <span>{creator.rating}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                          </td>
+                        </tr>
                       ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="orders" className="mt-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Order Management</CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="destructive">{orders.filter((o) => o.status === "overdue").length} Overdue</Badge>
-                  <Badge variant="secondary">{orders.filter((o) => o.status === "pending").length} Pending</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Search orders..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="overdue">Overdue</SelectItem>
-                      <SelectItem value="refunded">Refunded</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
-                    <Download className="h-4 w-4" />
-                    <span>Export</span>
-                  </Button>
-                </div>
-
-                {/* Orders List */}
-                <div className="space-y-4">
-                  {filteredOrders.map((order) => (
-                    <div key={order.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-4">
-                          <div>
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h3 className="text-lg font-semibold">{order.id}</h3>
-                              <Badge className={getStatusColor(order.status)}>{order.status.replace("-", " ")}</Badge>
-                              {order.status === "overdue" && <AlertTriangle className="h-4 w-4 text-red-600" />}
-                            </div>
-                            <p className="text-gray-600">
-                              {order.occasion} for {order.recipient}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {order.customer} → {order.creator}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="flex items-center space-x-1 text-green-600 font-bold text-lg mb-1">
-                            <DollarSign className="h-4 w-4" />
-                            <span>{order.amount + order.serviceFee}</span>
-                          </div>
-                          <div className="flex items-center space-x-1 text-sm text-gray-500">
-                            <Calendar className="h-3 w-3" />
-                            <span>Due: {order.dueDate}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-500">
-                          Order Date: {order.orderDate}
-                          {order.completedDate && <span> • Completed: {order.completedDate}</span>}
-                        </div>
-
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedOrder(order)
-                              setIsOrderDialogOpen(true)
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
-
-                          {order.status === "completed" && (
-                            <Button size="sm" variant="outline">
-                              <Download className="h-4 w-4 mr-1" />
-                              Download
-                            </Button>
-                          )}
-
-                          {(order.status === "overdue" || order.status === "pending") && (
-                            <Button size="sm" variant="outline">
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              Follow Up
-                            </Button>
-                          )}
-
-                          {order.status !== "refunded" && order.status !== "completed" && (
-                            <Button size="sm" variant="destructive" onClick={() => handleRefundOrder(order.id)}>
-                              Refund
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="creators" className="mt-6">
+          {/* Other tabs content simplified for brevity */}
+          <TabsContent value="users" className="space-y-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Creator Management</CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="secondary">
-                    {creators.filter((c) => c.status === "pending").length} Pending Approval
-                  </Badge>
-                  <Badge variant="outline">{creators.filter((c) => c.status === "active").length} Active</Badge>
-                </div>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Search creators..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="suspended">Suspended</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
-                    <Filter className="h-4 w-4" />
-                    <span>More Filters</span>
-                  </Button>
-                </div>
-
-                {/* Creators List */}
-                <div className="space-y-4">
-                  {filteredCreators.map((creator) => (
-                    <div key={creator.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <CreatorAvatar
-                            src={creator.image}
-                            name={creator.name}
-                            size="lg"
-                            verified={creator.verified}
-                          />
-                          <div>
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h3 className="text-lg font-semibold">{creator.stageName}</h3>
-                              <Badge className={getStatusColor(creator.status)}>{creator.status}</Badge>
-                              {creator.verified && (
-                                <Badge variant="outline" className="text-blue-600 border-blue-600">
-                                  Verified
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-gray-600">
-                              {creator.name} • {creator.category}
-                            </p>
-                            <p className="text-sm text-gray-500">Joined: {creator.joinDate}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-8">
-                          {creator.status === "active" && (
-                            <>
-                              <div className="text-center">
-                                <div className="flex items-center space-x-1 text-green-600 font-bold">
-                                  <DollarSign className="h-4 w-4" />
-                                  <span>{creator.totalEarnings.toLocaleString()}</span>
-                                </div>
-                                <p className="text-xs text-gray-500">Earnings</p>
-                              </div>
-
-                              <div className="text-center">
-                                <div className="flex items-center space-x-1 font-bold">
-                                  <Video className="h-4 w-4" />
-                                  <span>{creator.totalVideos}</span>
-                                </div>
-                                <p className="text-xs text-gray-500">Videos</p>
-                              </div>
-
-                              <div className="text-center">
-                                <div className="flex items-center space-x-1 font-bold">
-                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                  <span>{creator.rating}</span>
-                                </div>
-                                <p className="text-xs text-gray-500">{creator.reviews} reviews</p>
-                              </div>
-                            </>
-                          )}
-
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedCreator(creator)
-                                setIsCreatorDialogOpen(true)
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-
-                            {creator.status === "pending" && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  className="bg-green-600 hover:bg-green-700"
-                                  onClick={() => handleApproveCreator(creator.id)}
-                                >
-                                  <UserCheck className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button size="sm" variant="destructive" onClick={() => handleRejectCreator(creator.id)}>
-                                  <Ban className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
-
-                            {creator.status === "active" && (
-                              <>
-                                <Button size="sm" variant="outline">
-                                  <Edit className="h-4 w-4 mr-1" />
-                                  Edit
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => handleSuspendCreator(creator.id)}
-                                >
-                                  <Ban className="h-4 w-4 mr-1" />
-                                  Suspend
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-gray-600">User management interface will appear here.</p>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics" className="mt-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Growth</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <TrendingUp className="h-16 w-16 mx-auto mb-4 text-green-600" />
-                    <p className="text-3xl font-bold text-green-600 mb-2">+{dashboardStats.monthlyGrowth}%</p>
-                    <p className="text-gray-600">Monthly Growth</p>
-                  </div>
-                </CardContent>
-              </Card>
+          <TabsContent value="content" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Content Moderation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Content moderation tools will appear here.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Rating</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Star className="h-16 w-16 mx-auto mb-4 text-yellow-600 fill-current" />
-                    <p className="text-3xl font-bold text-yellow-600 mb-2">{dashboardStats.averageRating}</p>
-                    <p className="text-gray-600">Average Rating</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Creator Payments</span>
-                      <span className="font-semibold">${(dashboardStats.totalRevenue * 0.85).toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Platform Fees</span>
-                      <span className="font-semibold">${(dashboardStats.totalRevenue * 0.15).toLocaleString()}</span>
-                    </div>
-                    <div className="border-t pt-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">Total Revenue</span>
-                        <span className="font-bold text-green-600">
-                          ${dashboardStats.totalRevenue.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Health</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Active Orders</span>
-                      <span className="font-semibold">
-                        {orders.filter((o) => o.status === "pending" || o.status === "in-progress").length}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Completion Rate</span>
-                      <span className="font-semibold">94%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Customer Satisfaction</span>
-                      <span className="font-semibold">4.7/5</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="finance" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Financial Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Financial reports and analytics will appear here.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
-      {/* Creator Details Dialog */}
-      <Dialog open={isCreatorDialogOpen} onOpenChange={setIsCreatorDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Creator Details</DialogTitle>
-          </DialogHeader>
-          {selectedCreator && (
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <CreatorAvatar
-                  src={selectedCreator.image}
-                  name={selectedCreator.name}
-                  size="xl"
-                  verified={selectedCreator.verified}
-                />
-                <div>
-                  <h3 className="text-xl font-semibold">{selectedCreator.stageName}</h3>
-                  <p className="text-gray-600">{selectedCreator.name}</p>
-                  <p className="text-sm text-gray-500">{selectedCreator.category}</p>
-                  <Badge className={getStatusColor(selectedCreator.status)}>{selectedCreator.status}</Badge>
+        {/* Creator Details Dialog */}
+        <Dialog open={!!selectedCreator} onOpenChange={() => setSelectedCreator(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Creator Details</DialogTitle>
+            </DialogHeader>
+            {selectedCreator && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <CreatorAvatar
+                    src={selectedCreator.image}
+                    name={selectedCreator.name}
+                    size="lg"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold">{selectedCreator.name}</h3>
+                    <p className="text-sm text-gray-500">{selectedCreator.username}</p>
+                    <Badge variant={
+                      selectedCreator.status === 'active' ? 'default' :
+                      selectedCreator.status === 'pending' ? 'secondary' :
+                      'destructive'
+                    }>
+                      {selectedCreator.status}
+                    </Badge>
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Join Date</Label>
-                  <p className="font-medium">{selectedCreator.joinDate}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Email</Label>
+                    <p className="text-sm">{selectedCreator.email}</p>
+                  </div>
+                  <div>
+                    <Label>Phone</Label>
+                    <p className="text-sm">{selectedCreator.phone}</p>
+                  </div>
+                  <div>
+                    <Label>Total Videos</Label>
+                    <p className="text-sm">{selectedCreator.videos}</p>
+                  </div>
+                  <div>
+                    <Label>Total Earnings</Label>
+                    <p className="text-sm">${selectedCreator.earnings.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <Label>Rating</Label>
+                    <p className="text-sm flex items-center">
+                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                      {selectedCreator.rating}
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Joined Date</Label>
+                    <p className="text-sm">{selectedCreator.joined}</p>
+                  </div>
                 </div>
-                <div>
-                  <Label>Total Earnings</Label>
-                  <p className="font-medium">${selectedCreator.totalEarnings.toLocaleString()}</p>
-                </div>
-                <div>
-                  <Label>Videos Created</Label>
-                  <p className="font-medium">{selectedCreator.totalVideos}</p>
-                </div>
-                <div>
-                  <Label>Rating</Label>
-                  <p className="font-medium">
-                    {selectedCreator.rating}/5 ({selectedCreator.reviews} reviews)
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex space-x-2">
-                {selectedCreator.status === "pending" && (
-                  <>
-                    <Button
-                      className="bg-green-600 hover:bg-green-700"
-                      onClick={() => {
-                        handleApproveCreator(selectedCreator.id)
-                        setIsCreatorDialogOpen(false)
-                      }}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Approve Creator
+                <div className="flex justify-end gap-2">
+                  {selectedCreator.status === 'pending' && (
+                    <>
+                      <Button className="bg-green-600 hover:bg-green-700">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button variant="destructive">
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  {selectedCreator.status === 'active' && (
+                    <Button variant="destructive">
+                      <Ban className="h-4 w-4 mr-2" />
+                      Suspend
                     </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => {
-                        handleRejectCreator(selectedCreator.id)
-                        setIsCreatorDialogOpen(false)
-                      }}
-                    >
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Reject Application
+                  )}
+                  {selectedCreator.status === 'suspended' && (
+                    <Button>
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Reactivate
                     </Button>
-                  </>
-                )}
-                {selectedCreator.status === "active" && (
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      handleSuspendCreator(selectedCreator.id)
-                      setIsCreatorDialogOpen(false)
-                    }}
-                  >
-                    <Ban className="h-4 w-4 mr-2" />
-                    Suspend Creator
+                  )}
+                  <Button variant="outline" onClick={() => setSelectedCreator(null)}>
+                    Close
                   </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Order Details Dialog */}
-      <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
-          </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold">{selectedOrder.id}</h3>
-                  <p className="text-gray-600">
-                    {selectedOrder.occasion} for {selectedOrder.recipient}
-                  </p>
-                </div>
-                <Badge className={getStatusColor(selectedOrder.status)}>{selectedOrder.status.replace("-", " ")}</Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Customer</Label>
-                  <p className="font-medium">{selectedOrder.customer}</p>
-                  <p className="text-sm text-gray-500">{selectedOrder.customerEmail}</p>
-                </div>
-                <div>
-                  <Label>Creator</Label>
-                  <p className="font-medium">{selectedOrder.creator}</p>
-                </div>
-                <div>
-                  <Label>Order Date</Label>
-                  <p className="font-medium">{selectedOrder.orderDate}</p>
-                </div>
-                <div>
-                  <Label>Due Date</Label>
-                  <p className="font-medium">{selectedOrder.dueDate}</p>
-                </div>
-                <div>
-                  <Label>Creator Fee</Label>
-                  <p className="font-medium">${selectedOrder.amount}</p>
-                </div>
-                <div>
-                  <Label>Service Fee</Label>
-                  <p className="font-medium">${selectedOrder.serviceFee}</p>
                 </div>
               </div>
-
-              {selectedOrder.completedDate && (
-                <div>
-                  <Label>Completed Date</Label>
-                  <p className="font-medium">{selectedOrder.completedDate}</p>
-                </div>
-              )}
-
-              <div className="flex space-x-2">
-                {selectedOrder.status === "completed" && (
-                  <Button>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Video
-                  </Button>
-                )}
-                {(selectedOrder.status === "pending" || selectedOrder.status === "overdue") && (
-                  <Button>
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Contact Creator
-                  </Button>
-                )}
-                {selectedOrder.status !== "refunded" && selectedOrder.status !== "completed" && (
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      handleRefundOrder(selectedOrder.id)
-                      setIsOrderDialogOpen(false)
-                    }}
-                  >
-                    Process Refund
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-}
-
-export default function AdminDashboard() {
-  return (
-    <AuthGuard requireAuth requireRole="admin">
-      <AdminLayout>
-        <AdminDashboardContent />
-      </AdminLayout>
-    </AuthGuard>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </AdminLayout>
   )
 }

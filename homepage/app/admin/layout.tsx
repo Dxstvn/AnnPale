@@ -3,6 +3,7 @@
 import { ReactNode } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { cn } from "@/lib/utils"
 import {
   Activity,
@@ -14,7 +15,8 @@ import {
   Settings,
   Home,
   Eye,
-  Lock
+  Lock,
+  LogOut
 } from "lucide-react"
 
 interface AdminLayoutProps {
@@ -34,19 +36,20 @@ const navigation = [
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
+  const { logout } = useSupabaseAuth()
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-gray-900 text-white min-h-screen sticky top-0">
+        <aside className="w-64 bg-gray-900 text-white min-h-screen sticky top-0 flex flex-col">
           <div className="p-6">
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-red-500" />
               <h2 className="text-xl font-bold">Admin Panel</h2>
             </div>
           </div>
-          <nav className="px-4 pb-6">
+          <nav className="flex-1 px-4 pb-6">
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
               return (
@@ -73,6 +76,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <AlertTriangle className="h-4 w-4" />
               <span>Admin Access Active</span>
             </div>
+          </div>
+
+          {/* Sign Out Button */}
+          <div className="mt-auto p-4 border-t border-gray-800">
+            <button
+              onClick={async () => {
+                try {
+                  await logout()
+                  console.log('[AdminLayout] User signed out successfully')
+                } catch (error) {
+                  console.error('[AdminLayout] Sign out error:', error)
+                }
+              }}
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium transition-all text-red-400 hover:bg-red-900/20 hover:text-red-300"
+            >
+              <LogOut className="h-5 w-5" />
+              Sign Out
+            </button>
           </div>
         </aside>
 

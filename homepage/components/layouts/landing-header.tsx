@@ -26,7 +26,7 @@ const languages: { code: Language; name: string; flag: string }[] = [
 
 export function LandingHeader() {
   const { language, setLanguage } = useLanguage()
-  const { isAuthenticated, user } = useSupabaseAuth()
+  const { isAuthenticated, user, isLoading } = useSupabaseAuth()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -108,7 +108,25 @@ export function LandingHeader() {
           </DropdownMenu>
 
           {/* Sign In / Sign Up or User Menu */}
-          {isAuthenticated ? (
+          {isLoading ? (
+            // Show Sign In/Join Now buttons while loading
+            <>
+              <Link href="/login">
+                <Button 
+                  variant="outline"
+                  className="border-purple-200 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 hover:shadow-md hover:translate-y-[-2px] transition-all"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Join Now
+                </Button>
+              </Link>
+            </>
+          ) : isAuthenticated && user ? (
             <UserMenu />
           ) : (
             <>
@@ -220,7 +238,7 @@ export function LandingHeader() {
                 <div className="h-px bg-gradient-to-r from-purple-200 via-pink-200 to-purple-200" />
 
                 {/* Mobile Auth Section */}
-                {isAuthenticated ? (
+                {!isLoading && isAuthenticated && user ? (
                   <div className="space-y-4">
                     {/* User Profile Card */}
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">

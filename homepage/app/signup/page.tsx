@@ -197,7 +197,9 @@ export default function SignUpPage() {
   const handleOAuthSignup = async (provider: 'google' | 'twitter') => {
     setOauthLoading(provider)
     try {
-      await loginWithProvider(provider)
+      // Pass the role based on which tab is active
+      const role = activeTab === 'creator' ? 'creator' : 'fan'
+      await loginWithProvider(provider, { role })
     } catch (error) {
       toast({
         title: "Signup failed",
