@@ -13,13 +13,26 @@ export async function GET(request: NextRequest) {
   // Handle OAuth errors
   if (error) {
     console.error('OAuth error:', error, errorDescription)
+    console.log('Full callback URL:', request.url)
+    console.log('Code parameter:', code)
     
     // Special handling for Twitter email error
     if (errorDescription?.includes('Error getting user email from external provider')) {
-      // Twitter doesn't always provide email - this is expected
-      // Continue with the authentication flow anyway
-      console.log('Twitter OAuth: Email not provided by Twitter, continuing anyway...')
-      // Don't return here - let the code continue to check for the code parameter
+      // Twitter doesn't always provide email - this is a Supabase limitation
+      console.log('Twitter OAuth: Email not provided by Twitter')
+      console.log('Unfortunately, Supabase requires email from OAuth providers')
+      
+      // For development/testing: Create a temporary workaround for admin accounts
+      // This is a TEMPORARY solution - remove in production
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[DEV MODE] Attempting workaround for Twitter OAuth without email')
+        // You'll need to manually create your profile or use Google OAuth instead
+      }
+      
+      // Redirect with a specific error message for Twitter
+      return NextResponse.redirect(
+        `${origin}/login?error=${encodeURIComponent('X (Twitter) login failed: Email not shared. Please check your X privacy settings or use Google/email login instead.')}`
+      )
     } else {
       return NextResponse.redirect(
         `${origin}/login?error=${encodeURIComponent(errorDescription || error)}`
@@ -124,6 +137,7 @@ export async function GET(request: NextRequest) {
         // Non-admin users without profiles should choose their role
         await new Promise(resolve => setTimeout(resolve, 100))
         
+        const isLocalEnv = process.env.NODE_ENV === 'development'
         const roleSelectionUrl = isLocalEnv 
           ? `${origin}/auth/role-selection`
           : forwardedHost 
@@ -135,6 +149,7 @@ export async function GET(request: NextRequest) {
       } else if (profileError) {
         console.error('Profile fetch error:', profileError)
         // For other errors, redirect to role selection to be safe
+        const isLocalEnv = process.env.NODE_ENV === 'development'
         const roleSelectionUrl = isLocalEnv 
           ? `${origin}/auth/role-selection`
           : forwardedHost 

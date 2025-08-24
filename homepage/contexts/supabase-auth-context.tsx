@@ -88,12 +88,12 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
     try {
       console.log('[fetchUserProfile] Fetching profile for user:', userId)
       
-      // Simple direct fetch
+      // Simple direct fetch - use maybeSingle() to handle non-existent profiles
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('id, email, name, role, avatar_url, created_at, updated_at')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
       
       if (error) {
         console.error('[fetchUserProfile] Error fetching profile:', error)
