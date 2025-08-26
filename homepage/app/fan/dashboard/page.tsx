@@ -48,6 +48,9 @@ export default function CustomerDashboard() {
   const { language } = useLanguage()
   const { user, isLoading, isAuthenticated } = useSupabaseAuth()
   const [activeTab, setActiveTab] = useState("overview")
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortBy, setSortBy] = useState("popular")
   
   // Show loading while checking auth
   if (isLoading) {
@@ -66,9 +69,6 @@ export default function CustomerDashboard() {
     window.location.href = '/login'
     return null
   }
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState("popular")
 
   // Mock data for upcoming events
   const upcomingEvents = [

@@ -1,443 +1,410 @@
-"use client"
+'use client'
 
-import { useState, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Brain, Zap } from "lucide-react"
-import Link from "next/link"
-import { RequestStateManager, type RequestState } from "@/components/creator/requests/RequestStateManager"
-import { RequestIntelligence } from "@/components/creator/requests/RequestIntelligence"
-import { AdvancedFiltering, type FilterState } from "@/components/creator/requests/AdvancedFiltering"
-import { BatchOperations } from "@/components/creator/requests/BatchOperations"
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { 
+  Clock, 
+  DollarSign, 
+  Calendar, 
+  User,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Video,
+  TrendingUp,
+  Loader2
+} from 'lucide-react'
+import { format, formatDistanceToNow, isPast } from 'date-fns'
+import { useToast } from '@/hooks/use-toast'
 
-// Enhanced request data with psychological workflow features
-const allRequests = [
-  {
-    id: 1,
-    customer: "Marie L.",
-    occasion: "Birthday",
-    recipient: "Sarah",
-    message: "Happy birthday message for my daughter Sarah who just turned 16. She loves your comedy and would be so excited to hear from you! Please mention that she's starting her junior year of high school and loves to dance.",
-    price: 85,
-    requestedDate: "2024-01-15",
-    dueDate: "2024-01-17",
-    state: "new" as RequestState,
-    language: "English",
-    urgency: 8,
-    hoursRemaining: 6,
-    customerType: "repeat" as const,
-    complexity: "medium" as const,
-    intelligence: {
-      similarRequests: 12,
-      suggestedPrice: 95,
-      currentPrice: 85,
-      estimatedTime: "2-3 hours",
-      successProbability: 92,
-      complexity: "medium" as const,
-      customerType: "repeat" as const,
-      urgencyScore: 8
-    }
-  },
-  {
-    id: 2,
-    customer: "Jean P.",
-    occasion: "Graduation",
-    recipient: "Marcus",
-    message: "Congratulations message for my son Marcus who just graduated from university with a degree in engineering. He's been a fan since your early days and this would mean the world to him.",
-    price: 85,
-    requestedDate: "2024-01-14",
-    dueDate: "2024-01-16",
-    state: "accepted" as RequestState,
-    language: "English",
-    urgency: 6,
-    hoursRemaining: 18,
-    customerType: "new" as const,
-    complexity: "low" as const,
-    intelligence: {
-      similarRequests: 8,
-      suggestedPrice: 85,
-      currentPrice: 85,
-      estimatedTime: "1-2 hours",
-      successProbability: 88,
-      complexity: "low" as const,
-      customerType: "new" as const,
-      urgencyScore: 6
-    }
-  },
-  {
-    id: 3,
-    customer: "Pierre M.",
-    occasion: "Anniversary",
-    recipient: "Lisa & David",
-    message: "5th wedding anniversary wishes for my friends Lisa and David. They had their first dance to one of your songs and would love a special message from you.",
-    price: 85,
-    requestedDate: "2024-01-13",
-    dueDate: "2024-01-15",
-    state: "delivered" as RequestState,
-    language: "Haitian Creole",
-    urgency: 2,
-    customerType: "repeat" as const,
-    complexity: "high" as const,
-    intelligence: {
-      similarRequests: 15,
-      suggestedPrice: 100,
-      currentPrice: 85,
-      estimatedTime: "3-4 hours",
-      successProbability: 95,
-      complexity: "high" as const,
-      customerType: "repeat" as const,
-      urgencyScore: 2
-    }
-  },
-  {
-    id: 4,
-    customer: "Nadine L.",
-    occasion: "Congratulations",
-    recipient: "Michael",
-    message: "My brother Michael just got promoted to manager at his job. He's worked so hard and deserves this recognition. Please congratulate him and maybe add some motivational words!",
-    price: 85,
-    requestedDate: "2024-01-12",
-    dueDate: "2024-01-14",
-    state: "recording" as RequestState,
-    language: "French",
-    urgency: 4,
-    customerType: "vip" as const,
-    complexity: "medium" as const,
-    intelligence: {
-      similarRequests: 6,
-      suggestedPrice: 90,
-      currentPrice: 85,
-      estimatedTime: "2 hours",
-      successProbability: 85,
-      complexity: "medium" as const,
-      customerType: "vip" as const,
-      urgencyScore: 4
-    }
-  },
-  {
-    id: 5,
-    customer: "Alex T.",
-    occasion: "Get Well Soon",
-    recipient: "Grandma Rose",
-    message: "My grandmother Rose is in the hospital and feeling down. She's 78 and has been a fan of yours for years. A get well message would really lift her spirits.",
-    price: 85,
-    requestedDate: "2024-01-11",
-    dueDate: "2024-01-13",
-    state: "new" as RequestState,
-    language: "Haitian Creole",
-    urgency: 9,
-    hoursRemaining: 3,
-    customerType: "new" as const,
-    complexity: "low" as const,
-    intelligence: {
-      similarRequests: 4,
-      suggestedPrice: 85,
-      currentPrice: 85,
-      estimatedTime: "1 hour",
-      successProbability: 90,
-      complexity: "low" as const,
-      customerType: "new" as const,
-      urgencyScore: 9
-    }
+interface VideoRequest {
+  id: string
+  fan_id: string
+  creator_id: string
+  occasion: string
+  recipient_name: string
+  instructions: string
+  status: 'pending' | 'accepted' | 'rejected' | 'recording' | 'processing' | 'completed' | 'cancelled' | 'expired'
+  price_usd: number
+  currency: string
+  deadline: string
+  requested_at: string
+  created_at: string
+  accepted_at?: string
+  completed_at?: string
+  fan?: {
+    id: string
+    username: string
+    full_name: string
+    avatar_url?: string
   }
-]
+}
 
 export default function CreatorRequestsPage() {
-  const [selectedRequests, setSelectedRequests] = useState<number[]>([])
-  const [showBatchMode, setShowBatchMode] = useState(false)
-  const [expandedIntelligence, setExpandedIntelligence] = useState<number | null>(null)
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    status: 'all',
-    occasion: 'all',
-    customerType: 'all',
-    urgency: 'all',
-    priceRange: { min: 0, max: 1000 },
-    deadline: 'all',
-    complexity: 'all',
-    sortBy: 'deadline-urgent',
-    sortOrder: 'asc'
-  })
+  const router = useRouter()
+  const { toast } = useToast()
+  const [requests, setRequests] = useState<VideoRequest[]>([])
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('all')
+  const [processingRequest, setProcessingRequest] = useState<string | null>(null)
+  const supabase = createClient()
 
-  // Apply psychological filtering and sorting
-  const filteredAndSortedRequests = useMemo(() => {
-    let filtered = allRequests.filter((request) => {
-      const matchesSearch = filters.search === '' || 
-        request.customer.toLowerCase().includes(filters.search.toLowerCase()) ||
-        request.occasion.toLowerCase().includes(filters.search.toLowerCase()) ||
-        request.recipient.toLowerCase().includes(filters.search.toLowerCase())
+  useEffect(() => {
+    fetchRequests()
+  }, [])
 
-      const matchesStatus = filters.status === 'all' || request.state === filters.status
-      const matchesOccasion = filters.occasion === 'all' || request.occasion.toLowerCase() === filters.occasion
-      const matchesCustomerType = filters.customerType === 'all' || request.customerType === filters.customerType
+  const fetchRequests = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
       
-      const matchesUrgency = filters.urgency === 'all' || 
-        (filters.urgency === 'high' && request.urgency >= 7) ||
-        (filters.urgency === 'medium' && request.urgency >= 4 && request.urgency < 7) ||
-        (filters.urgency === 'low' && request.urgency < 4)
-      
-      const matchesComplexity = filters.complexity === 'all' || request.complexity === filters.complexity
-
-      return matchesSearch && matchesStatus && matchesOccasion && matchesCustomerType && matchesUrgency && matchesComplexity
-    })
-
-    // Psychological sorting algorithms
-    return filtered.sort((a, b) => {
-      switch (filters.sortBy) {
-        case 'deadline-urgent':
-          // Prioritize by urgency score, then deadline
-          if (a.urgency !== b.urgency) return b.urgency - a.urgency
-          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-        
-        case 'price-high':
-          return b.price - a.price
-        
-        case 'success-probability':
-          return b.intelligence.successProbability - a.intelligence.successProbability
-        
-        case 'complexity-easy':
-          const complexityOrder = { low: 0, medium: 1, high: 2 }
-          return complexityOrder[a.complexity] - complexityOrder[b.complexity]
-        
-        case 'customer-repeat':
-          const customerOrder = { repeat: 0, vip: 1, new: 2 }
-          return customerOrder[a.customerType] - customerOrder[b.customerType]
-        
-        case 'similar-grouping':
-          // Group by occasion type, then by urgency
-          if (a.occasion !== b.occasion) return a.occasion.localeCompare(b.occasion)
-          return b.urgency - a.urgency
-        
-        default:
-          return new Date(b.requestedDate).getTime() - new Date(a.requestedDate).getTime()
+      if (!user) {
+        router.push('/login')
+        return
       }
-    })
-  }, [filters])
 
-  const requestStats = {
-    total: allRequests.length,
-    pending: allRequests.filter(r => r.state === 'new').length,
-    urgent: allRequests.filter(r => r.urgency >= 7).length,
-    highValue: allRequests.filter(r => r.price >= 100).length
-  }
+      const { data, error } = await supabase
+        .from('video_requests')
+        .select(`
+          *,
+          fan:profiles!video_requests_fan_id_fkey(
+            id,
+            username,
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false })
 
-  const availableOccasions = [...new Set(allRequests.map(r => r.occasion))]
+      if (error) throw error
 
-  const handleQuickFilter = (filterType: string) => {
-    switch (filterType) {
-      case 'urgent':
-        setFilters(prev => ({ ...prev, urgency: 'high', sortBy: 'deadline-urgent' }))
-        break
-      case 'high-value':
-        setFilters(prev => ({ ...prev, priceRange: { min: 100, max: 1000 } }))
-        break
-      case 'repeat-customers':
-        setFilters(prev => ({ ...prev, customerType: 'repeat' }))
-        break
-      case 'quick-wins':
-        setFilters(prev => ({ ...prev, complexity: 'low', sortBy: 'complexity-easy' }))
-        break
+      setRequests(data || [])
+    } catch (error) {
+      console.error('Error fetching requests:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load video requests',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleBatchAction = (action: string, data?: any) => {
-    console.log('Batch action:', action, 'on requests:', selectedRequests, 'with data:', data)
-    // Here you would implement the actual batch operations
-    setSelectedRequests([])
-    setShowBatchMode(false)
+  const handleAcceptRequest = async (requestId: string) => {
+    setProcessingRequest(requestId)
+    try {
+      const { error } = await supabase
+        .from('video_requests')
+        .update({ 
+          status: 'accepted',
+          accepted_at: new Date().toISOString()
+        })
+        .eq('id', requestId)
+
+      if (error) throw error
+
+      // Navigate to recording page
+      router.push(`/creator/record/${requestId}`)
+    } catch (error) {
+      console.error('Error accepting request:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to accept request',
+        variant: 'destructive'
+      })
+    } finally {
+      setProcessingRequest(null)
+    }
   }
 
-  const handleStateAction = (requestId: number, action: string) => {
-    console.log('State action:', action, 'on request:', requestId)
-    // Here you would implement state transitions
+  const handleDeclineRequest = async (requestId: string) => {
+    setProcessingRequest(requestId)
+    try {
+      const { error } = await supabase
+        .from('video_requests')
+        .update({ status: 'rejected' })
+        .eq('id', requestId)
+
+      if (error) throw error
+
+      await fetchRequests()
+      
+      toast({
+        title: 'Request Declined',
+        description: 'The video request has been declined.',
+      })
+    } catch (error) {
+      console.error('Error declining request:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to decline request',
+        variant: 'destructive'
+      })
+    } finally {
+      setProcessingRequest(null)
+    }
   }
 
-  const handleRequestSelect = (requestId: number, selected: boolean) => {
-    setSelectedRequests(prev => 
-      selected 
-        ? [...prev, requestId]
-        : prev.filter(id => id !== requestId)
+  const filterRequests = (status: string) => {
+    if (status === 'all') return requests
+    if (status === 'pending') return requests.filter(r => r.status === 'pending')
+    if (status === 'in-progress') return requests.filter(r => ['accepted', 'recording'].includes(r.status))
+    if (status === 'completed') return requests.filter(r => r.status === 'completed')
+    return requests
+  }
+
+  const filteredRequests = filterRequests(activeTab)
+
+  // Calculate stats
+  const pendingCount = requests.filter(r => r.status === 'pending').length
+  const inProgressCount = requests.filter(r => ['accepted', 'recording'].includes(r.status)).length
+  const completedCount = requests.filter(r => r.status === 'completed').length
+  const weeklyEarnings = requests
+    .filter(r => r.status === 'completed')
+    .reduce((sum, r) => sum + (r.price_usd || 0), 0)
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency
+    }).format(amount)
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending Review</Badge>
+      case 'accepted':
+        return <Badge className="bg-blue-100 text-blue-800">Accepted</Badge>
+      case 'recording':
+        return <Badge className="bg-purple-100 text-purple-800">Recording</Badge>
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800">Completed</Badge>
+      case 'rejected':
+        return <Badge variant="destructive">Rejected</Badge>
+      default:
+        return <Badge variant="outline">{status}</Badge>
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="container max-w-7xl py-8">
+        <h1 className="text-3xl font-bold mb-8">Video Requests</h1>
+        <div className="space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-32 bg-gray-200 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      </div>
     )
   }
 
-  const toggleIntelligence = (requestId: number) => {
-    setExpandedIntelligence(expandedIntelligence === requestId ? null : requestId)
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/creator/dashboard">
-                  <ArrowLeft className="h-5 w-5" />
-                </Link>
-              </Button>
-              <h1 className="text-xl font-semibold">Request Management</h1>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                Psychological Workflow
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                {filteredAndSortedRequests.filter((r) => r.state === "new").length} Pending
-              </Badge>
-              <Button
-                variant={showBatchMode ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowBatchMode(!showBatchMode)}
-              >
-                <Zap className="h-4 w-4 mr-1" />
-                Batch Mode
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8 space-y-6">
-        {/* Advanced Filtering */}
-        <AdvancedFiltering
-          filters={filters}
-          onFiltersChange={setFilters}
-          requestStats={requestStats}
-          availableOccasions={availableOccasions}
-          onQuickFilter={handleQuickFilter}
-        />
-
-        {/* Batch Operations */}
-        {showBatchMode && (
-          <BatchOperations
-            selectedCount={selectedRequests.length}
-            selectedRequests={selectedRequests}
-            onBatchAction={handleBatchAction}
-            onSelectAll={() => setSelectedRequests(filteredAndSortedRequests.map(r => r.id))}
-            onClearSelection={() => setSelectedRequests([])}
-            availabilitySlots={['Tomorrow 2-4 PM', 'Thursday 10 AM - 12 PM', 'Friday Evening']}
-          />
-        )}
-
-        {/* Results Summary */}
-        <div className="flex items-center justify-between">
-          <p className="text-gray-600">
-            Showing {filteredAndSortedRequests.length} of {allRequests.length} requests
-            {filters.sortBy !== 'newest' && (
-              <span className="ml-2 text-purple-600 font-medium">
-                • Sorted by {filters.sortBy.replace('-', ' ')}
-              </span>
-            )}
-          </p>
-          {filteredAndSortedRequests.length > 0 && (
-            <Badge className="bg-green-100 text-green-800">
-              ${filteredAndSortedRequests.reduce((sum, r) => sum + r.price, 0)} total value
-            </Badge>
-          )}
-        </div>
-
-        {/* Requests List */}
-        <div className="space-y-4">
-          {filteredAndSortedRequests.map((request) => (
-            <div key={request.id} className="space-y-4">
-              <Card className={`hover:shadow-md transition-all ${
-                selectedRequests.includes(request.id) ? 'ring-2 ring-purple-500 bg-purple-50' : ''
-              }`}>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {/* Request Header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold">
-                            {request.occasion} for {request.recipient}
-                          </h3>
-                          <Badge variant="outline">{request.language}</Badge>
-                          <Badge className={
-                            request.customerType === 'vip' ? 'bg-purple-100 text-purple-800' :
-                            request.customerType === 'repeat' ? 'bg-green-100 text-green-800' :
-                            'bg-blue-100 text-blue-800'
-                          }>
-                            {request.customerType} customer
-                          </Badge>
-                        </div>
-                        <p className="text-gray-600 text-sm mb-1">From: {request.customer}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center space-x-1 text-green-600 font-bold text-lg mb-1">
-                          <span>${request.price}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleIntelligence(request.id)}
-                          className="text-purple-600 hover:text-purple-700"
-                        >
-                          <Brain className="h-4 w-4 mr-1" />
-                          AI Insights
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Request Message */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-700">{request.message}</p>
-                    </div>
-
-                    {/* State Management */}
-                    <RequestStateManager
-                      state={request.state}
-                      hoursRemaining={request.hoursRemaining}
-                      deliveryDeadline={request.dueDate}
-                      onStateAction={(action) => handleStateAction(request.id, action)}
-                      onBulkSelect={(selected) => handleRequestSelect(request.id, selected)}
-                      isSelected={selectedRequests.includes(request.id)}
-                      showBulkSelect={showBatchMode}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* AI Intelligence Panel */}
-              {expandedIntelligence === request.id && (
-                <RequestIntelligence
-                  request={request}
-                  intelligence={request.intelligence}
-                  onAccept={() => handleStateAction(request.id, 'accept')}
-                  onDecline={() => handleStateAction(request.id, 'decline')}
-                  onSuggestedAction={(action) => console.log('Suggested action:', action)}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {filteredAndSortedRequests.length === 0 && (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-gray-500 text-lg mb-4">No requests found matching your criteria.</p>
-              <Button
-                onClick={() => setFilters({
-                  search: '',
-                  status: 'all',
-                  occasion: 'all',
-                  customerType: 'all',
-                  urgency: 'all',
-                  priceRange: { min: 0, max: 1000 },
-                  deadline: 'all',
-                  complexity: 'all',
-                  sortBy: 'deadline-urgent',
-                  sortOrder: 'asc'
-                })}
-              >
-                Clear All Filters
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+    <div className="container max-w-7xl py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Video Requests</h1>
+        <p className="text-muted-foreground">Manage and respond to video requests from your fans</p>
       </div>
+
+      {/* Stats Overview */}
+      <div className="grid gap-4 md:grid-cols-4 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingCount}</div>
+            <p className="text-xs text-muted-foreground">Awaiting response</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            <Video className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{inProgressCount}</div>
+            <p className="text-xs text-muted-foreground">Recording or processing</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{completedCount}</div>
+            <p className="text-xs text-muted-foreground">This week</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Weekly Earnings</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(weeklyEarnings, 'USD')}</div>
+            <p className="text-xs text-muted-foreground">From completed videos</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Requests Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="space-y-4">
+          {filteredRequests.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {activeTab === 'pending' ? 'No pending requests' : 
+                   activeTab === 'in-progress' ? 'No requests in progress' :
+                   activeTab === 'completed' ? 'No completed requests' :
+                   'No requests yet'}
+                </h3>
+                <p className="text-muted-foreground text-center">
+                  {activeTab === 'pending' ? 'New requests will appear here when fans book you.' :
+                   activeTab === 'in-progress' ? 'Accepted requests will show here.' :
+                   activeTab === 'completed' ? 'Completed videos will be listed here.' :
+                   'Video requests from your fans will appear here.'}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredRequests.map((request) => {
+              const isOverdue = request.deadline && isPast(new Date(request.deadline))
+              
+              return (
+                <Card key={request.id} className="overflow-hidden">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <CardTitle className="text-xl">
+                          {request.occasion}
+                        </CardTitle>
+                        <CardDescription>
+                          For {request.recipient_name} • From: {request.fan?.full_name || request.fan?.username || 'Anonymous'}
+                        </CardDescription>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        {getStatusBadge(request.status)}
+                        {isOverdue && request.status !== 'completed' && (
+                          <Badge variant="destructive">Overdue</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Instructions */}
+                    <div className="bg-muted rounded-lg p-4">
+                      <p className="text-sm">{request.instructions}</p>
+                    </div>
+
+                    {/* Request Details */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">
+                          {formatCurrency(request.price_usd || 0, request.currency || 'USD')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>
+                          {request.deadline ? 
+                            format(new Date(request.deadline), 'MMM d, yyyy') : 
+                            'No deadline'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>
+                          {formatDistanceToNow(new Date(request.requested_at))} ago
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span>ID: {request.id.slice(0, 8)}...</span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      {request.status === 'pending' && (
+                        <>
+                          <Button
+                            onClick={() => handleAcceptRequest(request.id)}
+                            disabled={processingRequest === request.id}
+                            className="flex-1"
+                          >
+                            {processingRequest === request.id ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Accept & Record
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleDeclineRequest(request.id)}
+                            disabled={processingRequest === request.id}
+                            className="flex-1"
+                          >
+                            {processingRequest === request.id ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <XCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Decline
+                          </Button>
+                        </>
+                      )}
+                      {(request.status === 'accepted' || request.status === 'recording') && (
+                        <Button
+                          onClick={() => router.push(`/creator/record/${request.id}`)}
+                          className="w-full"
+                        >
+                          <Video className="h-4 w-4 mr-2" />
+                          Continue Recording
+                        </Button>
+                      )}
+                      {request.status === 'completed' && (
+                        <Button
+                          variant="outline"
+                          onClick={() => router.push(`/creator/videos/${request.id}`)}
+                          className="w-full"
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          View Completed Video
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
