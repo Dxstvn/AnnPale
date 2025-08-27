@@ -34,7 +34,8 @@ import {
   Clock,
   TrendingUp,
   Sparkles,
-  LogOut
+  LogOut,
+  Users
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 import { FEATURES } from "@/lib/feature-flags"
@@ -43,8 +44,9 @@ interface CustomerLayoutProps {
   children: ReactNode
 }
 
-const navigationItems = [
-  { name: "Dashboard", href: "/fan/dashboard", icon: Home, helpKey: "dashboard_help" },
+const navigation = [
+  { name: "Home", href: "/fan/home", icon: Home, helpKey: "home_help" },
+  { name: "Subscriptions", href: "/fan/subscriptions", icon: Users, helpKey: "subscriptions_help" },
   { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
   { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
   { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
@@ -55,14 +57,17 @@ const navigationItems = [
   { name: "Settings", href: "/fan/settings", icon: Settings, helpKey: "settings_help" },
 ]
 
-const navigation = navigationItems
-
 // Help tooltips in multiple languages
 const helpTooltips: Record<string, Record<string, string>> = {
-  dashboard_help: {
-    en: "View your activity overview and upcoming events",
-    fr: "Consultez votre aperçu d'activité et événements à venir",
-    ht: "Gade rezime aktivite ou ak evènman k ap vini yo"
+  home_help: {
+    en: "View your personalized feed and updates from creators",
+    fr: "Consultez votre fil personnalisé et les mises à jour des créateurs",
+    ht: "Gade fil pèsonalize ou ak mizajou kreyatè yo"
+  },
+  subscriptions_help: {
+    en: "Manage your creator subscriptions and tier benefits",
+    fr: "Gérez vos abonnements aux créateurs et avantages par niveau",
+    ht: "Jere abònman kreyatè ou yo ak avantaj pa nivo"
   },
   favorites_help: {
     en: "Manage your favorite creators and get notified of their activities",
@@ -160,9 +165,9 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      My Dashboard
+                      Ann Pale
                     </h2>
-                    <p className="text-xs text-gray-600">Customer Portal</p>
+                    <p className="text-xs text-gray-600">Fan Portal</p>
                   </div>
                 </div>
               )}
