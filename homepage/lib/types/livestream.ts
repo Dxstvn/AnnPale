@@ -13,10 +13,15 @@ export interface CreatorSubscriptionTier {
   id: string;
   creator_id: string;
   tier_name: string;
+  tier_slug?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  sort_order?: number;
   tier_type: SubscriptionTierType;
   price: number;
   billing_period: 'monthly' | 'yearly';
-  benefits: string[];
+  benefits: string[] | { text: string; icon?: string }[];
   ad_free: boolean;
   exclusive_content: boolean;
   priority_chat: boolean;
@@ -25,6 +30,7 @@ export interface CreatorSubscriptionTier {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  subscriber_count?: number;
 }
 
 export interface FanSubscription {
