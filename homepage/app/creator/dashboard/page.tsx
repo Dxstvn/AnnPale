@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { 
   Tooltip,
   TooltipContent,
@@ -33,6 +34,7 @@ import { ManagementTools } from "@/components/creator/dashboard/ManagementTools"
 import { InsightsGrowth } from "@/components/creator/dashboard/InsightsGrowth"
 import { useLanguage } from "@/contexts/language-context"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useCreatorStats } from "@/hooks/use-stats"
 
 // Comprehensive mock data structure
 const dashboardData = {
@@ -177,6 +179,7 @@ const dashboardTranslations: Record<string, Record<string, string>> = {
 export default function CreatorDashboard() {
   const { language } = useLanguage()
   const { user, isLoading } = useSupabaseAuth()
+  const { stats, weeklyEarnings, pendingRequests, topVideos, loading: statsLoading } = useCreatorStats()
   const [currentWorkflowStage, setCurrentWorkflowStage] = useState('review')
   
   // Get translated text
@@ -186,14 +189,13 @@ export default function CreatorDashboard() {
   
   // Determine emotional journey stage based on stats
   const emotionalStage = useMemo((): EmotionalStage => {
-    const { stats } = dashboardData
-    if (stats.accountAge < 7) return 'onboarding'
+    if (!stats) return 'onboarding'
     if (stats.completedVideos === 0) return 'first-request'
     if (stats.pendingRequests > 10) return 'busy'
     if (stats.completedVideos > 100 && stats.monthlyEarnings > 2000) return 'success'
     if (stats.completedVideos > 50 && stats.monthlyEarnings < 500) return 'plateau'
     return 'growing'
-  }, [])
+  }, [stats])
 
   const handleStageAction = (stageId: string) => {
     console.log('Stage action:', stageId)
@@ -234,10 +236,10 @@ export default function CreatorDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold text-gray-900">
-              {t('welcome')}, {dashboardData.creator.name}!
+              {t('welcome')}, {user?.display_name || user?.email?.split('@')[0] || 'Creator'}!
             </h1>
             <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-              {dashboardData.creator.level}
+              {stats?.completedVideos > 100 ? 'Star Creator' : stats?.completedVideos > 50 ? 'Rising Star' : 'New Creator'}
             </Badge>
           </div>
           <p className="text-gray-600">{t('dashboard_subtitle')}</p>
@@ -250,10 +252,10 @@ export default function CreatorDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{t('today_earnings')}</p>
-                <p className="text-2xl font-bold text-gray-900">${dashboardData.stats.todayEarnings}</p>
+                {statsLoading ? <Skeleton className="h-8 w-24" /> : <p className="text-2xl font-bold text-gray-900">${stats?.todayEarnings || 0}</p>}
                 <div className="flex items-center mt-2">
                   <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                  <span className="text-sm text-green-600">+{dashboardData.stats.weekGrowth}%</span>
+                  <span className="text-sm text-green-600">+{stats?.weekGrowth || 0}%</span>
                   <span className="text-xs text-gray-500 ml-1">{t('this_week')}</span>
                 </div>
               </div>
@@ -268,7 +270,7 @@ export default function CreatorDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{t('pending_requests')}</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.pendingRequests}</p>
+                {statsLoading ? <Skeleton className="h-8 w-24" /> : <p className="text-2xl font-bold text-gray-900">{stats?.pendingRequests || 0}</p>}
                 <div className="flex items-center mt-2">
                   <AlertCircle className="h-4 w-4 text-orange-600 mr-1" />
                   <span className="text-sm text-orange-600">3 urgent</span>
@@ -285,7 +287,7 @@ export default function CreatorDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{t('completion_rate')}</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.completionRate}%</p>
+                {statsLoading ? <Skeleton className="h-8 w-24" /> : <p className="text-2xl font-bold text-gray-900">{stats?.completionRate || 0}%</p>}
                 <div className="flex items-center mt-2">
                   <Activity className="h-4 w-4 text-blue-600 mr-1" />
                   <span className="text-sm text-gray-500">Excellent</span>
@@ -302,13 +304,13 @@ export default function CreatorDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{t('average_rating')}</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.averageRating}</p>
+                {statsLoading ? <Skeleton className="h-8 w-24" /> : <p className="text-2xl font-bold text-gray-900">{stats?.averageRating || 0}</p>}
                 <div className="flex items-center mt-2">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
                       className={`h-3 w-3 ${
-                        i < Math.floor(dashboardData.stats.averageRating)
+                        i < Math.floor(stats?.averageRating || 0)
                           ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-300"
                       }`}
@@ -327,10 +329,10 @@ export default function CreatorDashboard() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{t('customer_satisfaction')}</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.customerSatisfaction}%</p>
+                {statsLoading ? <Skeleton className="h-8 w-24" /> : <p className="text-2xl font-bold text-gray-900">{stats?.customerSatisfaction || 0}%</p>}
                 <div className="flex items-center mt-2">
                   <Users className="h-4 w-4 text-purple-600 mr-1" />
-                  <span className="text-sm text-purple-600">+{dashboardData.stats.monthGrowth}%</span>
+                  <span className="text-sm text-purple-600">+{stats?.monthGrowth || 0}%</span>
                   <span className="text-xs text-gray-500 ml-1">{t('this_month')}</span>
                 </div>
               </div>
@@ -357,11 +359,11 @@ export default function CreatorDashboard() {
         {/* Level 2: Performance Overview - Fixed chart spacing */}
         <section className="mb-8">
           <PerformanceOverview
-            weeklyEarnings={dashboardData.weeklyEarnings}
-            completionRate={dashboardData.stats.completionRate}
+            weeklyEarnings={weeklyEarnings || []}
+            completionRate={stats?.completionRate || 0}
             ratingTrend={0.2}
-            averageRating={dashboardData.stats.averageRating}
-            topVideos={dashboardData.topVideos}
+            averageRating={stats?.averageRating || 0}
+            topVideos={topVideos || []}
             totalViews={15420}
             repeatCustomers={45}
             onViewAnalytics={() => console.log('View analytics')}

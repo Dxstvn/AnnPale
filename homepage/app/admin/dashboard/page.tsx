@@ -1,10 +1,12 @@
 "use client"
 
 import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useAdminStats } from "@/hooks/use-stats"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -95,6 +97,7 @@ const creators = [
 
 export default function AdminDashboard() {
   const { user, isLoading } = useSupabaseAuth()
+  const { stats, recentActivities: realRecentActivities, creators: recentCreators, loading: statsLoading } = useAdminStats()
   const [selectedCreator, setSelectedCreator] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -154,7 +157,7 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">{dashboardStats.totalUsers.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+{dashboardStats.monthlyGrowth}%</span> from last month
+                <span className="text-green-600">+{stats?.monthlyGrowth || 0}%</span> from last month
               </p>
             </CardContent>
           </Card>
@@ -193,7 +196,7 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">${dashboardStats.totalRevenue.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+{dashboardStats.monthlyGrowth}%</span> from last month
+                <span className="text-green-600">+{stats?.monthlyGrowth || 0}%</span> from last month
               </p>
             </CardContent>
           </Card>
@@ -218,7 +221,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentActivities.map((activity) => (
+                    {(realRecentActivities?.length ? realRecentActivities : recentActivities).map((activity) => (
                       <div key={activity.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className={`h-2 w-2 rounded-full ${
