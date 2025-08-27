@@ -54,7 +54,7 @@ export default function CreatorQuickViewModal({
 
   const handleBookNow = () => {
     onClose()
-    router.push(`/creator/${creator.id}#book`)
+    router.push(`/book/${creator.id}`)
   }
 
   const handleViewProfile = () => {

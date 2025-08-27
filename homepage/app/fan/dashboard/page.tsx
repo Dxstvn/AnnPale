@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -45,6 +46,7 @@ import { cn } from "@/lib/utils"
 import { Globe } from "lucide-react"
 
 export default function CustomerDashboard() {
+  const router = useRouter()
   const { language } = useLanguage()
   const { user, isLoading, isAuthenticated } = useSupabaseAuth()
   const [activeTab, setActiveTab] = useState("overview")
@@ -469,13 +471,17 @@ export default function CustomerDashboard() {
                 </div>
               </div>
               <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
-                <Button className="bg-white text-purple-600 hover:bg-gray-100 flex-1 sm:flex-initial text-sm sm:text-base">
-                  <Video className="h-4 w-4 mr-2" />
-                  Book Video
-                </Button>
-                <Button variant="outline" className="text-white border-white hover:bg-white/10 flex-1 sm:flex-initial text-sm sm:text-base">
-                  View Profile
-                </Button>
+                <Link href="/book/1" className="flex-1 sm:flex-initial">
+                  <Button className="bg-white text-purple-600 hover:bg-gray-100 w-full text-sm sm:text-base">
+                    <Video className="h-4 w-4 mr-2" />
+                    Book Video
+                  </Button>
+                </Link>
+                <Link href="/creator/1" className="flex-1 sm:flex-initial">
+                  <Button variant="outline" className="text-white border-white hover:bg-white/10 w-full text-sm sm:text-base">
+                    View Profile
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -812,6 +818,11 @@ export default function CustomerDashboard() {
                         <Button 
                           className="w-full mt-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white" 
                           size="sm"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            router.push(`/book/${creator.id}`)
+                          }}
                         >
                           Book Now
                         </Button>

@@ -237,6 +237,8 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
     role: 'fan' | 'creator'
   ): Promise<{ error?: string }> => {
     try {
+      console.log('Starting signup for:', { email, name, role })
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -249,6 +251,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
       })
 
       if (error) {
+        console.error('Auth signup error:', error)
         return { error: error.message }
       }
 
@@ -265,25 +268,53 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
         
         console.log('Creating profile for new user:', profileData)
         
-        const { error: profileError } = await supabase
+        const { data: profileResult, error: profileError } = await supabase
           .from('profiles')
           .insert(profileData)
+          .select()
+          .single()
 
         if (profileError) {
-          console.error('Profile creation error:', profileError)
-          // Continue with login even if profile creation fails
+          console.error('Profile creation error details:', {
+            error: profileError,
+            code: profileError.code,
+            message: profileError.message,
+            details: profileError.details,
+            hint: profileError.hint
+          })
+          
+          // Check if it's a duplicate key error (profile already exists)
+          if (profileError.code === '23505') {
+            // Profile might already exist, try to continue with login
+            console.log('Profile may already exist, attempting login...')
+            const loginResult = await login(email, password)
+            if (!loginResult.error) {
+              return {} // Success
+            }
+          }
+          
+          // Return a user-friendly error message
+          return { 
+            error: profileError.message?.includes('duplicate') 
+              ? 'An account with this email already exists. Please try logging in.'
+              : `Failed to create profile: ${profileError.message || 'Database error. Please try again.'}` 
+          }
         } else {
-          console.log('Profile created successfully for:', email)
+          console.log('Profile created successfully:', profileResult)
         }
 
         // Auto-login after signup
-        await login(email, password)
+        const loginResult = await login(email, password)
+        if (loginResult.error) {
+          return { error: `Account created but auto-login failed: ${loginResult.error}` }
+        }
       }
 
       return {}
     } catch (error) {
-      console.error('Signup error:', error)
-      return { error: 'An unexpected error occurred' }
+      console.error('Unexpected signup error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      return { error: errorMessage }
     }
   }
 
@@ -331,7 +362,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
             prompt: 'consent',
           } : undefined,
           scopes: provider === 'twitter' ? 'tweet.read users.read' : undefined,
-          skipBrowserRedirect: true // Prevent automatic redirect
+          skipBrowserRedirect: false // Allow automatic redirect to OAuth provider
         }
       })
 

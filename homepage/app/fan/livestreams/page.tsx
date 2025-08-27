@@ -1,13 +1,15 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useLanguage } from '@/contexts/language-context'
+import { useRouter } from 'next/navigation'
 import {
   Radio, Calendar, Clock, Users, Heart, Bell, Play, 
   TrendingUp, Star, Filter, Search, ChevronRight, Ticket,
   Music, Smile, Mic, Camera, Globe, Gift, MessageSquare,
   AlertCircle, CheckCircle, Share2, Bookmark, ChevronLeft,
-  Eye, Sparkles, Zap, Trophy, Flame, ArrowRight, X
+  Eye, Sparkles, Zap, Trophy, Flame, ArrowRight, X,
+  Lock, Crown, Shield, DollarSign, Tv, LockOpen
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,146 +32,237 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 import { cn } from '@/lib/utils'
-
-interface LiveStream {
-  id: string
-  title: string
-  creatorName: string
-  creatorImage: string
-  category: string
-  startTime: string
-  duration: string
-  price: number
-  viewers?: number
-  maxViewers?: number
-  description: string
-  isLive?: boolean
-  isPurchased?: boolean
-  isFree?: boolean
-  tags: string[]
-  thumbnail?: string
-  rating?: number
-}
+import type { 
+  LiveStream, 
+  FanSubscription, 
+  CreatorSubscriptionTier,
+  SubscriptionTierType,
+  StreamStatus 
+} from '@/lib/types/livestream'
 
 export default function CustomerLivestreamsPage() {
   const { language } = useLanguage()
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedStream, setSelectedStream] = useState<LiveStream | null>(null)
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const [userSubscriptions, setUserSubscriptions] = useState<FanSubscription[]>([])
+  const [loading, setLoading] = useState(true)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Enhanced mock livestream data
+  // Mock user subscriptions (in production, fetch from database)
+  useEffect(() => {
+    // Simulate fetching user subscriptions
+    setTimeout(() => {
+      setUserSubscriptions([
+        {
+          id: 'sub-001',
+          fan_id: 'user-123',
+          creator_id: 'creator-001',
+          tier_id: 'tier-001',
+          status: 'active',
+          start_date: '2024-01-01',
+          auto_renew: true,
+          created_at: '2024-01-01',
+          updated_at: '2024-01-01',
+          tier: {
+            id: 'tier-001',
+            creator_id: 'creator-001',
+            tier_name: 'Premium',
+            tier_type: 'premium',
+            price: 9.99,
+            billing_period: 'monthly',
+            benefits: ['Ad-free viewing', 'HD streaming', 'Priority chat'],
+            ad_free: true,
+            exclusive_content: true,
+            priority_chat: true,
+            vod_access: true,
+            max_quality: '1080p',
+            is_active: true,
+            created_at: '2024-01-01',
+            updated_at: '2024-01-01'
+          }
+        },
+        {
+          id: 'sub-002',
+          fan_id: 'user-123',
+          creator_id: 'creator-003',
+          tier_id: 'tier-002',
+          status: 'active',
+          start_date: '2024-01-05',
+          auto_renew: true,
+          created_at: '2024-01-05',
+          updated_at: '2024-01-05',
+          tier: {
+            id: 'tier-002',
+            creator_id: 'creator-003',
+            tier_name: 'Basic',
+            tier_type: 'basic',
+            price: 4.99,
+            billing_period: 'monthly',
+            benefits: ['Support creator', 'Member badge'],
+            ad_free: false,
+            exclusive_content: false,
+            priority_chat: false,
+            vod_access: true,
+            max_quality: '720p',
+            is_active: true,
+            created_at: '2024-01-01',
+            updated_at: '2024-01-01'
+          }
+        }
+      ])
+      setLoading(false)
+    }, 1000)
+  }, [])
+
+  // Check if user is subscribed to a creator
+  const getSubscriptionForCreator = (creatorId: string): FanSubscription | undefined => {
+    return userSubscriptions.find(sub => 
+      sub.creator_id === creatorId && sub.status === 'active'
+    )
+  }
+
+  // Enhanced mock livestream data with subscription requirements
   const liveStreams: LiveStream[] = [
     {
       id: 'LS-001',
+      creator_id: 'creator-001',
       title: 'Live Concert: Kompa Classics Night 🎵',
-      creatorName: 'Marie-Claire Laurent',
-      creatorImage: '/api/placeholder/40/40',
-      category: 'music',
-      startTime: '2024-01-20 20:00',
-      duration: '2 hours',
-      price: 25,
-      viewers: 1250,
-      maxViewers: 2000,
       description: 'Join me for an unforgettable evening of classic Kompa music! We\'ll be performing all your favorite hits and taking requests from the audience.',
-      isLive: true,
-      isPurchased: true,
+      category: 'music',
       tags: ['Music', 'Kompa', 'Live Performance'],
-      rating: 4.9
+      thumbnail_url: '/api/placeholder/800/450',
+      stream_key: 'stream-key-001',
+      status: 'live' as StreamStatus,
+      scheduled_start: '2024-01-20 20:00',
+      actual_start: '2024-01-20 20:05',
+      is_subscriber_only: false,
+      min_subscription_tier: 'basic' as SubscriptionTierType,
+      allow_guests: true,
+      max_viewers: 2000,
+      chat_enabled: true,
+      donations_enabled: true,
+      recording_enabled: true,
+      created_at: '2024-01-20',
+      updated_at: '2024-01-20',
+      creator: {
+        id: 'creator-001',
+        name: 'Marie-Claire Laurent',
+        avatar_url: '/api/placeholder/40/40'
+      },
+      current_viewers: 1250,
+      total_viewers: 1800
     },
     {
       id: 'LS-002',
+      creator_id: 'creator-002',
       title: 'Comedy Night: Laugh Until You Cry 😂',
-      creatorName: 'Jean-Baptiste Pierre',
-      creatorImage: '/api/placeholder/40/40',
-      category: 'comedy',
-      startTime: '2024-01-21 19:00',
-      duration: '1.5 hours',
-      price: 15,
-      viewers: 856,
       description: 'Get ready for a night of non-stop laughter! Brand new material, audience interaction, and surprise guests.',
-      isLive: true,
+      category: 'comedy',
       tags: ['Comedy', 'Stand-up', 'Entertainment'],
-      rating: 4.7
+      thumbnail_url: '/api/placeholder/800/450',
+      stream_key: 'stream-key-002',
+      status: 'live' as StreamStatus,
+      scheduled_start: '2024-01-21 19:00',
+      actual_start: '2024-01-21 19:00',
+      is_subscriber_only: true,
+      min_subscription_tier: 'premium' as SubscriptionTierType,
+      allow_guests: false,
+      max_viewers: 1000,
+      chat_enabled: true,
+      donations_enabled: true,
+      recording_enabled: false,
+      created_at: '2024-01-21',
+      updated_at: '2024-01-21',
+      creator: {
+        id: 'creator-002',
+        name: 'Jean-Baptiste Pierre',
+        avatar_url: '/api/placeholder/40/40'
+      },
+      current_viewers: 856,
+      total_viewers: 900
     },
     {
       id: 'LS-003',
+      creator_id: 'creator-003',
       title: 'Master Class: Traditional Haitian Cuisine 🍲',
-      creatorName: 'Sophie Duval',
-      creatorImage: '/api/placeholder/40/40',
-      category: 'cooking',
-      startTime: '2024-01-22 18:00',
-      duration: '1 hour',
-      price: 10,
-      viewers: 423,
       description: 'Learn to cook authentic Haitian dishes from scratch. Today: Griot, Pikliz, and Bannann Peze!',
-      isFree: true,
-      isLive: true,
+      category: 'cooking',
       tags: ['Cooking', 'Tutorial', 'Haitian Culture'],
-      rating: 5.0
+      thumbnail_url: '/api/placeholder/800/450',
+      stream_key: 'stream-key-003',
+      status: 'live' as StreamStatus,
+      scheduled_start: '2024-01-22 18:00',
+      actual_start: '2024-01-22 18:00',
+      is_subscriber_only: false,
+      allow_guests: true,
+      max_viewers: 500,
+      chat_enabled: true,
+      donations_enabled: true,
+      recording_enabled: true,
+      created_at: '2024-01-22',
+      updated_at: '2024-01-22',
+      creator: {
+        id: 'creator-003',
+        name: 'Sophie Duval',
+        avatar_url: '/api/placeholder/40/40'
+      },
+      current_viewers: 423,
+      total_viewers: 450
     },
     {
       id: 'LS-004',
+      creator_id: 'creator-004',
       title: 'Exclusive Q&A: Behind the Scenes',
-      creatorName: 'Marcus Thompson',
-      creatorImage: '/api/placeholder/40/40',
+      description: 'Get exclusive behind-the-scenes insights and ask your burning questions!',
       category: 'talk',
-      startTime: '2024-01-23 17:00',
-      duration: '45 minutes',
-      price: 5,
-      isPurchased: true,
       tags: ['Q&A', 'Interactive', 'Fan Meeting'],
-      rating: 4.6
+      thumbnail_url: '/api/placeholder/800/450',
+      stream_key: 'stream-key-004',
+      status: 'scheduled' as StreamStatus,
+      scheduled_start: '2024-01-23 17:00',
+      is_subscriber_only: true,
+      min_subscription_tier: 'vip' as SubscriptionTierType,
+      allow_guests: false,
+      max_viewers: 100,
+      chat_enabled: true,
+      donations_enabled: false,
+      recording_enabled: false,
+      created_at: '2024-01-23',
+      updated_at: '2024-01-23',
+      creator: {
+        id: 'creator-004',
+        name: 'Marcus Thompson',
+        avatar_url: '/api/placeholder/40/40'
+      }
     },
     {
       id: 'LS-005',
+      creator_id: 'creator-005',
       title: 'Dance Workshop: Master Konpa Moves 💃',
-      creatorName: 'Lisa Chen',
-      creatorImage: '/api/placeholder/40/40',
+      description: 'Learn the authentic moves of Konpa dance from a professional instructor.',
       category: 'dance',
-      startTime: '2024-01-24 16:00',
-      duration: '1 hour',
-      price: 20,
       tags: ['Dance', 'Workshop', 'Konpa'],
-      rating: 4.8
-    },
-    {
-      id: 'LS-006',
-      title: 'Podcast Live: Current Events Discussion',
-      creatorName: 'David Wilson',
-      creatorImage: '/api/placeholder/40/40',
-      category: 'talk',
-      startTime: '2024-01-24 19:00',
-      duration: '2 hours',
-      price: 0,
-      isFree: true,
-      tags: ['Podcast', 'Discussion', 'News'],
-      rating: 4.5
-    },
-    {
-      id: 'LS-007',
-      title: 'Acoustic Session: Unplugged & Intimate',
-      creatorName: 'Emma Rodriguez',
-      creatorImage: '/api/placeholder/40/40',
-      category: 'music',
-      startTime: '2024-01-25 21:00',
-      duration: '1.5 hours',
-      price: 30,
-      tags: ['Music', 'Acoustic', 'Intimate'],
-      rating: 4.9
-    },
-    {
-      id: 'LS-008',
-      title: 'Fitness Session: Full Body Workout',
-      creatorName: 'Mike Johnson',
-      creatorImage: '/api/placeholder/40/40',
-      category: 'fitness',
-      startTime: '2024-01-25 07:00',
-      duration: '45 minutes',
-      price: 10,
-      tags: ['Fitness', 'Workout', 'Health'],
-      rating: 4.7
+      thumbnail_url: '/api/placeholder/800/450',
+      stream_key: 'stream-key-005',
+      status: 'scheduled' as StreamStatus,
+      scheduled_start: '2024-01-24 16:00',
+      is_subscriber_only: false,
+      min_subscription_tier: 'basic' as SubscriptionTierType,
+      allow_guests: true,
+      max_viewers: 200,
+      chat_enabled: true,
+      donations_enabled: true,
+      recording_enabled: true,
+      created_at: '2024-01-24',
+      updated_at: '2024-01-24',
+      creator: {
+        id: 'creator-005',
+        name: 'Lisa Chen',
+        avatar_url: '/api/placeholder/40/40'
+      }
     }
   ]
 
@@ -202,23 +295,56 @@ export default function CustomerLivestreamsPage() {
     { value: 'fitness', label: 'Fitness', icon: FitnessIcon, color: 'from-orange-500 to-red-500' }
   ]
 
+  // Get tier badge color and icon
+  const getTierBadge = (tier?: SubscriptionTierType) => {
+    switch (tier) {
+      case 'vip':
+        return { 
+          color: 'bg-gradient-to-r from-yellow-500 to-amber-600', 
+          icon: Crown,
+          label: 'VIP'
+        }
+      case 'premium':
+        return { 
+          color: 'bg-gradient-to-r from-purple-600 to-indigo-600', 
+          icon: Shield,
+          label: 'Premium'
+        }
+      case 'basic':
+        return { 
+          color: 'bg-gradient-to-r from-blue-500 to-cyan-600', 
+          icon: Star,
+          label: 'Basic'
+        }
+      default:
+        return null
+    }
+  }
+
   const filteredStreams = liveStreams.filter(stream => {
     const matchesSearch = stream.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         stream.creatorName.toLowerCase().includes(searchQuery.toLowerCase())
+                         stream.creator?.name.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = selectedCategory === 'all' || stream.category === selectedCategory
     
     return matchesSearch && matchesCategory
   })
 
-  const liveNow = filteredStreams.filter(s => s.isLive)
-  const upcomingStreams = filteredStreams.filter(s => !s.isLive)
+  const liveNow = filteredStreams.filter(s => s.status === 'live')
+  const upcomingStreams = filteredStreams.filter(s => s.status === 'scheduled')
   const musicStreams = liveStreams.filter(s => s.category === 'music')
   const comedyStreams = liveStreams.filter(s => s.category === 'comedy')
   const talkStreams = liveStreams.filter(s => s.category === 'talk')
 
-  // Enhanced Stream Card Component
+  // Enhanced Stream Card Component with Subscription Status
   const StreamCard = ({ stream, size = 'normal' }: { stream: LiveStream, size?: 'normal' | 'large' | 'small' }) => {
     const isHovered = hoveredCard === stream.id
+    const subscription = getSubscriptionForCreator(stream.creator_id)
+    const hasAccess = !stream.is_subscriber_only || subscription
+    const meetsSubscriptionTier = subscription && stream.min_subscription_tier ? 
+      ['vip'].includes(subscription.tier?.tier_type || '') ||
+      (stream.min_subscription_tier === 'premium' && ['premium', 'vip'].includes(subscription.tier?.tier_type || '')) ||
+      (stream.min_subscription_tier === 'basic')
+      : !stream.min_subscription_tier
     
     return (
       <div
@@ -252,49 +378,91 @@ export default function CustomerLivestreamsPage() {
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             
+            {/* Access/Lock Indicator */}
+            {!hasAccess && (
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10">
+                <div className="text-center">
+                  <Lock className="h-8 w-8 text-white mb-2 mx-auto" />
+                  <p className="text-white font-semibold">Subscribers Only</p>
+                  {stream.min_subscription_tier && (
+                    <Badge className="mt-2 bg-white/20 text-white border-white/30">
+                      {getTierBadge(stream.min_subscription_tier)?.label} Required
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+            
             {/* Live indicator */}
-            {stream.isLive && (
+            {stream.status === 'live' && (
               <div className="absolute top-3 left-3 flex items-center space-x-2">
                 <Badge className="bg-red-600 text-white border-0 animate-pulse">
                   <Radio className="h-3 w-3 mr-1" />
                   LIVE
                 </Badge>
-                {stream.viewers && (
+                {stream.current_viewers && (
                   <Badge className="bg-white/90 text-purple-700 border-0 backdrop-blur">
                     <Eye className="h-3 w-3 mr-1" />
-                    {stream.viewers.toLocaleString()}
+                    {stream.current_viewers.toLocaleString()}
                   </Badge>
                 )}
               </div>
             )}
             
-            {/* Category badge */}
-            <div className="absolute top-3 right-3">
+            {/* Category badge and Subscription Badge */}
+            <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
               <Badge className="bg-white/90 text-purple-700 border-0 backdrop-blur capitalize">
                 {stream.category}
               </Badge>
-            </div>
-            
-            {/* Duration/Price overlay */}
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-              <Badge className="bg-white/90 text-gray-700 border-0 backdrop-blur">
-                <Clock className="h-3 w-3 mr-1" />
-                {stream.duration}
-              </Badge>
-              {stream.isFree ? (
-                <Badge className="bg-green-600 text-white border-0">
-                  FREE
-                </Badge>
-              ) : stream.isPurchased ? (
-                <Badge className="bg-purple-600 text-white border-0">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Purchased
-                </Badge>
-              ) : (
-                <Badge className="bg-white/90 text-purple-700 border-0 backdrop-blur font-semibold">
-                  ${stream.price}
+              {subscription && (
+                <Badge className={cn(
+                  "text-white border-0",
+                  getTierBadge(subscription.tier?.tier_type)?.color
+                )}>
+                  {React.createElement(getTierBadge(subscription.tier?.tier_type)?.icon || Star, { 
+                    className: "h-3 w-3 mr-1" 
+                  })}
+                  Subscribed
                 </Badge>
               )}
+              {stream.is_subscriber_only && !subscription && (
+                <Badge className="bg-red-600 text-white border-0">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Sub Only
+                </Badge>
+              )}
+            </div>
+            
+            {/* Stream Info Overlay */}
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+              <div className="flex gap-2">
+                {stream.scheduled_start && (
+                  <Badge className="bg-white/90 text-gray-700 border-0 backdrop-blur">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {new Date(stream.scheduled_start).toLocaleTimeString('en-US', { 
+                      hour: 'numeric', 
+                      minute: '2-digit' 
+                    })}
+                  </Badge>
+                )}
+                {stream.max_viewers && (
+                  <Badge className="bg-white/90 text-gray-700 border-0 backdrop-blur">
+                    <Users className="h-3 w-3 mr-1" />
+                    {stream.max_viewers}
+                  </Badge>
+                )}
+              </div>
+              {subscription && subscription.tier?.ad_free ? (
+                <Badge className="bg-green-600 text-white border-0">
+                  <Tv className="h-3 w-3 mr-1" />
+                  Ad-Free
+                </Badge>
+              ) : !stream.is_subscriber_only ? (
+                <Badge className="bg-yellow-600 text-white border-0">
+                  <Tv className="h-3 w-3 mr-1" />
+                  With Ads
+                </Badge>
+              ) : null}
             </div>
           </div>
           
@@ -302,11 +470,12 @@ export default function CustomerLivestreamsPage() {
           <div className="p-3 bg-white">
             <div className="flex items-start space-x-3">
               <Avatar className={cn(
-                "border-2 border-purple-600",
+                "border-2",
+                subscription ? "border-purple-600" : "border-gray-300",
                 size === 'small' ? 'h-8 w-8' : 'h-10 w-10'
               )}>
-                <AvatarImage src={stream.creatorImage} />
-                <AvatarFallback>{stream.creatorName[0]}</AvatarFallback>
+                <AvatarImage src={stream.creator?.avatar_url} />
+                <AvatarFallback>{stream.creator?.name[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <h3 className={cn(
@@ -315,13 +484,21 @@ export default function CustomerLivestreamsPage() {
                 )}>
                   {stream.title}
                 </h3>
-                <p className="text-sm text-gray-600">{stream.creatorName}</p>
-                {stream.rating && (
-                  <div className="flex items-center mt-1">
-                    <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                    <span className="text-xs text-gray-600 ml-1">{stream.rating}</span>
-                  </div>
-                )}
+                <p className="text-sm text-gray-600">{stream.creator?.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {stream.donations_enabled && (
+                    <Badge variant="outline" className="text-xs px-1 py-0">
+                      <Gift className="h-3 w-3 mr-1" />
+                      Tips
+                    </Badge>
+                  )}
+                  {stream.chat_enabled && (
+                    <Badge variant="outline" className="text-xs px-1 py-0">
+                      <MessageSquare className="h-3 w-3 mr-1" />
+                      Chat
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -405,7 +582,7 @@ export default function CustomerLivestreamsPage() {
               <Zap className="h-4 w-4" />
               <AlertTitle className="font-bold">Trending Now!</AlertTitle>
               <AlertDescription className="flex items-center justify-between">
-                <span>{liveNow[0].creatorName} is live: "{liveNow[0].title}"</span>
+                <span>{liveNow[0].creator?.name} is live: "{liveNow[0].title}"</span>
                 <Button size="sm" className="bg-white text-purple-600 hover:bg-purple-50 ml-4">
                   Watch Now
                 </Button>
@@ -481,8 +658,8 @@ export default function CustomerLivestreamsPage() {
                        onClick={() => setSelectedStream(stream)}>
                     <div className="relative">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={stream.creatorImage} />
-                        <AvatarFallback>{stream.creatorName[0]}</AvatarFallback>
+                        <AvatarImage src={stream.creator?.avatar_url} />
+                        <AvatarFallback>{stream.creator?.name?.[0]}</AvatarFallback>
                       </Avatar>
                       <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-red-600 rounded-full animate-pulse" />
                     </div>
@@ -491,7 +668,7 @@ export default function CustomerLivestreamsPage() {
                         {stream.title}
                       </p>
                       <p className="text-xs text-gray-600">
-                        {stream.creatorName} • {stream.viewers} viewers
+                        {stream.creator?.name} • {stream.current_viewers} viewers
                       </p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -562,10 +739,14 @@ export default function CustomerLivestreamsPage() {
         </div>
       </div>
 
-      {/* Enhanced Stream Details Modal */}
+      {/* Enhanced Stream Details Modal with Subscription Info */}
       <Dialog open={!!selectedStream} onOpenChange={() => setSelectedStream(null)}>
         <DialogContent className="max-w-5xl p-0 overflow-hidden">
-          {selectedStream && (
+          {selectedStream && (() => {
+            const subscription = getSubscriptionForCreator(selectedStream.creator_id)
+            const hasAccess = !selectedStream.is_subscriber_only || subscription
+            
+            return (
             <div className="grid grid-cols-1 lg:grid-cols-5">
               {/* Left side - Video Preview */}
               <div className="lg:col-span-3 bg-black">
@@ -573,7 +754,7 @@ export default function CustomerLivestreamsPage() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
                       <Play className="h-20 w-20 text-white/80 mx-auto mb-4" />
-                      {selectedStream.isLive && (
+                      {selectedStream.status === 'live' && (
                         <Badge className="bg-red-600 text-white border-0 text-lg px-4 py-2 animate-pulse">
                           <Radio className="h-4 w-4 mr-2" />
                           LIVE NOW
@@ -583,11 +764,11 @@ export default function CustomerLivestreamsPage() {
                   </div>
                   
                   {/* Overlay info */}
-                  {selectedStream.viewers && (
+                  {selectedStream.current_viewers && (
                     <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                       <Badge className="bg-white/90 text-purple-700 border-0 backdrop-blur">
                         <Eye className="h-3 w-3 mr-1" />
-                        {selectedStream.viewers.toLocaleString()} watching
+                        {selectedStream.current_viewers.toLocaleString()} watching
                       </Badge>
                       <Badge className="bg-white/90 text-purple-700 border-0 backdrop-blur capitalize">
                         {selectedStream.category}
@@ -601,17 +782,22 @@ export default function CustomerLivestreamsPage() {
                   <h2 className="text-xl font-bold mb-2">{selectedStream.title}</h2>
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
-                      <Avatar className="h-8 w-8 border-2 border-purple-600">
-                        <AvatarImage src={selectedStream.creatorImage} />
-                        <AvatarFallback>{selectedStream.creatorName[0]}</AvatarFallback>
+                      <Avatar className="h-8 w-8 border-2 border-white">
+                        <AvatarImage src={selectedStream.creator?.avatar_url} />
+                        <AvatarFallback>{selectedStream.creator?.name[0]}</AvatarFallback>
                       </Avatar>
-                      <span className="font-medium">{selectedStream.creatorName}</span>
+                      <span className="font-medium">{selectedStream.creator?.name}</span>
                     </div>
-                    {selectedStream.rating && (
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span className="ml-1">{selectedStream.rating}</span>
-                      </div>
+                    {subscription && (
+                      <Badge className={cn(
+                        "text-white border-0",
+                        getTierBadge(subscription.tier?.tier_type)?.color
+                      )}>
+                        {React.createElement(getTierBadge(subscription.tier?.tier_type)?.icon || Star, { 
+                          className: "h-3 w-3 mr-1" 
+                        })}
+                        {subscription.tier?.tier_name} Member
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -629,26 +815,58 @@ export default function CustomerLivestreamsPage() {
                   <X className="h-4 w-4" />
                 </Button>
                 
-                {/* Price/Status */}
+                {/* Subscription Status & Access */}
                 <div className="text-center py-4 border-b">
-                  {selectedStream.isFree ? (
-                    <div>
-                      <Badge className="bg-green-100 text-green-700 text-2xl px-6 py-3">
-                        FREE EVENT
+                  {subscription ? (
+                    <div className="space-y-3">
+                      <Badge className={cn(
+                        "text-white text-lg px-4 py-2",
+                        getTierBadge(subscription.tier?.tier_type)?.color
+                      )}>
+                        {React.createElement(getTierBadge(subscription.tier?.tier_type)?.icon || Star, { 
+                          className: "h-5 w-5 mr-2" 
+                        })}
+                        {subscription.tier?.tier_name} Subscriber
                       </Badge>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        {subscription.tier?.ad_free && (
+                          <p className="flex items-center justify-center">
+                            <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
+                            Ad-free viewing
+                          </p>
+                        )}
+                        {subscription.tier?.priority_chat && (
+                          <p className="flex items-center justify-center">
+                            <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
+                            Priority chat
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  ) : selectedStream.isPurchased ? (
-                    <div className="space-y-2">
-                      <Badge className="bg-purple-100 text-purple-700 text-lg px-4 py-2">
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        You have access
-                      </Badge>
-                      <p className="text-sm text-gray-600">Ticket purchased</p>
+                  ) : selectedStream.is_subscriber_only ? (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-red-50 rounded-lg">
+                        <Lock className="h-8 w-8 text-red-600 mx-auto mb-2" />
+                        <p className="text-lg font-semibold text-red-900">Subscription Required</p>
+                        <p className="text-sm text-red-700 mt-1">
+                          {selectedStream.min_subscription_tier && 
+                            `${getTierBadge(selectedStream.min_subscription_tier)?.label} tier or higher`
+                          }
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <div>
-                      <p className="text-3xl font-bold text-gray-900">${selectedStream.price}</p>
-                      <p className="text-sm text-gray-600 mt-1">per ticket</p>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">Free to watch with ads</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-purple-600"
+                        onClick={() => router.push(`/creator/${selectedStream.creator_id}/subscribe`)}
+                      >
+                        <LockOpen className="h-4 w-4 mr-2" />
+                        Subscribe for ad-free viewing
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -665,16 +883,20 @@ export default function CustomerLivestreamsPage() {
                           <Calendar className="h-4 w-4 mr-2" />
                           Date & Time
                         </span>
-                        <span className="font-medium">{selectedStream.startTime}</span>
+                        <span className="font-medium">
+                          {new Date(selectedStream.scheduled_start || '').toLocaleString()}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600 flex items-center">
                           <Clock className="h-4 w-4 mr-2" />
                           Duration
                         </span>
-                        <span className="font-medium">{selectedStream.duration}</span>
+                        <span className="font-medium">
+                          {selectedStream.status === 'live' ? 'Live Now' : 'Scheduled'}
+                        </span>
                       </div>
-                      {selectedStream.maxViewers && (
+                      {selectedStream.max_viewers && (
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-gray-600 flex items-center">
@@ -682,11 +904,11 @@ export default function CustomerLivestreamsPage() {
                               Capacity
                             </span>
                             <span className="font-medium">
-                              {selectedStream.viewers}/{selectedStream.maxViewers}
+                              {selectedStream.current_viewers || 0}/{selectedStream.max_viewers}
                             </span>
                           </div>
                           <Progress 
-                            value={(selectedStream.viewers! / selectedStream.maxViewers) * 100} 
+                            value={((selectedStream.current_viewers || 0) / selectedStream.max_viewers) * 100} 
                             className="h-2"
                           />
                         </div>
@@ -719,8 +941,8 @@ export default function CustomerLivestreamsPage() {
                 
                 {/* Action Buttons */}
                 <div className="space-y-3 pt-4">
-                  {selectedStream.isPurchased ? (
-                    selectedStream.isLive ? (
+                  {hasAccess ? (
+                    selectedStream.status === 'live' ? (
                       <Button className="w-full bg-red-600 text-white hover:bg-red-700 h-12 text-lg">
                         <Radio className="h-5 w-5 mr-2 animate-pulse" />
                         Join Live Stream
@@ -731,11 +953,24 @@ export default function CustomerLivestreamsPage() {
                         Set Reminder
                       </Button>
                     )
-                  ) : (
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white h-12 text-lg hover:shadow-lg transform hover:scale-105 transition-all">
-                      <Ticket className="h-5 w-5 mr-2" />
-                      Get Ticket - ${selectedStream.price}
+                  ) : selectedStream.is_subscriber_only ? (
+                    <Button 
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white h-12 text-lg"
+                      onClick={() => router.push(`/creator/${selectedStream.creator_id}/subscribe`)}
+                    >
+                      <Crown className="h-5 w-5 mr-2" />
+                      Subscribe to Watch
                     </Button>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white h-12 text-lg">
+                        <Play className="h-5 w-5 mr-2" />
+                        Watch with Ads
+                      </Button>
+                      <p className="text-xs text-center text-gray-500">
+                        Or subscribe for ad-free viewing
+                      </p>
+                    </div>
                   )}
                   
                   <div className="flex space-x-2">
@@ -751,7 +986,8 @@ export default function CustomerLivestreamsPage() {
                 </div>
               </div>
             </div>
-          )}
+            )
+          })()}
         </DialogContent>
       </Dialog>
     </div>
