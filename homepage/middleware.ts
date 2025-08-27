@@ -35,6 +35,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
   
+  // Redirect livestreaming routes when feature is disabled
+  if (process.env.NEXT_PUBLIC_ENABLE_LIVESTREAMING !== 'true') {
+    const livestreamRedirects: Record<string, string> = {
+      '/creator/streaming': '/creator/dashboard',
+      '/admin/streaming': '/admin/dashboard',
+      '/fan/livestreams': '/fan/dashboard',
+      '/live': '/',
+    }
+    
+    // Check if the current path starts with any of the livestream routes
+    for (const [route, redirect] of Object.entries(livestreamRedirects)) {
+      if (path === route || path.startsWith(route + '/')) {
+        const redirectUrl = new URL(redirect, request.url)
+        return NextResponse.redirect(redirectUrl)
+      }
+    }
+  }
+  
   // Development-only bypass for testing streaming features
   if (process.env.NODE_ENV === 'development') {
     const testPaths = [

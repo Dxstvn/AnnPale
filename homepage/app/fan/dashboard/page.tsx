@@ -44,6 +44,7 @@ import { useLanguage } from "@/contexts/language-context"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
 import { cn } from "@/lib/utils"
 import { Globe } from "lucide-react"
+import { FEATURES } from "@/lib/feature-flags"
 
 export default function CustomerDashboard() {
   const router = useRouter()
@@ -73,7 +74,7 @@ export default function CustomerDashboard() {
   }
 
   // Mock data for upcoming events
-  const upcomingEvents = [
+  const allUpcomingEvents = [
     {
       id: 1,
       type: "call",
@@ -104,6 +105,11 @@ export default function CustomerDashboard() {
       avatar: "/placeholder.svg"
     }
   ]
+
+  // Filter out livestream events if the feature is disabled
+  const upcomingEvents = FEATURES.LIVESTREAMING 
+    ? allUpcomingEvents 
+    : allUpcomingEvents.filter(event => event.type !== "livestream")
 
   // Mock favorite creators
   const favoriteCreators = [
@@ -205,7 +211,7 @@ export default function CustomerDashboard() {
   ]
 
   // Mock activity data
-  const recentActivity = [
+  const allRecentActivity = [
     {
       id: 1,
       action: "Booked video message",
@@ -239,8 +245,13 @@ export default function CustomerDashboard() {
       color: "text-orange-600"
     }
   ]
+  
+  // Filter out livestream activities if the feature is disabled
+  const recentActivity = FEATURES.LIVESTREAMING 
+    ? allRecentActivity 
+    : allRecentActivity.filter(activity => !activity.action.toLowerCase().includes("livestream"))
 
-  const stats = [
+  const allStatsData = [
     {
       label: "Total Bookings",
       value: "24",
@@ -255,13 +266,13 @@ export default function CustomerDashboard() {
       icon: Phone,
       color: "from-green-600 to-emerald-600"
     },
-    {
+    ...(FEATURES.LIVESTREAMING ? [{
       label: "Livestreams Watched",
       value: "156",
       change: "+8%",
       icon: Radio,
       color: "from-pink-600 to-rose-600"
-    },
+    }] : []),
     {
       label: "Total Spent",
       value: "$1,245",
@@ -270,6 +281,8 @@ export default function CustomerDashboard() {
       color: "from-orange-600 to-amber-600"
     }
   ]
+  
+  const stats = allStatsData
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -721,12 +734,14 @@ export default function CustomerDashboard() {
                       Request Video Message
                     </Link>
                   </Button>
-                  <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/fan/livestreams">
-                      <Radio className="h-4 w-4 mr-2" />
-                      Browse Live Streams
-                    </Link>
-                  </Button>
+                  {FEATURES.LIVESTREAMING && (
+                    <Button className="w-full justify-start" variant="outline" asChild>
+                      <Link href="/fan/livestreams">
+                        <Radio className="h-4 w-4 mr-2" />
+                        Browse Live Streams
+                      </Link>
+                    </Button>
+                  )}
                   <Button className="w-full justify-start" variant="outline" asChild>
                     <Link href="/fan/favorites">
                       <Heart className="h-4 w-4 mr-2" />
@@ -841,7 +856,9 @@ export default function CustomerDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>All Upcoming Events</CardTitle>
-              <CardDescription>Your scheduled calls, bookings, and livestreams</CardDescription>
+              <CardDescription>
+                Your scheduled calls{FEATURES.LIVESTREAMING ? ", bookings, and livestreams" : " and bookings"}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
