@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Video,
   Phone,
@@ -42,6 +43,7 @@ import {
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useFanStats } from "@/hooks/use-stats"
 import { cn } from "@/lib/utils"
 import { Globe } from "lucide-react"
 
@@ -49,6 +51,7 @@ export default function CustomerDashboard() {
   const router = useRouter()
   const { language } = useLanguage()
   const { user, isLoading, isAuthenticated } = useSupabaseAuth()
+  const { stats: fanStats, upcomingEvents, recentActivity, loading: statsLoading } = useFanStats()
   const [activeTab, setActiveTab] = useState("overview")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -72,38 +75,16 @@ export default function CustomerDashboard() {
     return null
   }
 
-  // Mock data for upcoming events
-  const upcomingEvents = [
-    {
-      id: 1,
-      type: "call",
-      title: "Video Call with Marie Jean",
-      time: "Today, 2:00 PM",
-      duration: "10 minutes",
-      price: "$150",
-      avatar: "/placeholder.svg",
-      status: "confirmed"
-    },
-    {
-      id: 2,
-      type: "livestream",
-      title: "Live Music Session",
-      creator: "Jean Baptiste",
-      time: "Today, 8:00 PM",
-      viewers: 245,
-      avatar: "/placeholder.svg",
-      status: "upcoming"
-    },
-    {
-      id: 3,
-      type: "video",
-      title: "Birthday Message",
-      creator: "Claudette Pierre",
-      time: "Tomorrow",
-      status: "processing",
-      avatar: "/placeholder.svg"
-    }
-  ]
+  // Format upcoming events for display
+  const formattedUpcomingEvents = upcomingEvents?.map((event, index) => ({
+    id: event.id || index,
+    type: event.event_type === "video_call" ? "call" : event.event_type,
+    title: `${event.event_type === "video_call" ? "Video Call" : "Video Message"} with ${event.creator_name}`,
+    creator: event.creator_name,
+    time: event.scheduled_date ? new Date(event.scheduled_date).toLocaleString() : "Pending",
+    status: event.status,
+    avatar: "/placeholder.svg"
+  })) || []
 
   // Mock favorite creators
   const favoriteCreators = [
@@ -204,70 +185,47 @@ export default function CustomerDashboard() {
     { name: "Motivation", icon: Award, count: 19, color: "from-orange-600 to-amber-600" }
   ]
 
-  // Mock activity data
-  const recentActivity = [
-    {
-      id: 1,
-      action: "Booked video message",
-      creator: "Marie Jean",
-      time: "2 hours ago",
-      icon: Video,
-      color: "text-purple-600"
-    },
-    {
-      id: 2,
-      action: "Scheduled video call",
-      creator: "Jean Baptiste",
-      time: "5 hours ago",
-      icon: Phone,
-      color: "text-green-600"
-    },
-    {
-      id: 3,
-      action: "Watched livestream",
-      creator: "Claudette Pierre",
-      time: "Yesterday",
-      icon: Radio,
-      color: "text-pink-600"
-    },
-    {
-      id: 4,
-      action: "Received video message",
-      creator: "Michel Louis",
-      time: "2 days ago",
-      icon: Gift,
-      color: "text-orange-600"
-    }
-  ]
+  // Format recent activity for display
+  const formattedRecentActivity = recentActivity?.map((activity, index) => ({
+    id: activity.id || index,
+    action: activity.description || "Activity",
+    time: activity.created_at ? new Date(activity.created_at).toLocaleString() : "Recently",
+    icon: activity.activity_type === "booking" ? Video : Activity,
+    color: "text-purple-600"
+  })) || []
 
   const stats = [
     {
       label: "Total Bookings",
-      value: "24",
+      value: fanStats ? fanStats.total_bookings.toString() : "0",
       change: "+12%",
       icon: Video,
-      color: "from-purple-600 to-pink-600"
+      color: "from-purple-600 to-pink-600",
+      loading: statsLoading
     },
     {
       label: "Video Calls",
-      value: "8",
+      value: fanStats ? fanStats.video_calls.toString() : "0",
       change: "+25%",
       icon: Phone,
-      color: "from-green-600 to-emerald-600"
+      color: "from-green-600 to-emerald-600",
+      loading: statsLoading
     },
     {
       label: "Livestreams Watched",
-      value: "156",
+      value: fanStats ? fanStats.livestreams_watched.toString() : "0",
       change: "+8%",
       icon: Radio,
-      color: "from-pink-600 to-rose-600"
+      color: "from-pink-600 to-rose-600",
+      loading: statsLoading
     },
     {
       label: "Total Spent",
-      value: "$1,245",
+      value: fanStats ? `$${fanStats.total_spent.toFixed(2)}` : "$0.00",
       change: "+18%",
       icon: DollarSign,
-      color: "from-orange-600 to-amber-600"
+      color: "from-orange-600 to-amber-600",
+      loading: statsLoading
     }
   ]
 
@@ -297,6 +255,34 @@ export default function CustomerDashboard() {
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat) => (
+          <Card key={stat.label} className="hover:shadow-lg transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.color} bg-opacity-10`}>
+                  <stat.icon className="h-5 w-5 text-white" />
+                </div>
+                {stat.change && (
+                  <Badge variant="secondary" className="text-green-600">
+                    {stat.change}
+                  </Badge>
+                )}
+              </div>
+              <div className="mt-4">
+                <p className="text-sm text-gray-600">{stat.label}</p>
+                {stat.loading ? (
+                  <Skeleton className="h-8 w-24 mt-1" />
+                ) : (
+                  <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Enhanced Browse Creators Section - Primary Focus */}
@@ -643,7 +629,10 @@ export default function CustomerDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {upcomingEvents.map((event) => (
+                  {formattedUpcomingEvents.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">No upcoming events</p>
+                  ) : (
+                    formattedUpcomingEvents.map((event) => (
                     <div
                       key={event.id}
                       className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all"
@@ -694,7 +683,7 @@ export default function CustomerDashboard() {
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  )))}
                 </CardContent>
               </Card>
             </div>
@@ -845,7 +834,10 @@ export default function CustomerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[...upcomingEvents, ...upcomingEvents].map((event, index) => (
+                {formattedUpcomingEvents.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No upcoming events</p>
+                ) : (
+                  [...formattedUpcomingEvents, ...formattedUpcomingEvents].map((event, index) => (
                   <div
                     key={`${event.id}-${index}`}
                     className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all"
@@ -874,7 +866,7 @@ export default function CustomerDashboard() {
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
-                ))}
+                )))}
               </div>
             </CardContent>
           </Card>
@@ -889,7 +881,10 @@ export default function CustomerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity.map((activity) => (
+                {formattedRecentActivity.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No recent activity</p>
+                ) : (
+                  formattedRecentActivity.map((activity) => (
                   <div
                     key={activity.id}
                     className="flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors"
@@ -909,7 +904,7 @@ export default function CustomerDashboard() {
                     </div>
                     <span className="text-sm text-gray-500">{activity.time}</span>
                   </div>
-                ))}
+                )))}
               </div>
             </CardContent>
           </Card>
