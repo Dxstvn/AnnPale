@@ -1,0 +1,555 @@
+{
+  "kenny": {
+    "email": "kenny.sinvil@annpale.demo",
+    "password": "AnnPale2024_Kenny",
+    "full_name": "Kenny Sinvil",
+    "display_name": "Kenny Haiti",
+    "role": "creator",
+    "bio": "Kenny Haiti, born Kenny Sinvil in Saint-Marc, is a rising star in the Haitian music scene. After moving to Florida in 2007, he transformed from aspiring basketball player to celebrated musician, earning the Best Caribbean Artist Trace Award. His 2018 breakout hit \"Jou Pa Nou\" garnered over 1 million views, establishing him as a fresh voice in konpa and Afro-Caribbean music. With 1 million Instagram followers and a growing international fanbase, Kenny Haiti continues to bridge traditional Haitian rhythms with contemporary sounds, representing the vibrant culture of the Haitian diaspora. Beyond music, he's an entrepreneur with his Krezi Mayo merchandise line, staying connected to his roots while building his American dream.",
+    "location": "Boynton Beach, Florida",
+    "phone": "+1-561-555-0101",
+    "is_creator": true,
+    "is_demo_account": true,
+    "demo_tier": "rising_star",
+    "public_figure_verified": true,
+    "official_website": "https://kennyhaiti.com",
+    "career_highlights": [
+      "Best Caribbean Artist Trace Award Winner",
+      "1M+ followers on Instagram",
+      "Debut music video \"Jou Pa Nou\" exceeded 1 million views",
+      "Successful Krezi Mayo merchandise line",
+      "10+ years building fanbase in Haitian diaspora"
+    ],
+    "languages": ["Haitian Creole", "English", "French"],
+    "price_video_message": 150,
+    "price_live_call": 300,
+    "rating": 4.7,
+    "total_reviews": 184,
+    "total_videos": 127,
+    "completion_rate": 0.94,
+    "follower_count": 1000000,
+    "monthly_bookings": 45,
+    "repeat_customer_rate": 0.28,
+    "response_time": "24 hours",
+    "account_status": "active",
+    "category": "musician",
+    "subcategory": "konpa",
+    "years_active": 6,
+    "hometown": "Saint-Marc, Haiti",
+    "sample_videos": [
+      {
+        "title": "Birthday Wishes in Creole",
+        "description": "Warm birthday message with traditional Haitian blessing and personal touch",
+        "duration_seconds": 45,
+        "category": "birthday",
+        "language": "ht"
+      },
+      {
+        "title": "Motivational Success Message",
+        "description": "Inspirational words about pursuing dreams and overcoming challenges",
+        "duration_seconds": 60,
+        "category": "encouragement",
+        "language": "en"
+      },
+      {
+        "title": "Celebration Congratulations",
+        "description": "Energetic congratulations for achievements with konpa music background",
+        "duration_seconds": 50,
+        "category": "achievement",
+        "language": "ht"
+      }
+    ],
+    "reviews": [
+      {
+        "reviewer_name": "Marie Delmas",
+        "rating": 5,
+        "review_text": "Kenny made my daughter's birthday so special! He spoke in perfect Creole and even mentioned her favorite song. The energy was amazing!",
+        "video_type": "birthday",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "Jean-Claude P.",
+        "rating": 5,
+        "review_text": "Incredible message for my graduation! Kenny's words were so motivating and he really understood what this achievement meant to our family.",
+        "video_type": "achievement",
+        "language": "en"
+      },
+      {
+        "reviewer_name": "Sandra Louis",
+        "rating": 4,
+        "review_text": "Great message, delivered quickly. Kenny has such a positive vibe and great voice. Would definitely book again!",
+        "video_type": "encouragement",
+        "language": "en"
+      }
+    ],
+    "stats": {
+      "total_earnings": 18750.00,
+      "videos_this_month": 12,
+      "average_turnaround_hours": 18,
+      "satisfaction_score": 4.70,
+      "featured_category": "Rising Stars",
+      "trending_rank": 8
+    }
+  },
+  "tvice": {
+    "email": "roberto.martino@annpale.demo",
+    "password": "AnnPale2024_TVice",
+    "full_name": "T-Vice Band",
+    "display_name": "T-Vice",
+    "role": "creator",
+    "bio": "T-Vice stands as one of Haiti's most influential konpa bands, formed in 1992 by brothers Roberto and Reynaldo Martino as successors to the legendary Top Vice. Based in Miami, this revolutionary quartet transformed konpa music by infusing it with reggae, merengue, and rock influences, creating an energetic party atmosphere that captivated audiences worldwide. With over three decades of international touring across the US, Caribbean, and Europe, T-Vice has collaborated with superstars like Wyclef Jean and Buju Banton while maintaining their authentic Haitian roots. The band's innovative approach and enduring popularity has secured their position among the top 3 konpa acts globally, bridging generations and cultures through their infectious rhythms and passionate performances.",
+    "location": "Miami, Florida",
+    "phone": "+1-305-555-0201",
+    "is_creator": true,
+    "is_demo_account": true,
+    "demo_tier": "celebrity",
+    "public_figure_verified": true,
+    "wikipedia_url": "https://en.wikipedia.org/wiki/T-Vice",
+    "career_highlights": [
+      "32+ year career as one of Haiti's most influential konpa bands",
+      "Ranked in Top 3 konpa acts alongside Alan Cavé and Djakout Mizik",
+      "Collaborated with Wyclef Jean and Buju Banton on 'Party By The Sea'",
+      "International touring across US, Caribbean, and Europe",
+      "Revolutionized konpa with energetic party atmosphere and modern influences"
+    ],
+    "languages": ["Haitian Creole", "English", "French", "Spanish"],
+    "price_video_message": 250,
+    "price_live_call": 500,
+    "rating": 4.8,
+    "total_reviews": 312,
+    "total_videos": 248,
+    "completion_rate": 0.96,
+    "follower_count": 750000,
+    "monthly_bookings": 85,
+    "repeat_customer_rate": 0.34,
+    "response_time": "2 days",
+    "account_status": "active",
+    "category": "band",
+    "subcategory": "konpa",
+    "years_active": 32,
+    "hometown": "Port-au-Prince, Haiti",
+    "sample_videos": [
+      {
+        "title": "Konpa Birthday Celebration",
+        "description": "Traditional Haitian birthday wishes with live guitar performance and band harmonies",
+        "duration_seconds": 75,
+        "category": "birthday",
+        "language": "ht"
+      },
+      {
+        "title": "Wedding Blessings",
+        "description": "Romantic congratulations with beautiful konpa melody and cultural blessings",
+        "duration_seconds": 90,
+        "category": "wedding",
+        "language": "ht"
+      },
+      {
+        "title": "Achievement Celebration",
+        "description": "Energetic congratulations with full band sound and motivational message",
+        "duration_seconds": 65,
+        "category": "achievement",
+        "language": "en"
+      }
+    ],
+    "reviews": [
+      {
+        "reviewer_name": "Pascale Morin",
+        "rating": 5,
+        "review_text": "T-Vice made our wedding anniversary unforgettable! The whole band participated and they played a snippet of our favorite song. Absolutely magical!",
+        "video_type": "anniversary",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "Michael Jean",
+        "rating": 5,
+        "review_text": "Amazing energy from the legendary T-Vice! They congratulated my son on his graduation with such warmth and even gave career advice. Worth every penny!",
+        "video_type": "achievement",
+        "language": "en"
+      },
+      {
+        "reviewer_name": "Rose Augustin",
+        "rating": 4,
+        "review_text": "Beautiful message for my mother's 70th birthday. T-Vice's harmonies are incredible and they made it so personal. She cried tears of joy!",
+        "video_type": "birthday",
+        "language": "ht"
+      }
+    ],
+    "stats": {
+      "total_earnings": 62000.00,
+      "videos_this_month": 28,
+      "average_turnaround_hours": 36,
+      "satisfaction_score": 4.83,
+      "featured_category": "Legendary Acts",
+      "trending_rank": 3
+    }
+  },
+  "carimi": {
+    "email": "carlo.vieux@annpale.demo",
+    "password": "AnnPale2024_Carimi",
+    "full_name": "CaRiMi Band",
+    "display_name": "Carimi",
+    "role": "creator",
+    "bio": "Carimi emerged in 2001 as \"konpa music revivalists,\" transforming Haitian music with their socially conscious digital sound. Formed in New York City by three educated musicians—Carlo Vieux, Richard Cavé, and Mickael Guirand—the band addressed Haiti's political struggles while captivating the diaspora worldwide. Their debut \"Haiti Bang, Bang\" became an instant classic, launching a career that sold over one million albums and earned international awards. Pioneers in digital innovation, Carimi became the first Haitian band to create a mobile app and made history in 2024 with the first konpa arena concert in the United States. Though they disbanded in 2016, their reunion tours demonstrate their enduring legacy as cultural ambassadors bridging Haiti's heritage with global audiences.",
+    "location": "New York City, New York",
+    "phone": "+1-718-555-0301",
+    "is_creator": true,
+    "is_demo_account": true,
+    "demo_tier": "superstar",
+    "public_figure_verified": true,
+    "wikipedia_url": "https://en.wikipedia.org/wiki/Carimi",
+    "official_website": "https://www.opamusic.com/artist/carimi/",
+    "career_highlights": [
+      "Konpa music revivalists with over 1 million albums sold worldwide",
+      "Best Compas/Racine entertainer (2008 International Reggae and World Music Awards)",
+      "Song of the Year (2010 Konpa Magazine Award)",
+      "First Haitian band to create a konpa mobile app",
+      "Historic first arena concert in US (UBS Arena, 2024)"
+    ],
+    "languages": ["Haitian Creole", "English", "French"],
+    "price_video_message": 300,
+    "price_live_call": 600,
+    "rating": 4.9,
+    "total_reviews": 456,
+    "total_videos": 389,
+    "completion_rate": 0.97,
+    "follower_count": 850000,
+    "monthly_bookings": 110,
+    "repeat_customer_rate": 0.38,
+    "response_time": "2 days",
+    "account_status": "active",
+    "category": "band",
+    "subcategory": "konpa",
+    "years_active": 23,
+    "hometown": "New York City, New York",
+    "sample_videos": [
+      {
+        "title": "Celebration Message in Creole",
+        "description": "Traditional Haitian celebration wishes with cultural blessings and digital konpa sound",
+        "duration_seconds": 80,
+        "category": "celebration",
+        "language": "ht"
+      },
+      {
+        "title": "Inspirational Life Advice",
+        "description": "Drawing from educational backgrounds and overcoming challenges to inspire success",
+        "duration_seconds": 95,
+        "category": "encouragement",
+        "language": "en"
+      },
+      {
+        "title": "Anniversary Wishes",
+        "description": "Romantic konpa-style congratulations with cultural touches and harmonized vocals",
+        "duration_seconds": 70,
+        "category": "anniversary",
+        "language": "ht"
+      }
+    ],
+    "reviews": [
+      {
+        "reviewer_name": "Guerline Charles",
+        "rating": 5,
+        "review_text": "Carimi delivered the most beautiful anniversary message! All three members participated and they harmonized our names into a song. Absolutely stunning!",
+        "video_type": "anniversary",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "David Prophete",
+        "rating": 5,
+        "review_text": "Incredible graduation message from the legendary Carimi! They shared wisdom about education and success that really resonated. My whole family was moved.",
+        "video_type": "achievement",
+        "language": "en"
+      },
+      {
+        "reviewer_name": "Josette Pierre",
+        "rating": 5,
+        "review_text": "Perfect birthday surprise for my husband! Carimi's message was so heartfelt and they included references to their classic songs. He was speechless!",
+        "video_type": "birthday",
+        "language": "ht"
+      }
+    ],
+    "stats": {
+      "total_earnings": 116700.00,
+      "videos_this_month": 35,
+      "average_turnaround_hours": 42,
+      "satisfaction_score": 4.91,
+      "featured_category": "Hall of Fame",
+      "trending_rank": 1
+    }
+  },
+  "djakout": {
+    "email": "auguste.duverger@annpale.demo",
+    "password": "AnnPale2024_Djakout",
+    "full_name": "Djakout Mizik",
+    "display_name": "Djakout Mizik",
+    "role": "creator",
+    "bio": "Djakout Mizik stands as one of Haiti's most enduring musical institutions, pioneering the \"nouvelle génération\" electronic konpa sound since 1986. Led by vocalist Auguste \"Pouchon\" Duverger, this legendary ensemble bridges traditional compas with modern electronic elements, earning recognition as \"the band that moves crowds the most.\" From their groundbreaking MTV appearance with Wyclef Jean to surviving a 2010 band split that spawned the hit \"Eskive,\" Djakout Mizik has weathered every storm while maintaining their position among the top 3 konpa acts globally. With nearly four decades of cultural influence, they continue to represent authentic Haitian music while embracing innovation, making them beloved ambassadors of konpa music to generations of fans worldwide.",
+    "location": "Haiti",
+    "phone": "+509-3655-0401",
+    "is_creator": true,
+    "is_demo_account": true,
+    "demo_tier": "superstar",
+    "public_figure_verified": true,
+    "wikipedia_url": "https://en.wikipedia.org/wiki/Djakout_Mizik",
+    "career_highlights": [
+      "Pioneers of 'nouvelle génération' electronic konpa music (38-year career)",
+      "Consistently ranked in Top 3 konpa acts alongside T-Vice and Alan Cavé",
+      "First Haitian konpa group to perform on MTV (New Year's Eve 2007 with Wyclef Jean)",
+      "Extensive discography with 34+ releases",
+      "Survived major challenges including shooting incident and band split"
+    ],
+    "languages": ["Haitian Creole", "English", "French"],
+    "price_video_message": 275,
+    "price_live_call": 550,
+    "rating": 4.8,
+    "total_reviews": 389,
+    "total_videos": 295,
+    "completion_rate": 0.95,
+    "follower_count": 680000,
+    "monthly_bookings": 95,
+    "repeat_customer_rate": 0.36,
+    "response_time": "2 days",
+    "account_status": "active",
+    "category": "band",
+    "subcategory": "konpa",
+    "years_active": 38,
+    "hometown": "Haiti",
+    "sample_videos": [
+      {
+        "title": "Traditional Haitian Blessings",
+        "description": "Cultural benedictions with nouvelle génération konpa musical backdrop",
+        "duration_seconds": 85,
+        "category": "blessing",
+        "language": "ht"
+      },
+      {
+        "title": "Celebration of Achievement",
+        "description": "Congratulatory message for graduations and promotions with electronic konpa sound",
+        "duration_seconds": 70,
+        "category": "achievement",
+        "language": "ht"
+      },
+      {
+        "title": "Motivational Message",
+        "description": "Drawing from 38 years of perseverance and success in music industry",
+        "duration_seconds": 90,
+        "category": "encouragement",
+        "language": "en"
+      }
+    ],
+    "reviews": [
+      {
+        "reviewer_name": "Lunise Dorval",
+        "rating": 5,
+        "review_text": "Djakout Mizik gave the most powerful blessing for my son's wedding! Pouchon's voice is legendary and the whole band's energy came through. Unforgettable!",
+        "video_type": "wedding",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "Fritz Belizaire",
+        "rating": 5,
+        "review_text": "Amazing graduation message! Djakout's words about perseverance really hit home. They're living proof that Haitian music can conquer the world!",
+        "video_type": "achievement",
+        "language": "en"
+      },
+      {
+        "reviewer_name": "Magalie Severe",
+        "rating": 4,
+        "review_text": "Beautiful birthday message with that classic Djakout sound! They made my mother feel like a queen. The nouvelle génération style never gets old!",
+        "video_type": "birthday",
+        "language": "ht"
+      }
+    ],
+    "stats": {
+      "total_earnings": 78375.00,
+      "videos_this_month": 32,
+      "average_turnaround_hours": 40,
+      "satisfaction_score": 4.84,
+      "featured_category": "Legendary Acts",
+      "trending_rank": 2
+    }
+  },
+  "harmonik": {
+    "email": "nickenson.prudhomme@annpale.demo",
+    "password": "AnnPale2024_Harmonik",
+    "full_name": "Harmonik Band",
+    "display_name": "Harmonik",
+    "role": "creator",
+    "bio": "Harmonik has been a driving force in contemporary Haitian konpa music since 2005, led by vocalist Nickenson Prud'homme. Over two decades, they've established themselves as \"one of the leading groups on the Haitian Konpa scene,\" blending catchy melodies, danceable rhythms, and poetic lyrics that resonate with audiences worldwide. From their breakthrough album \"Jere m'\" to their latest \"Idantite'n,\" Harmonik has consistently evolved konpa music while honoring its roots. Their groundbreaking 2025 collaboration \"Magical Ride\" with Nigerian artist Rotimi exemplifies their innovative spirit, creating Afro-konpa fusion that celebrates cultural diversity. Known for energetic performances and commitment to promoting Haitian culture, Harmonik continues to bridge generations through their modern take on traditional konpa.",
+    "location": "Haiti",
+    "phone": "+509-3877-0501",
+    "is_creator": true,
+    "is_demo_account": true,
+    "demo_tier": "celebrity",
+    "public_figure_verified": true,
+    "career_highlights": [
+      "'One of the leading groups on the Haitian Konpa scene' since 2005",
+      "20-year career with consistent album releases and evolution",
+      "International touring and global fanbase",
+      "Pioneer in Afro-konpa collaboration with Nigerian artist Rotimi",
+      "Eight studio albums spanning nearly two decades"
+    ],
+    "languages": ["Haitian Creole", "English", "French"],
+    "price_video_message": 175,
+    "price_live_call": 350,
+    "rating": 4.6,
+    "total_reviews": 267,
+    "total_videos": 198,
+    "completion_rate": 0.93,
+    "follower_count": 420000,
+    "monthly_bookings": 65,
+    "repeat_customer_rate": 0.31,
+    "response_time": "24 hours",
+    "account_status": "active",
+    "category": "band",
+    "subcategory": "konpa",
+    "years_active": 20,
+    "hometown": "Haiti",
+    "sample_videos": [
+      {
+        "title": "Cultural Pride Message",
+        "description": "Celebrating Haitian identity and heritage with contemporary konpa musical backdrop",
+        "duration_seconds": 65,
+        "category": "cultural",
+        "language": "ht"
+      },
+      {
+        "title": "Modern Congratulations",
+        "description": "Contemporary celebration wishes for achievements and milestones with harmonic vocals",
+        "duration_seconds": 55,
+        "category": "achievement",
+        "language": "en"
+      },
+      {
+        "title": "Inspirational Youth Message",
+        "description": "Encouraging message for young people pursuing dreams with modern konpa sound",
+        "duration_seconds": 75,
+        "category": "encouragement",
+        "language": "ht"
+      }
+    ],
+    "reviews": [
+      {
+        "reviewer_name": "Farah Domercant",
+        "rating": 5,
+        "review_text": "Harmonik's cultural pride message for Haiti Day was absolutely beautiful! Nickenson's voice gave me chills and the message about identity was perfect.",
+        "video_type": "cultural",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "Jean Robert",
+        "rating": 4,
+        "review_text": "Great graduation message from Harmonik! They really understood what this milestone meant and their encouragement was heartfelt. Modern konpa at its best!",
+        "video_type": "achievement",
+        "language": "en"
+      },
+      {
+        "reviewer_name": "Ketsia Voltaire",
+        "rating": 5,
+        "review_text": "Perfect birthday surprise! Harmonik made it so personal and their harmonies are incredible. The blend of traditional and modern was exactly what we wanted.",
+        "video_type": "birthday",
+        "language": "ht"
+      }
+    ],
+    "stats": {
+      "total_earnings": 34650.00,
+      "videos_this_month": 18,
+      "average_turnaround_hours": 22,
+      "satisfaction_score": 4.65,
+      "featured_category": "Contemporary Stars",
+      "trending_rank": 6
+    }
+  },
+  "belo": {
+    "email": "jean.murat@annpale.demo",
+    "password": "AnnPale2024_Belo",
+    "full_name": "Jean Bélony Murat",
+    "display_name": "BélO",
+    "role": "creator",
+    "bio": "BélO (Jean Bélony Murat) stands as Haiti's premier musical ambassador, weaving social consciousness into \"Ragganga\" style music that blends reggae, jazz, and Caribbean influences. Born in 1979 near Port-au-Prince, this socially conscious artist has released six acclaimed albums since 2005's breakthrough \"Lakou trankil,\" addressing issues from violence to homelessness while proposing solutions through his art. As World Vision's Goodwill Ambassador and winner of multiple international awards including the Discovery RFI Prime, BélO has gained recognition across Europe and Africa while maintaining deep roots in Haitian culture. His rich Creole vocals and guitar mastery have earned him recent honors from Miami-Dade County to Nassau County, cementing his role as both entertainer and advocate for peace and resilience in the Haitian community worldwide.",
+    "location": "International (touring artist)",
+    "phone": "+1-954-555-0601",
+    "is_creator": true,
+    "is_demo_account": true,
+    "demo_tier": "celebrity",
+    "public_figure_verified": true,
+    "wikipedia_url": "https://en.wikipedia.org/wiki/BélO",
+    "official_website": "https://www.beloayiti.com",
+    "career_highlights": [
+      "30-year career as Haiti's musical ambassador to the world",
+      "World Vision Goodwill Ambassador in Haiti (2018)",
+      "Discovery RFI Prime winner (2006)",
+      "Multiple 2023 awards: Miami-Dade County, Nassau County, TCCF Citizenship Award",
+      "Popular across Europe and Africa with social impact focus"
+    ],
+    "languages": ["Haitian Creole", "English", "French"],
+    "price_video_message": 200,
+    "price_live_call": 400,
+    "rating": 4.8,
+    "total_reviews": 298,
+    "total_videos": 245,
+    "completion_rate": 0.96,
+    "follower_count": 520000,
+    "monthly_bookings": 75,
+    "repeat_customer_rate": 0.35,
+    "response_time": "24 hours",
+    "account_status": "active",
+    "category": "musician",
+    "subcategory": "ragganga",
+    "years_active": 30,
+    "hometown": "Croix-des-Bouquets, Haiti",
+    "sample_videos": [
+      {
+        "title": "Motivational Message of Hope",
+        "description": "Inspirational words about overcoming challenges and building dreams with guitar accompaniment",
+        "duration_seconds": 85,
+        "category": "encouragement",
+        "language": "ht"
+      },
+      {
+        "title": "Haitian Heritage Celebration",
+        "description": "Cultural pride message celebrating Haitian identity and traditions with ragganga style",
+        "duration_seconds": 70,
+        "category": "cultural",
+        "language": "ht"
+      },
+      {
+        "title": "Social Awareness Message",
+        "description": "Educational content about important social issues with positive solutions and hope",
+        "duration_seconds": 95,
+        "category": "education",
+        "language": "en"
+      }
+    ],
+    "reviews": [
+      {
+        "reviewer_name": "Mimose Lafleur",
+        "rating": 5,
+        "review_text": "BélO's motivational message changed my perspective on life! His words about resilience and his guitar playing were so moving. A true ambassador for Haiti!",
+        "video_type": "encouragement",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "Samuel Joseph",
+        "rating": 5,
+        "review_text": "Incredible heritage celebration message! BélO's passion for Haitian culture shines through every word. Perfect for our family reunion in the diaspora.",
+        "video_type": "cultural",
+        "language": "ht"
+      },
+      {
+        "reviewer_name": "Dr. Marie Nelson",
+        "rating": 4,
+        "review_text": "Powerful message about social responsibility! BélO's commitment to positive change is inspiring. His approach to addressing difficult topics is both gentle and impactful.",
+        "video_type": "education",
+        "language": "en"
+      }
+    ],
+    "stats": {
+      "total_earnings": 49000.00,
+      "videos_this_month": 22,
+      "average_turnaround_hours": 20,
+      "satisfaction_score": 4.82,
+      "featured_category": "Cultural Ambassadors",
+      "trending_rank": 4
+    }
+  }
+}
