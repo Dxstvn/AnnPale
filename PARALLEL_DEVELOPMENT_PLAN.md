@@ -847,7 +847,7 @@ git push origin main
 - [x] 3.9 Performance (SWR caching): 5-minute cache TTL
 - [x] 3.10 Testing & verification: Build passes
 - [x] **COMPLETED:** 2025-08-27 15:10
-- [ ] **MERGED TO MAIN:** Awaiting merge
+- [x] **MERGED TO MAIN:** 2025-08-27 15:20 ✅ (with conflict resolution)
 
 ### Terminal 4: Subscriptions ⏳
 - [x] Started: 2025-08-27 14:47
