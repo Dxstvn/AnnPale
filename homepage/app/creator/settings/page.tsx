@@ -530,17 +530,17 @@ export default function CreatorSettingsPage() {
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Profile Photo</Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
-                            <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                            <p className="text-sm text-gray-600">Click to upload</p>
+                          <div className="relative border-2 border-dashed border-purple-300 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 cursor-pointer group">
+                            <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600 transition-colors" />
+                            <p className="text-sm text-gray-700 font-medium">Click to upload</p>
                             <p className="text-xs text-gray-500">JPG, PNG up to 5MB</p>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <Label>Cover Image</Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
-                            <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                            <p className="text-sm text-gray-600">Click to upload</p>
+                          <div className="relative border-2 border-dashed border-purple-300 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 cursor-pointer group">
+                            <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600 transition-colors" />
+                            <p className="text-sm text-gray-700 font-medium">Click to upload</p>
                             <p className="text-xs text-gray-500">JPG, PNG up to 10MB</p>
                           </div>
                         </div>

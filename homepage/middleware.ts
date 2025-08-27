@@ -4,13 +4,28 @@ import { createServerClient } from '@supabase/ssr'
 
 // Define protected routes and their required roles
 const protectedRoutes = {
-  '/creator': ['creator', 'admin'],
+  '/creator/dashboard': ['creator', 'admin'],
+  '/creator/analytics': ['creator', 'admin'],
+  '/creator/content': ['creator', 'admin'],
+  '/creator/earnings': ['creator', 'admin'],
+  '/creator/fans': ['creator', 'admin'],
+  '/creator/finances': ['creator', 'admin'],
+  '/creator/messages': ['creator', 'admin'],
+  '/creator/record': ['creator', 'admin'],
+  '/creator/requests': ['creator', 'admin'],
+  '/creator/reviews': ['creator', 'admin'],
+  '/creator/schedule': ['creator', 'admin'],
+  '/creator/settings': ['creator', 'admin'],
+  '/creator/streaming': ['creator', 'admin'],
+  '/creator/templates': ['creator', 'admin'],
+  '/creator/upload': ['creator', 'admin'],
   '/admin': ['admin'],
   '/fan': ['fan', 'creator', 'admin'],
   '/profile': ['fan', 'creator', 'admin'],
   '/orders': ['fan', 'creator', 'admin'],
   '/settings': ['fan', 'creator', 'admin']
 }
+// Note: /creator/[id] profile pages are PUBLIC - fans need to view them to book creators
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -18,6 +33,27 @@ export async function middleware(request: NextRequest) {
   // Skip middleware for auth callback and role selection routes
   if (path === '/auth/callback' || path === '/auth/role-selection') {
     return NextResponse.next()
+  }
+  
+  // Development-only bypass for testing streaming features
+  if (process.env.NODE_ENV === 'development') {
+    const testPaths = [
+      '/test-login',
+      '/creator/streaming/test',
+      '/creator/streaming/quick-start',
+      '/creator/streaming/browser-stream',
+      '/fan/livestreams',
+      '/live/watch',
+      '/live/enhanced',
+      '/test-stream',
+      '/test-stream-simple'
+    ]
+    
+    // Allow test paths without authentication in development
+    if (testPaths.some(testPath => path.startsWith(testPath))) {
+      console.log(`[Middleware] Development bypass for test path: ${path}`)
+      return NextResponse.next()
+    }
   }
   
   // Create a response object that we'll modify

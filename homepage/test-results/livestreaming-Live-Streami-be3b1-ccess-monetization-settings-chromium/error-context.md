@@ -1,0 +1,643 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e7]: 🎤
+          - heading "Creator Studio" [level=2] [ref=e8]
+        - button [ref=e9]:
+          - img
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /creator/dashboard
+          - img [ref=e12] [cursor=pointer]
+          - generic [ref=e15] [cursor=pointer]: Dashboard
+          - img [ref=e16] [cursor=pointer]
+        - link "Revenue" [ref=e19] [cursor=pointer]:
+          - /url: /creator/analytics/revenue
+          - img [ref=e20] [cursor=pointer]
+          - generic [ref=e22] [cursor=pointer]: Revenue
+          - img [ref=e23] [cursor=pointer]
+        - link "Audience" [ref=e26] [cursor=pointer]:
+          - /url: /creator/analytics/audience
+          - img [ref=e27] [cursor=pointer]
+          - generic [ref=e32] [cursor=pointer]: Audience
+          - img [ref=e33] [cursor=pointer]
+        - link "Content" [ref=e36] [cursor=pointer]:
+          - /url: /creator/content
+          - img [ref=e37] [cursor=pointer]
+          - generic [ref=e40] [cursor=pointer]: Content
+          - img [ref=e41] [cursor=pointer]
+        - link "Templates" [ref=e44] [cursor=pointer]:
+          - /url: /creator/templates
+          - img [ref=e45] [cursor=pointer]
+          - generic [ref=e48] [cursor=pointer]: Templates
+          - img [ref=e49] [cursor=pointer]
+        - link "Schedule" [ref=e52] [cursor=pointer]:
+          - /url: /creator/schedule
+          - img [ref=e53] [cursor=pointer]
+          - generic [ref=e55] [cursor=pointer]: Schedule
+          - img [ref=e56] [cursor=pointer]
+        - link "Messages" [ref=e59] [cursor=pointer]:
+          - /url: /creator/messages
+          - img [ref=e60] [cursor=pointer]
+          - generic [ref=e62] [cursor=pointer]: Messages
+          - img [ref=e63] [cursor=pointer]
+        - link "Reviews" [ref=e66] [cursor=pointer]:
+          - /url: /creator/reviews
+          - img [ref=e67] [cursor=pointer]
+          - generic [ref=e69] [cursor=pointer]: Reviews
+          - img [ref=e70] [cursor=pointer]
+        - link "Fans" [ref=e73] [cursor=pointer]:
+          - /url: /creator/fans
+          - img [ref=e74] [cursor=pointer]
+          - generic [ref=e76] [cursor=pointer]: Fans
+          - img [ref=e77] [cursor=pointer]
+        - link "Settings" [ref=e80] [cursor=pointer]:
+          - /url: /creator/settings
+          - img [ref=e81] [cursor=pointer]
+          - generic [ref=e84] [cursor=pointer]: Settings
+          - img [ref=e85] [cursor=pointer]
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e91]: Today's Earnings
+          - generic [ref=e92]: $245
+        - generic [ref=e93]:
+          - generic [ref=e94]: Pending Requests
+          - generic [ref=e95]: "8"
+        - generic [ref=e96]:
+          - generic [ref=e97]: Response Rate
+          - generic [ref=e98]: 96%
+      - button "Sign Out" [ref=e100]:
+        - img [ref=e101]
+        - generic [ref=e104]: Sign Out
+    - main [ref=e105]:
+      - generic [ref=e106]:
+        - generic:
+          - generic: 🎵
+          - generic: 🎭
+          - generic: 🎨
+          - generic: 🌺
+        - generic [ref=e107]:
+          - img "Wyclef Jean cover" [ref=e108]
+          - generic [ref=e112]:
+            - link "🎤 Ann Pale" [ref=e113] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e114] [cursor=pointer]: 🎤
+              - generic [ref=e115] [cursor=pointer]: Ann Pale
+            - navigation [ref=e116]:
+              - link "Browse" [ref=e117] [cursor=pointer]:
+                - /url: /browse
+              - link "Categories" [ref=e118] [cursor=pointer]:
+                - /url: /categories
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - img "Wyclef Jean" [ref=e124]
+              - img [ref=e126]
+            - generic [ref=e129]:
+              - generic [ref=e130]:
+                - heading "Wyclef Jean" [level=1] [ref=e131]
+                - generic "Grammy Winner" [ref=e132]: 🏆
+                - generic "Top Creator" [ref=e133]: ⭐
+                - generic "Fast Responder" [ref=e134]: ⚡
+                - generic "Haitian Pride" [ref=e135]: 🇭🇹
+              - paragraph [ref=e136]: Grammy Award Winner • Former Fugees Member
+              - generic [ref=e137]:
+                - generic [ref=e138]: Musician
+                - generic [ref=e139]:
+                  - img
+                  - text: Featured
+                - generic [ref=e140]:
+                  - img
+                  - text: Trending
+            - generic [ref=e141]:
+              - button [ref=e142]:
+                - img
+              - button [ref=e143]:
+                - img
+              - button [ref=e144]:
+                - img
+        - generic [ref=e145]:
+          - generic [ref=e146]:
+            - generic [ref=e147]:
+              - generic [ref=e150] [cursor=pointer]:
+                - generic [ref=e151] [cursor=pointer]:
+                  - generic [ref=e152] [cursor=pointer]: 1,247
+                  - generic [ref=e153] [cursor=pointer]: Videos
+                - generic [ref=e154] [cursor=pointer]:
+                  - generic [ref=e155] [cursor=pointer]: "4.9"
+                  - generic [ref=e156] [cursor=pointer]: Rating
+                - generic [ref=e157] [cursor=pointer]:
+                  - generic [ref=e158] [cursor=pointer]: 98%
+                  - generic [ref=e159] [cursor=pointer]: On Time
+                - generic [ref=e160] [cursor=pointer]:
+                  - generic [ref=e161] [cursor=pointer]: 34%
+                  - generic [ref=e162] [cursor=pointer]: Repeat
+              - generic [ref=e163] [cursor=pointer]:
+                - heading "About Wyclef Jean" [level=3] [ref=e165] [cursor=pointer]:
+                  - img [ref=e166] [cursor=pointer]
+                  - text: About Wyclef Jean
+                - generic [ref=e171] [cursor=pointer]:
+                  - paragraph [ref=e172] [cursor=pointer]: Grammy-winning musician, producer, and humanitarian. Former member of the Fugees and solo artist with hits like 'Hips Don't Lie' and 'Gone Till November'. Proud Haitian-American artist bringing joy through personalized messages.
+                  - button "Read More" [ref=e173]:
+                    - text: Read More
+                    - img
+                  - separator [ref=e174] [cursor=pointer]
+                  - generic [ref=e175] [cursor=pointer]:
+                    - generic [ref=e176] [cursor=pointer]:
+                      - heading "Languages" [level=4] [ref=e177] [cursor=pointer]:
+                        - img [ref=e178] [cursor=pointer]
+                        - text: Languages
+                      - generic [ref=e181] [cursor=pointer]:
+                        - generic [ref=e182] [cursor=pointer]:
+                          - generic [ref=e183] [cursor=pointer]: 🇺🇸
+                          - text: English
+                        - generic [ref=e184] [cursor=pointer]:
+                          - generic [ref=e185] [cursor=pointer]: 🇭🇹
+                          - text: Kreyòl
+                        - generic [ref=e186] [cursor=pointer]:
+                          - generic [ref=e187] [cursor=pointer]: 🇫🇷
+                          - text: Français
+                    - generic [ref=e188] [cursor=pointer]:
+                      - heading "Specialties" [level=4] [ref=e189] [cursor=pointer]:
+                        - img [ref=e190] [cursor=pointer]
+                        - text: Specialties
+                      - generic [ref=e192] [cursor=pointer]:
+                        - generic [ref=e193] [cursor=pointer]:
+                          - generic [ref=e194] [cursor=pointer]: 🎂
+                          - text: Birthday wishes
+                          - img
+                        - generic [ref=e195] [cursor=pointer]:
+                          - generic [ref=e196] [cursor=pointer]: 🎉
+                          - text: Congratulations
+                          - img
+                        - generic [ref=e197] [cursor=pointer]:
+                          - generic [ref=e198] [cursor=pointer]: 💪
+                          - text: Motivational messages
+                        - generic [ref=e199] [cursor=pointer]:
+                          - generic [ref=e200] [cursor=pointer]: 🎵
+                          - text: Music dedications
+                        - generic [ref=e201] [cursor=pointer]:
+                          - generic [ref=e202] [cursor=pointer]: 🇭🇹
+                          - text: Cultural celebrations
+                        - generic [ref=e203] [cursor=pointer]:
+                          - generic [ref=e204] [cursor=pointer]: 💍
+                          - text: Wedding messages
+                  - generic [ref=e205] [cursor=pointer]:
+                    - heading "Follow on Social Media" [level=4] [ref=e206] [cursor=pointer]
+                    - generic [ref=e207] [cursor=pointer]:
+                      - button "Instagram" [ref=e208]:
+                        - img
+                        - text: Instagram
+                      - button "Twitter" [ref=e209]:
+                        - img
+                        - text: Twitter
+                      - button "YouTube" [ref=e210]:
+                        - img
+                        - text: YouTube
+              - generic [ref=e212]:
+                - generic [ref=e213]:
+                  - generic [ref=e214]:
+                    - heading "Videos" [level=2] [ref=e215]
+                    - generic [ref=e216]: 4 videos
+                  - generic [ref=e217]:
+                    - button "All Videos" [ref=e218]
+                    - button "Birthday" [ref=e219]
+                    - button "Congratulations" [ref=e220]
+                    - button "Anniversary" [ref=e221]
+                    - button "Motivation" [ref=e222]
+                - generic [ref=e223]:
+                  - generic [ref=e225]:
+                    - generic [ref=e226] [cursor=pointer]:
+                      - img "Birthday Message for Marie" [ref=e227] [cursor=pointer]
+                      - img [ref=e231] [cursor=pointer]
+                      - generic [ref=e233] [cursor=pointer]: 1:23
+                    - generic [ref=e234]:
+                      - generic [ref=e235]:
+                        - heading "Birthday Message for Marie" [level=3] [ref=e236]
+                        - generic [ref=e237]: Birthday
+                      - generic [ref=e238]:
+                        - generic [ref=e239]:
+                          - img [ref=e240]
+                          - generic [ref=e243]: 15,234 views
+                        - generic [ref=e244]:
+                          - img [ref=e245]
+                          - generic [ref=e247]: "4.964068388625139"
+                      - button "Watch Preview" [ref=e248]
+                  - generic [ref=e250]:
+                    - generic [ref=e251] [cursor=pointer]:
+                      - img "Graduation Congratulations" [ref=e252] [cursor=pointer]
+                      - img [ref=e256] [cursor=pointer]
+                      - generic [ref=e258] [cursor=pointer]: 1:45
+                      - generic [ref=e260] [cursor=pointer]:
+                        - img
+                        - text: Featured
+                    - generic [ref=e261]:
+                      - generic [ref=e262]:
+                        - heading "Graduation Congratulations" [level=3] [ref=e263]
+                        - generic [ref=e264]: Congratulations
+                      - generic [ref=e265]:
+                        - generic [ref=e266]:
+                          - img [ref=e267]
+                          - generic [ref=e270]: 8,921 views
+                        - generic [ref=e271]:
+                          - img [ref=e272]
+                          - generic [ref=e274]: "4.998031798176173"
+                      - button "Watch Preview" [ref=e275]
+                  - generic [ref=e277]:
+                    - generic [ref=e278] [cursor=pointer]:
+                      - img "Anniversary Song" [ref=e279] [cursor=pointer]
+                      - img [ref=e283] [cursor=pointer]
+                      - generic [ref=e285] [cursor=pointer]: 2:10
+                    - generic [ref=e286]:
+                      - generic [ref=e287]:
+                        - heading "Anniversary Song" [level=3] [ref=e288]
+                        - generic [ref=e289]: Anniversary
+                      - generic [ref=e290]:
+                        - generic [ref=e291]:
+                          - img [ref=e292]
+                          - generic [ref=e295]: 12,456 views
+                        - generic [ref=e296]:
+                          - img [ref=e297]
+                          - generic [ref=e299]: "4.9436790866232485"
+                      - button "Watch Preview" [ref=e300]
+                  - generic [ref=e302]:
+                    - generic [ref=e303] [cursor=pointer]:
+                      - img "Motivational Monday" [ref=e304] [cursor=pointer]
+                      - img [ref=e308] [cursor=pointer]
+                      - generic [ref=e310] [cursor=pointer]: 1:30
+                    - generic [ref=e311]:
+                      - generic [ref=e312]:
+                        - heading "Motivational Monday" [level=3] [ref=e313]
+                        - generic [ref=e314]: Motivation
+                      - generic [ref=e315]:
+                        - generic [ref=e316]:
+                          - img [ref=e317]
+                          - generic [ref=e320]: 6,789 views
+                        - generic [ref=e321]:
+                          - img [ref=e322]
+                          - generic [ref=e324]: "4.852520212207006"
+                      - button "Watch Preview" [ref=e325]
+              - generic [ref=e326] [cursor=pointer]:
+                - generic [ref=e328] [cursor=pointer]:
+                  - heading "Reviews" [level=3] [ref=e329] [cursor=pointer]:
+                    - img [ref=e330] [cursor=pointer]
+                    - text: Reviews
+                  - generic [ref=e332] [cursor=pointer]:
+                    - generic [ref=e333] [cursor=pointer]:
+                      - img [ref=e334] [cursor=pointer]
+                      - img [ref=e336] [cursor=pointer]
+                      - img [ref=e338] [cursor=pointer]
+                      - img [ref=e340] [cursor=pointer]
+                      - img [ref=e342] [cursor=pointer]
+                    - generic [ref=e344] [cursor=pointer]: "4.9"
+                    - generic [ref=e345] [cursor=pointer]: (1247 reviews)
+                - generic [ref=e346] [cursor=pointer]:
+                  - generic [ref=e347] [cursor=pointer]:
+                    - generic [ref=e349] [cursor=pointer]:
+                      - generic [ref=e350] [cursor=pointer]: M
+                      - generic [ref=e351] [cursor=pointer]:
+                        - generic [ref=e352] [cursor=pointer]:
+                          - generic [ref=e353] [cursor=pointer]: Marie L.
+                          - generic [ref=e354] [cursor=pointer]:
+                            - img
+                            - text: Verified
+                        - generic [ref=e355] [cursor=pointer]:
+                          - generic [ref=e356] [cursor=pointer]:
+                            - img [ref=e357] [cursor=pointer]
+                            - img [ref=e359] [cursor=pointer]
+                            - img [ref=e361] [cursor=pointer]
+                            - img [ref=e363] [cursor=pointer]
+                            - img [ref=e365] [cursor=pointer]
+                          - generic [ref=e367] [cursor=pointer]: 2 days ago
+                    - paragraph [ref=e368] [cursor=pointer]: Wyclef made my daughter's birthday so special! He sang happy birthday in Creole and even added a personal touch by mentioning her favorite song. Worth every penny!
+                    - generic [ref=e369] [cursor=pointer]:
+                      - img "Review video" [ref=e370] [cursor=pointer]
+                      - generic [ref=e371] [cursor=pointer]: Video attached
+                    - button "Helpful (45)" [ref=e373]:
+                      - img [ref=e374]
+                      - text: Helpful (45)
+                  - generic [ref=e376] [cursor=pointer]:
+                    - generic [ref=e378] [cursor=pointer]:
+                      - generic [ref=e379] [cursor=pointer]: J
+                      - generic [ref=e380] [cursor=pointer]:
+                        - generic [ref=e381] [cursor=pointer]:
+                          - generic [ref=e382] [cursor=pointer]: Jean P.
+                          - generic [ref=e383] [cursor=pointer]:
+                            - img
+                            - text: Verified
+                        - generic [ref=e384] [cursor=pointer]:
+                          - generic [ref=e385] [cursor=pointer]:
+                            - img [ref=e386] [cursor=pointer]
+                            - img [ref=e388] [cursor=pointer]
+                            - img [ref=e390] [cursor=pointer]
+                            - img [ref=e392] [cursor=pointer]
+                            - img [ref=e394] [cursor=pointer]
+                          - generic [ref=e396] [cursor=pointer]: 1 week ago
+                    - paragraph [ref=e397] [cursor=pointer]: Amazing video for my graduation! Very personal and heartfelt. The whole family was moved to tears. Mèsi anpil!
+                    - button "Helpful (32)" [ref=e399]:
+                      - img [ref=e400]
+                      - text: Helpful (32)
+                  - generic [ref=e402] [cursor=pointer]:
+                    - generic [ref=e404] [cursor=pointer]:
+                      - generic [ref=e405] [cursor=pointer]: S
+                      - generic [ref=e406] [cursor=pointer]:
+                        - generic [ref=e407] [cursor=pointer]:
+                          - generic [ref=e408] [cursor=pointer]: Sarah D.
+                          - generic [ref=e409] [cursor=pointer]:
+                            - img
+                            - text: Verified
+                        - generic [ref=e410] [cursor=pointer]:
+                          - generic [ref=e411] [cursor=pointer]:
+                            - img [ref=e412] [cursor=pointer]
+                            - img [ref=e414] [cursor=pointer]
+                            - img [ref=e416] [cursor=pointer]
+                            - img [ref=e418] [cursor=pointer]
+                            - img [ref=e420] [cursor=pointer]
+                          - generic [ref=e422] [cursor=pointer]: 2 weeks ago
+                    - paragraph [ref=e423] [cursor=pointer]: Wyclef went above and beyond! Not only did he deliver the message quickly, but he also included a mini performance. My husband was speechless!
+                    - button "Helpful (28)" [ref=e425]:
+                      - img [ref=e426]
+                      - text: Helpful (28)
+                  - button "View All Reviews" [ref=e428]:
+                    - text: View All Reviews
+                    - img
+            - generic [ref=e429]:
+              - generic [ref=e430]:
+                - generic [ref=e431] [cursor=pointer]:
+                  - generic [ref=e433] [cursor=pointer]:
+                    - heading "Book a Video" [level=3] [ref=e434] [cursor=pointer]
+                    - generic [ref=e435] [cursor=pointer]:
+                      - img
+                      - text: Popular
+                  - generic [ref=e436] [cursor=pointer]:
+                    - button "Premium 3 days delivery $225" [ref=e438]:
+                      - generic [ref=e439]:
+                        - paragraph [ref=e440]: Premium
+                        - paragraph [ref=e441]: 3 days delivery
+                      - generic [ref=e442]:
+                        - paragraph [ref=e443]: $225
+                        - img [ref=e444]
+                    - generic [ref=e446] [cursor=pointer]:
+                      - generic [ref=e447] [cursor=pointer]:
+                        - img [ref=e448] [cursor=pointer]
+                        - generic [ref=e451] [cursor=pointer]: 60-90 seconds
+                      - generic [ref=e452] [cursor=pointer]:
+                        - img [ref=e453] [cursor=pointer]
+                        - generic [ref=e456] [cursor=pointer]: 2 revisions
+                      - generic [ref=e457] [cursor=pointer]:
+                        - img [ref=e458] [cursor=pointer]
+                        - generic [ref=e461] [cursor=pointer]: HD quality
+                    - separator [ref=e462] [cursor=pointer]
+                    - generic [ref=e463] [cursor=pointer]:
+                      - generic [ref=e464] [cursor=pointer]:
+                        - generic [ref=e465] [cursor=pointer]:
+                          - img [ref=e466] [cursor=pointer]
+                          - text: Next Available
+                        - generic [ref=e468] [cursor=pointer]: Today
+                      - generic [ref=e469] [cursor=pointer]:
+                        - generic [ref=e470] [cursor=pointer]:
+                          - img [ref=e471] [cursor=pointer]
+                          - text: Response Time
+                        - generic [ref=e474] [cursor=pointer]: 24hr
+                      - paragraph [ref=e476] [cursor=pointer]: Only 15 slots left this week!
+                    - generic [ref=e477] [cursor=pointer]:
+                      - link "Book Now - $225" [ref=e478] [cursor=pointer]:
+                        - /url: /book/1?package=premium
+                        - button "Book Now - $225" [ref=e479]:
+                          - img
+                          - text: Book Now - $225
+                      - button "Save for Later" [ref=e480]:
+                        - img
+                        - text: Save for Later
+                    - link "View all package options →" [ref=e482] [cursor=pointer]:
+                      - /url: "#packages"
+                - generic [ref=e485] [cursor=pointer]:
+                  - generic [ref=e486] [cursor=pointer]:
+                    - img [ref=e487] [cursor=pointer]
+                    - text: 100% Money-back guarantee
+                  - generic [ref=e489] [cursor=pointer]:
+                    - img [ref=e490] [cursor=pointer]
+                    - text: Verified creator
+                  - generic [ref=e493] [cursor=pointer]:
+                    - img [ref=e494] [cursor=pointer]
+                    - text: 4.9 rating (1247+ reviews)
+                  - generic [ref=e496] [cursor=pointer]:
+                    - img [ref=e497] [cursor=pointer]
+                    - text: 1247+ happy customers
+                - paragraph [ref=e505]:
+                  - generic [ref=e506]: 12 people
+                  - text: booked Wyclef Jean today
+              - generic [ref=e507] [cursor=pointer]:
+                - heading "Similar Creators" [level=3] [ref=e509] [cursor=pointer]
+                - generic [ref=e510] [cursor=pointer]:
+                  - link "M Michael Brun DJ/Producer • $200 4.8" [ref=e511] [cursor=pointer]:
+                    - /url: /creator/2
+                    - generic [ref=e512] [cursor=pointer]: M
+                    - generic [ref=e513] [cursor=pointer]:
+                      - paragraph [ref=e514] [cursor=pointer]: Michael Brun
+                      - paragraph [ref=e515] [cursor=pointer]: DJ/Producer • $200
+                    - generic [ref=e516] [cursor=pointer]:
+                      - img [ref=e517] [cursor=pointer]
+                      - generic [ref=e519] [cursor=pointer]: "4.8"
+                  - link "R Rutshelle Guillaume Singer • $85 4.9" [ref=e520] [cursor=pointer]:
+                    - /url: /creator/6
+                    - generic [ref=e521] [cursor=pointer]: R
+                    - generic [ref=e522] [cursor=pointer]:
+                      - paragraph [ref=e523] [cursor=pointer]: Rutshelle Guillaume
+                      - paragraph [ref=e524] [cursor=pointer]: Singer • $85
+                    - generic [ref=e525] [cursor=pointer]:
+                      - img [ref=e526] [cursor=pointer]
+                      - generic [ref=e528] [cursor=pointer]: "4.9"
+                  - link "J J Perry Singer • $90 4.8" [ref=e529] [cursor=pointer]:
+                    - /url: /creator/13
+                    - generic [ref=e530] [cursor=pointer]: J
+                    - generic [ref=e531] [cursor=pointer]:
+                      - paragraph [ref=e532] [cursor=pointer]: J Perry
+                      - paragraph [ref=e533] [cursor=pointer]: Singer • $90
+                    - generic [ref=e534] [cursor=pointer]:
+                      - img [ref=e535] [cursor=pointer]
+                      - generic [ref=e537] [cursor=pointer]: "4.8"
+          - generic [ref=e539] [cursor=pointer]:
+            - generic [ref=e540] [cursor=pointer]:
+              - heading "Choose Your Video Package" [level=3] [ref=e541] [cursor=pointer]:
+                - img [ref=e542] [cursor=pointer]
+                - text: Choose Your Video Package
+              - paragraph [ref=e544] [cursor=pointer]: Select the perfect package for your personalized video message from Wyclef Jean
+            - generic [ref=e546] [cursor=pointer]:
+              - generic [ref=e547] [cursor=pointer]:
+                - heading "Choose Your Package" [level=2] [ref=e548] [cursor=pointer]
+                - paragraph [ref=e549] [cursor=pointer]: Select the perfect video message experience
+              - generic [ref=e551] [cursor=pointer]:
+                - 'button "Basic Perfect for simple personal messages $150 Delivery: 7 days 30-60 second video Standard delivery (7 days) One revision included Digital download" [ref=e553]':
+                  - generic [ref=e554]:
+                    - generic [ref=e555]:
+                      - img [ref=e557]
+                      - heading "Basic" [level=3] [ref=e559]
+                      - paragraph [ref=e560]: Perfect for simple personal messages
+                    - paragraph [ref=e562]: $150
+                  - generic [ref=e563]:
+                    - img [ref=e564]
+                    - generic [ref=e567]: "Delivery: 7 days"
+                  - list [ref=e568]:
+                    - listitem [ref=e569]:
+                      - img [ref=e570]
+                      - generic [ref=e573]: 30-60 second video
+                    - listitem [ref=e574]:
+                      - img [ref=e575]
+                      - generic [ref=e578]: Standard delivery (7 days)
+                    - listitem [ref=e579]:
+                      - img [ref=e580]
+                      - generic [ref=e583]: One revision included
+                    - listitem [ref=e584]:
+                      - img [ref=e585]
+                      - generic [ref=e588]: Digital download
+                - generic [ref=e589] [cursor=pointer]:
+                  - generic [ref=e591] [cursor=pointer]:
+                    - img
+                    - text: Most Popular
+                  - 'button "Premium Most popular choice with extra features $270 $225 Delivery: 3 days 60-90 second video Priority delivery (3 days) Two revisions included HD quality video Custom background Special shoutout Selected" [ref=e592]':
+                    - generic [ref=e593]:
+                      - generic [ref=e594]:
+                        - img [ref=e596]
+                        - heading "Premium" [level=3] [ref=e598]
+                        - paragraph [ref=e599]: Most popular choice with extra features
+                      - generic [ref=e600]:
+                        - paragraph [ref=e601]: $270
+                        - paragraph [ref=e602]: $225
+                    - generic [ref=e603]:
+                      - img [ref=e604]
+                      - generic [ref=e607]: "Delivery: 3 days"
+                    - list [ref=e608]:
+                      - listitem [ref=e609]:
+                        - img [ref=e610]
+                        - generic [ref=e613]: 60-90 second video
+                      - listitem [ref=e614]:
+                        - img [ref=e615]
+                        - generic [ref=e618]: Priority delivery (3 days)
+                      - listitem [ref=e619]:
+                        - img [ref=e620]
+                        - generic [ref=e623]: Two revisions included
+                      - listitem [ref=e624]:
+                        - img [ref=e625]
+                        - generic [ref=e628]: HD quality video
+                      - listitem [ref=e629]:
+                        - img [ref=e630]
+                        - generic [ref=e633]: Custom background
+                      - listitem [ref=e634]:
+                        - img [ref=e635]
+                        - generic [ref=e638]: Special shoutout
+                    - generic [ref=e640]:
+                      - img
+                      - text: Selected
+                - 'button "VIP Experience Ultimate personalized experience $375 Delivery: 24 hours 90-120 second video Express delivery (24hr) Unlimited revisions 4K quality video Custom script review Behind-the-scenes content Personal thank you note Priority support" [ref=e642]':
+                  - generic [ref=e643]:
+                    - generic [ref=e644]:
+                      - img [ref=e646]
+                      - heading "VIP Experience" [level=3] [ref=e649]
+                      - paragraph [ref=e650]: Ultimate personalized experience
+                    - paragraph [ref=e652]: $375
+                  - generic [ref=e653]:
+                    - img [ref=e654]
+                    - generic [ref=e657]: "Delivery: 24 hours"
+                  - list [ref=e658]:
+                    - listitem [ref=e659]:
+                      - img [ref=e660]
+                      - generic [ref=e663]: 90-120 second video
+                    - listitem [ref=e664]:
+                      - img [ref=e665]
+                      - generic [ref=e668]: Express delivery (24hr)
+                    - listitem [ref=e669]:
+                      - img [ref=e670]
+                      - generic [ref=e673]: Unlimited revisions
+                    - listitem [ref=e674]:
+                      - img [ref=e675]
+                      - generic [ref=e678]: 4K quality video
+                    - listitem [ref=e679]:
+                      - img [ref=e680]
+                      - generic [ref=e683]: Custom script review
+                    - listitem [ref=e684]:
+                      - img [ref=e685]
+                      - generic [ref=e688]: Behind-the-scenes content
+                    - listitem [ref=e689]:
+                      - img [ref=e690]
+                      - generic [ref=e693]: Personal thank you note
+                    - listitem [ref=e694]:
+                      - img [ref=e695]
+                      - generic [ref=e698]: Priority support
+              - separator [ref=e699] [cursor=pointer]
+              - generic [ref=e700] [cursor=pointer]:
+                - heading "Enhance Your Order" [level=3] [ref=e701] [cursor=pointer]:
+                  - img [ref=e702] [cursor=pointer]
+                  - text: Enhance Your Order
+                - generic [ref=e706] [cursor=pointer]:
+                  - generic [ref=e707] [cursor=pointer]:
+                    - checkbox "Rush Delivery Get your video in 24 hours +$25" [ref=e708]
+                    - generic [ref=e710] [cursor=pointer]:
+                      - generic [ref=e711] [cursor=pointer]:
+                        - paragraph [ref=e712] [cursor=pointer]: Rush Delivery
+                        - paragraph [ref=e713] [cursor=pointer]: Get your video in 24 hours
+                      - generic [ref=e714] [cursor=pointer]: +$25
+                  - generic [ref=e715] [cursor=pointer]:
+                    - checkbox "Extra Length Add 30 more seconds +$15" [ref=e716]
+                    - generic [ref=e718] [cursor=pointer]:
+                      - generic [ref=e719] [cursor=pointer]:
+                        - paragraph [ref=e720] [cursor=pointer]: Extra Length
+                        - paragraph [ref=e721] [cursor=pointer]: Add 30 more seconds
+                      - generic [ref=e722] [cursor=pointer]: +$15
+                  - generic [ref=e723] [cursor=pointer]:
+                    - checkbox "4K Ultra HD Highest quality video +$10" [ref=e724]
+                    - generic [ref=e726] [cursor=pointer]:
+                      - generic [ref=e727] [cursor=pointer]:
+                        - paragraph [ref=e728] [cursor=pointer]: 4K Ultra HD
+                        - paragraph [ref=e729] [cursor=pointer]: Highest quality video
+                      - generic [ref=e730] [cursor=pointer]: +$10
+                  - generic [ref=e731] [cursor=pointer]:
+                    - checkbox "Gift Wrapping Special gift presentation +$5" [ref=e732]
+                    - generic [ref=e734] [cursor=pointer]:
+                      - generic [ref=e735] [cursor=pointer]:
+                        - paragraph [ref=e736] [cursor=pointer]: Gift Wrapping
+                        - paragraph [ref=e737] [cursor=pointer]: Special gift presentation
+                      - generic [ref=e738] [cursor=pointer]: +$5
+              - separator [ref=e739] [cursor=pointer]
+              - generic [ref=e741] [cursor=pointer]:
+                - heading "Order Summary" [level=3] [ref=e742] [cursor=pointer]
+                - generic [ref=e743] [cursor=pointer]:
+                  - generic [ref=e744] [cursor=pointer]:
+                    - generic [ref=e745] [cursor=pointer]: Premium Package
+                    - generic [ref=e746] [cursor=pointer]: $225
+                  - separator [ref=e747] [cursor=pointer]
+                  - generic [ref=e748] [cursor=pointer]:
+                    - generic [ref=e749] [cursor=pointer]: Total
+                    - generic [ref=e750] [cursor=pointer]: $225
+                - generic [ref=e751] [cursor=pointer]:
+                  - link "Book Now - $225" [ref=e752] [cursor=pointer]:
+                    - /url: /book/1
+                    - button "Book Now - $225" [ref=e753]:
+                      - img
+                      - text: Book Now - $225
+                  - button "Save for Later" [ref=e754]:
+                    - img
+                    - text: Save for Later
+                - generic [ref=e756] [cursor=pointer]:
+                  - generic [ref=e757] [cursor=pointer]:
+                    - img [ref=e758] [cursor=pointer]
+                    - generic [ref=e760] [cursor=pointer]: Secure Payment
+                  - generic [ref=e761] [cursor=pointer]:
+                    - img [ref=e762] [cursor=pointer]
+                    - generic [ref=e765] [cursor=pointer]: 100% Satisfaction
+                  - generic [ref=e766] [cursor=pointer]:
+                    - img [ref=e767] [cursor=pointer]
+                    - generic [ref=e769] [cursor=pointer]: Fast Delivery
+              - paragraph [ref=e774] [cursor=pointer]:
+                - generic [ref=e775] [cursor=pointer]: 12 people
+                - text: booked Wyclef Jean in the last 24 hours
+  - region "Notifications (F8)":
+    - list
+  - button "Open Next.js Dev Tools" [ref=e781] [cursor=pointer]:
+    - img [ref=e782] [cursor=pointer]
+  - alert [ref=e785]
+```

@@ -165,7 +165,7 @@ export function BookingConfirmation({ bookingData, creator }: BookingConfirmatio
           <Share2 className="h-4 w-4 mr-2" />
           Share the News
         </Button>
-        <Button variant="outline" className="flex-1 hover:bg-gray-100 hover:border-2 hover:border-black">
+        <Button variant="outline" className="flex-1 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300">
           View Order Details
         </Button>
       </div>

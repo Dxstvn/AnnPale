@@ -248,7 +248,7 @@ export default function VideoDeliveryPage() {
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="hover:bg-gray-100 hover:border-2 hover:border-black mb-4"
+            className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300 mb-4"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Back
@@ -427,7 +427,7 @@ export default function VideoDeliveryPage() {
                   <div className="relative flex-1">
                     <Button
                       variant="outline"
-                      className="w-full hover:bg-gray-100 hover:border-2 hover:border-black"
+                      className="w-full hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300"
                       onClick={() => setShareMenuOpen(!shareMenuOpen)}
                     >
                       <Share2 className="h-4 w-4 mr-2" />
@@ -435,31 +435,31 @@ export default function VideoDeliveryPage() {
                     </Button>
                     
                     {shareMenuOpen && (
-                      <div className="absolute top-12 left-0 right-0 bg-white border rounded-lg shadow-xl p-2 z-10">
+                      <div className="absolute top-12 left-0 right-0 bg-white/95 backdrop-blur-sm border border-purple-200 rounded-lg shadow-xl p-2 z-10">
                         <button
                           onClick={() => handleShare('facebook')}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded flex items-center gap-2 transition-all duration-200"
                         >
                           <Facebook className="h-4 w-4 text-blue-600" />
                           Facebook
                         </button>
                         <button
                           onClick={() => handleShare('twitter')}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded flex items-center gap-2 transition-all duration-200"
                         >
                           <Twitter className="h-4 w-4 text-blue-400" />
                           Twitter
                         </button>
                         <button
                           onClick={() => handleShare('whatsapp')}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded flex items-center gap-2 transition-all duration-200"
                         >
                           <MessageSquare className="h-4 w-4 text-green-500" />
                           WhatsApp
                         </button>
                         <button
                           onClick={() => handleShare('email')}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded flex items-center gap-2 transition-all duration-200"
                         >
                           <Mail className="h-4 w-4 text-gray-600" />
                           Email
@@ -467,7 +467,7 @@ export default function VideoDeliveryPage() {
                         <Separator className="my-2" />
                         <button
                           onClick={() => handleShare('copy')}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded flex items-center gap-2 transition-all duration-200"
                         >
                           {copied ? (
                             <>
@@ -489,7 +489,7 @@ export default function VideoDeliveryPage() {
                     variant={isLiked ? "default" : "outline"}
                     size="icon"
                     onClick={() => setIsLiked(!isLiked)}
-                    className={isLiked ? "bg-red-500 hover:bg-red-600" : "hover:bg-gray-100 hover:border-2 hover:border-black"}
+                    className={isLiked ? "bg-red-500 hover:bg-red-600" : "hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300"}
                   >
                     <Heart className={`h-5 w-5 ${isLiked ? "fill-white" : ""}`} />
                   </Button>
@@ -627,7 +627,7 @@ export default function VideoDeliveryPage() {
               <CardContent className="space-y-2">
                 <Button
                   variant="outline"
-                  className="w-full justify-start hover:bg-gray-100 hover:border-2 hover:border-black"
+                  className="w-full justify-start hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300"
                   onClick={() => router.push('/help')}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
@@ -635,7 +635,7 @@ export default function VideoDeliveryPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start hover:bg-gray-100 hover:border-2 hover:border-black"
+                  className="w-full justify-start hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300"
                   onClick={() => router.push('/account/orders')}
                 >
                   <RotateCw className="h-4 w-4 mr-2" />

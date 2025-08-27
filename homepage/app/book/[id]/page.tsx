@@ -128,7 +128,7 @@ export default function BookingPage() {
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="hover:bg-gray-100 hover:border-2 hover:border-black"
+              className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300"
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back
@@ -257,7 +257,7 @@ export default function BookingPage() {
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={currentStep === 1}
-                    className="hover:bg-gray-100 hover:border-2 hover:border-black"
+                    className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300"
                   >
                     <ChevronLeft className="h-4 w-4 mr-2" />
                     Previous

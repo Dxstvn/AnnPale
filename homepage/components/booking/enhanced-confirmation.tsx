@@ -127,7 +127,7 @@ const SuccessAnimation = ({ onComplete }: { onComplete?: () => void }) => {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-purple-50/95 via-white/95 to-pink-50/95 dark:from-gray-900/95 dark:via-gray-800/95 dark:to-gray-900/95 backdrop-blur-sm"
     >
       <motion.div
         initial={{ scale: 0, rotate: -180 }}

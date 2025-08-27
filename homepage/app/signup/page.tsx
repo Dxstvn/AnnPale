@@ -117,9 +117,10 @@ export default function SignUpPage() {
         router.push('/fan/dashboard')
       }
     } catch (error) {
+      console.error('Signup error:', error)
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -184,9 +185,10 @@ export default function SignUpPage() {
         router.push('/creator/dashboard')
       }
     } catch (error) {
+      console.error('Signup error:', error)
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
     } finally {

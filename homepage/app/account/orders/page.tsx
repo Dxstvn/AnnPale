@@ -420,7 +420,7 @@ export default function OrdersPage() {
                   className="pl-10"
                 />
               </div>
-              <Button variant="outline" className="hover:bg-gray-100 hover:border-2 hover:border-black">
+              <Button variant="outline" className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:shadow-md transition-all duration-300">
                 <Filter className="h-4 w-4 mr-2" />
                 More Filters
               </Button>

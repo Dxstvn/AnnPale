@@ -7,12 +7,12 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: "group bg-white border-gray-200 shadow-sm hover:shadow-lg cursor-pointer",
-        elevated: "group bg-white border-gray-200 shadow-md hover:shadow-xl",
-        interactive: "group bg-white border-gray-200 shadow-sm hover:shadow-md hover:translate-y-[-2px] cursor-pointer",
+        default: "group bg-white/95 backdrop-blur-sm border border-purple-100 shadow-md hover:shadow-xl hover:border-purple-300 cursor-pointer transition-all duration-300",
+        elevated: "group bg-white/95 backdrop-blur-sm border border-purple-200 shadow-lg hover:shadow-2xl transition-all duration-300",
+        interactive: "group bg-white/95 backdrop-blur-sm border border-purple-100 shadow-md hover:shadow-xl hover:translate-y-[-2px] hover:border-purple-300 cursor-pointer transition-all duration-300",
         ghost: "border-transparent shadow-none bg-transparent",
-        bordered: "bg-white border-2 border-purple-200",
-        gradient: "bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200",
+        bordered: "bg-white/95 backdrop-blur-sm border-2 border-purple-300 shadow-md hover:shadow-lg transition-all duration-300",
+        gradient: "bg-gradient-to-br from-purple-50/95 to-pink-50/95 backdrop-blur-sm border border-purple-300 shadow-md hover:shadow-xl transition-all duration-300",
       },
       padding: {
         none: "",

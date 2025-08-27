@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { StreamPreview } from '@/components/creator-streaming/stream-preview';
 import { StreamSetupPanel } from '@/components/creator-streaming/stream-setup-panel';
@@ -44,15 +45,48 @@ import {
   CheckCircle,
   Bell,
   Share2,
-  MoreHorizontal
+  MoreHorizontal,
+  Copy,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  ExternalLink,
+  Zap,
+  Key,
+  Video,
+  Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 
 export default function CreatorStreamingDashboard() {
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeTab, setActiveTab] = useState('preview');
   const [isLoading, setIsLoading] = useState(true);
+  const [showStreamKeyDialog, setShowStreamKeyDialog] = useState(false);
+  const [showStreamKey, setShowStreamKey] = useState(false);
+  
+  // AWS Channel state
+  const [awsChannel, setAwsChannel] = useState<{
+    id: string;
+    playbackUrl: string;
+    ingestEndpoint: string;
+    streamKey?: string;
+    isLive: boolean;
+    createdAt: string;
+  } | null>(null);
+  const [isCreatingChannel, setIsCreatingChannel] = useState(false);
 
   // Stream state
   const [streamState, setStreamState] = useState<CreatorStreamState>({
@@ -85,8 +119,8 @@ export default function CreatorStreamingDashboard() {
     devices: [],
     chatMessages: [],
     moderationActions: [],
-    streamKey: 'sk_test_abc123',
-    streamUrl: 'rtmp://live.annpale.com/live'
+    streamKey: '',
+    streamUrl: ''
   });
 
   // UI state
@@ -98,11 +132,11 @@ export default function CreatorStreamingDashboard() {
   useEffect(() => {
     const initializeDashboard = async () => {
       try {
-        // Simulate loading time
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
         // Load devices
         await loadMediaDevices();
+        
+        // Load AWS channel
+        await loadAWSChannel();
         
         // Load saved setup if exists
         loadSavedSetup();
@@ -116,6 +150,71 @@ export default function CreatorStreamingDashboard() {
 
     initializeDashboard();
   }, []);
+
+  // Load AWS channel
+  const loadAWSChannel = async () => {
+    try {
+      const response = await fetch('/api/streaming/channel');
+      if (response.ok) {
+        const data = await response.json();
+        setAwsChannel(data.channel);
+        
+        // Update stream state with AWS info
+        if (data.channel) {
+          setStreamState(prev => ({
+            ...prev,
+            streamUrl: `rtmps://${data.channel.ingestEndpoint}:443/app/`,
+            streamKey: '••••••••' // Hidden by default
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load AWS channel:', error);
+    }
+  };
+
+  // Create AWS channel
+  const createAWSChannel = async () => {
+    setIsCreatingChannel(true);
+    try {
+      const response = await fetch('/api/streaming/channel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAwsChannel({
+          id: data.channel.id,
+          playbackUrl: data.channel.playbackUrl,
+          ingestEndpoint: data.channel.ingestEndpoint,
+          streamKey: data.channel.streamKey, // Only available on creation
+          isLive: false,
+          createdAt: new Date().toISOString()
+        });
+        
+        // Update stream state
+        setStreamState(prev => ({
+          ...prev,
+          streamUrl: `rtmps://${data.channel.ingestEndpoint}:443/app/`,
+          streamKey: data.channel.streamKey
+        }));
+        
+        // Show stream key dialog
+        setShowStreamKeyDialog(true);
+        
+        toast.success('Channel created successfully! Save your stream key securely.');
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Failed to create channel');
+      }
+    } catch (error) {
+      console.error('Error creating channel:', error);
+      toast.error('Failed to create channel');
+    } finally {
+      setIsCreatingChannel(false);
+    }
+  };
 
   // Load media devices
   const loadMediaDevices = async () => {
@@ -154,8 +253,10 @@ export default function CreatorStreamingDashboard() {
       localStorage.setItem('creator-stream-setup', JSON.stringify(streamState.setup));
       setHasUnsavedChanges(false);
       setLastSaveTime(new Date());
+      toast.success('Setup saved successfully');
     } catch (error) {
       console.error('Failed to save setup:', error);
+      toast.error('Failed to save setup');
     }
   }, [streamState.setup]);
 
@@ -165,10 +266,11 @@ export default function CreatorStreamingDashboard() {
       streamState.setup.title.trim().length >= 3 &&
       streamState.setup.description.trim().length >= 10 &&
       streamState.setup.tags.length > 0 &&
-      streamState.health.overall !== 'error';
+      streamState.health.overall !== 'error' &&
+      awsChannel !== null;
     
     setIsSetupValid(isValid);
-  }, [streamState.setup, streamState.health]);
+  }, [streamState.setup, streamState.health, awsChannel]);
 
   // Handle setup changes
   const handleSetupChange = useCallback((updates: Partial<StreamSetup>) => {
@@ -229,6 +331,7 @@ export default function CreatorStreamingDashboard() {
     setTimeout(() => {
       setStreamState(prev => ({ ...prev, status: 'live' }));
       setActiveTab('controls');
+      toast.success('You are now live! 🔴');
     }, 3000);
   };
 
@@ -238,6 +341,7 @@ export default function CreatorStreamingDashboard() {
       status: 'paused',
       controls: { ...prev.controls, isPaused: true }
     }));
+    toast.info('Stream paused');
   };
 
   const handleResumeStream = () => {
@@ -246,6 +350,7 @@ export default function CreatorStreamingDashboard() {
       status: 'live',
       controls: { ...prev.controls, isPaused: false }
     }));
+    toast.success('Stream resumed');
   };
 
   const handleStopStream = () => {
@@ -256,11 +361,13 @@ export default function CreatorStreamingDashboard() {
       endTime: new Date()
     }));
     setActiveTab('analytics');
+    toast.info('Stream ended. Check analytics for performance summary.');
   };
 
   // Test connection
   const handleTestConnection = async () => {
     // Simulate connection test
+    toast.info('Testing connection...');
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     setStreamState(prev => ({
@@ -270,6 +377,13 @@ export default function CreatorStreamingDashboard() {
         connection: { ...prev.health.connection, latency: 1800 }
       }
     }));
+    toast.success('Connection test successful!');
+  };
+
+  // Copy to clipboard
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied to clipboard`);
   };
 
   // Moderation actions
@@ -372,7 +486,7 @@ export default function CreatorStreamingDashboard() {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                onClick={() => router.push('/creator')}
+                onClick={() => router.push('/creator/dashboard')}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -384,12 +498,25 @@ export default function CreatorStreamingDashboard() {
               <div>
                 <h1 className="text-2xl font-bold">Streaming Dashboard</h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Professional streaming tools for creators
+                  Professional streaming tools powered by AWS IVS
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
+              {/* AWS Status Badge */}
+              {awsChannel ? (
+                <Badge className="bg-green-100 text-green-700">
+                  <Zap className="w-3 h-3 mr-1" />
+                  AWS Connected
+                </Badge>
+              ) : (
+                <Badge className="bg-gray-100 text-gray-700">
+                  <WifiOff className="w-3 h-3 mr-1" />
+                  No Channel
+                </Badge>
+              )}
+
               {/* Status Badge */}
               <div className="flex items-center gap-2">
                 <div className={cn(
@@ -447,6 +574,114 @@ export default function CreatorStreamingDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
+        {/* AWS Channel Alert */}
+        {!awsChannel && (
+          <Alert className="mb-6 border-purple-200 bg-purple-50">
+            <Zap className="h-4 w-4" />
+            <AlertTitle>Set up your streaming channel</AlertTitle>
+            <AlertDescription className="mt-2">
+              <p className="mb-3">
+                Create an AWS IVS channel to start streaming. This will provide you with:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm mb-3">
+                <li>Ultra-low latency streaming (2-3 seconds)</li>
+                <li>Global content delivery</li>
+                <li>Professional broadcast quality</li>
+                <li>Secure stream key</li>
+              </ul>
+              <Button 
+                onClick={createAWSChannel}
+                disabled={isCreatingChannel}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {isCreatingChannel ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Creating Channel...
+                  </>
+                ) : (
+                  <>
+                    <Video className="w-4 h-4 mr-2" />
+                    Create Streaming Channel
+                  </>
+                )}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* AWS Channel Info */}
+        {awsChannel && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Video className="w-5 h-5" />
+                  Streaming Configuration
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowStreamKeyDialog(true)}
+                >
+                  <Key className="w-4 h-4 mr-2" />
+                  View Stream Key
+                </Button>
+              </CardTitle>
+              <CardDescription>
+                Your AWS IVS channel configuration for OBS Studio or other streaming software
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm text-gray-600">Stream Server (RTMPS)</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Input
+                      value={`rtmps://${awsChannel.ingestEndpoint}:443/app/`}
+                      readOnly
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => copyToClipboard(`rtmps://${awsChannel.ingestEndpoint}:443/app/`, 'Stream server')}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div>
+                  <Label className="text-sm text-gray-600">Playback URL</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Input
+                      value={awsChannel.playbackUrl}
+                      readOnly
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.open(awsChannel.playbackUrl, '_blank')}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>OBS Studio Setup:</strong> Use Custom service with the Stream Server URL above and your Stream Key.
+                  Recommended settings: 1080p, 30fps, 3000-6000 Kbps bitrate, Keyframe interval: 2s
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="preview" className="flex items-center gap-2">
@@ -584,16 +819,16 @@ export default function CreatorStreamingDashboard() {
                       Complete setup to go live
                     </div>
                     <div className="text-sm text-yellow-700 dark:text-yellow-300">
-                      Please complete your stream setup before starting your broadcast
+                      {!awsChannel ? 'Create a streaming channel first' : 'Please complete your stream setup before starting your broadcast'}
                     </div>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setActiveTab('setup')}
+                    onClick={() => !awsChannel ? createAWSChannel() : setActiveTab('setup')}
                     className="border-yellow-500 text-yellow-700 hover:bg-yellow-100"
                   >
-                    Complete Setup
+                    {!awsChannel ? 'Create Channel' : 'Complete Setup'}
                   </Button>
                 </div>
               </CardContent>
@@ -601,6 +836,64 @@ export default function CreatorStreamingDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Stream Key Dialog */}
+      <Dialog open={showStreamKeyDialog} onOpenChange={setShowStreamKeyDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Your Stream Key</DialogTitle>
+            <DialogDescription>
+              Keep this key secure. Never share it publicly or show it on stream.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Alert className="bg-red-50 border-red-200">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Security Warning:</strong> This is your secret stream key. Anyone with this key can stream to your channel.
+              </AlertDescription>
+            </Alert>
+            
+            <div>
+              <Label>Stream Key</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  type={showStreamKey ? 'text' : 'password'}
+                  value={awsChannel?.streamKey || streamState.streamKey || 'REDACTED'}
+                  readOnly
+                  className="font-mono"
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowStreamKey(!showStreamKey)}
+                >
+                  {showStreamKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyToClipboard(awsChannel?.streamKey || streamState.streamKey || 'REDACTED', 'Stream key')}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="text-sm text-gray-600 space-y-2">
+              <p><strong>OBS Studio Configuration:</strong></p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Go to Settings → Stream</li>
+                <li>Service: Custom</li>
+                <li>Server: {awsChannel ? `rtmps://${awsChannel.ingestEndpoint}:443/app/` : 'Use the stream server URL'}</li>
+                <li>Stream Key: Paste the key above</li>
+              </ol>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

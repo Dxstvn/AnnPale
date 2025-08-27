@@ -460,10 +460,10 @@ export function ImageUpload({
       ) : (
         <button
           onClick={() => inputRef.current?.click()}
-          className="w-32 h-32 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex flex-col items-center justify-center hover:border-purple-500 transition"
+          className="w-32 h-32 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-lg flex flex-col items-center justify-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all duration-300 group"
         >
-          <Upload className="h-8 w-8 text-gray-400 mb-2" />
-          <span className="text-xs text-gray-500">Upload Image</span>
+          <Upload className="h-8 w-8 text-purple-400 group-hover:text-purple-600 mb-2 transition-colors" />
+          <span className="text-xs text-gray-600 group-hover:text-gray-700 font-medium">Upload Image</span>
         </button>
       )}
     </div>

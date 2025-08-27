@@ -1,227 +1,254 @@
-"use client"
+'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
-import { createClient } from '@/lib/supabase/client'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { 
   Users, 
+  Video, 
   Star, 
-  DollarSign, 
-  Heart, 
-  Gift, 
-  Video,
-  Trophy,
-  Sparkles,
-  TrendingUp,
-  Calendar,
-  MessageCircle,
-  Check
+  DollarSign,
+  Mic,
+  Camera,
+  Heart,
+  Gift,
+  Loader2,
+  Info
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function RoleSelectionPage() {
   const router = useRouter()
-  const { supabaseUser, refreshSession } = useSupabaseAuth()
-  const [isLoading, setIsLoading] = useState<'fan' | 'creator' | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const { supabase } = useSupabaseAuth()
+  const [selectedRole, setSelectedRole] = useState<'fan' | 'creator' | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
-  const handleRoleSelection = async (role: 'fan' | 'creator') => {
-    if (!supabaseUser) {
-      setError('No authenticated user found. Please log in again.')
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
       router.push('/login')
       return
     }
 
-    setIsLoading(role)
-    setError(null)
+    // Check if profile already exists
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile) {
+      // Profile already exists, redirect based on role
+      if (profile.role === 'creator') {
+        router.push('/creator/dashboard')
+      } else if (profile.role === 'admin') {
+        router.push('/admin/dashboard')
+      } else {
+        router.push('/fan/dashboard')
+      }
+      return
+    }
+
+    setUser(user)
+  }
+
+  const handleRoleSelection = async (role: 'fan' | 'creator') => {
+    if (!user) return
+    
+    setIsLoading(true)
+    setSelectedRole(role)
 
     try {
-      const supabase = createClient()
-      
       // Create profile with selected role
       const profileData = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        name: supabaseUser.user_metadata?.full_name || 
-              supabaseUser.user_metadata?.name || 
-              supabaseUser.email?.split('@')[0] || 
+        id: user.id,
+        email: user.email!,
+        name: user.user_metadata?.full_name || 
+              user.user_metadata?.name || 
+              user.email?.split('@')[0] || 
               'User',
         role: role,
-        avatar_url: supabaseUser.user_metadata?.avatar_url || 
-                   supabaseUser.user_metadata?.picture || 
+        avatar_url: user.user_metadata?.avatar_url || 
+                   user.user_metadata?.picture || 
                    null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
 
-      console.log('[RoleSelection] Creating profile with role:', role)
-      
-      const { error: profileError } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .insert(profileData)
 
-      if (profileError) {
-        console.error('[RoleSelection] Profile creation error:', profileError)
-        setError('Failed to create profile. Please try again.')
-        setIsLoading(null)
+      if (error) {
+        console.error('Profile creation error:', error)
+        toast.error('Failed to create profile. Please try again.')
+        setIsLoading(false)
+        setSelectedRole(null)
         return
       }
 
-      console.log('[RoleSelection] Profile created successfully')
+      toast.success(`Welcome as a ${role === 'creator' ? 'Creator' : 'Fan'}!`)
       
-      // Refresh the session to update the user context
-      await refreshSession()
-      
-      // Redirect to appropriate dashboard
-      const redirectPath = role === 'creator' ? '/creator/dashboard' : '/fan/dashboard'
-      console.log('[RoleSelection] Redirecting to:', redirectPath)
-      router.push(redirectPath)
-      
+      // Redirect based on role
+      if (role === 'creator') {
+        router.push('/creator/dashboard')
+      } else {
+        router.push('/fan/dashboard')
+      }
     } catch (error) {
-      console.error('[RoleSelection] Unexpected error:', error)
-      setError('An unexpected error occurred. Please try again.')
-      setIsLoading(null)
+      console.error('Role selection error:', error)
+      toast.error('An error occurred. Please try again.')
+      setIsLoading(false)
+      setSelectedRole(null)
     }
   }
 
-  const fanBenefits = [
-    { icon: Heart, text: "Connect with your favorite Haitian celebrities" },
-    { icon: Gift, text: "Send personalized video gifts to loved ones" },
-    { icon: Star, text: "Get exclusive content from creators" },
-    { icon: MessageCircle, text: "Request custom video messages" },
-    { icon: Calendar, text: "Book videos for special occasions" },
-    { icon: Sparkles, text: "Support Haitian talent and culture" }
-  ]
-
-  const creatorBenefits = [
-    { icon: DollarSign, text: "Monetize your fame and talent" },
-    { icon: Users, text: "Build a loyal fan community" },
-    { icon: Video, text: "Create personalized videos on your schedule" },
-    { icon: TrendingUp, text: "Track your earnings and growth" },
-    { icon: Trophy, text: "Become a top creator on the platform" },
-    { icon: Heart, text: "Share Haitian culture with the world" }
-  ]
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100">
+        <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-6xl w-full">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-4">
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             Welcome to Ann Pale! 🎉
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Choose how you'd like to experience our platform. You can always change this later in your settings.
+          <p className="text-lg text-gray-600">
+            Choose how you want to use our platform
           </p>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center">
-            {error}
-          </div>
-        )}
+        <Alert className="mb-6">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            You can always switch between fan and creator modes later in your settings.
+          </AlertDescription>
+        </Alert>
 
-        {/* Role Cards */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-6">
           {/* Fan Card */}
-          <Card className="relative overflow-hidden border-2 hover:border-purple-300 transition-all duration-300 hover:shadow-2xl">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-bl-full opacity-50"></div>
-            
-            <div className="p-8 relative">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-6">
-                <Heart className="w-8 h-8 text-white" />
-              </div>
-              
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">I'm a Fan</h2>
-              <p className="text-gray-600 mb-6">
-                Connect with Haitian celebrities and request personalized video messages
-              </p>
-
-              <div className="space-y-3 mb-8">
-                {fanBenefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center mt-0.5">
-                      <Check className="w-3 h-3 text-purple-600" />
-                    </div>
-                    <span className="text-sm text-gray-700">{benefit.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                onClick={() => handleRoleSelection('fan')}
-                disabled={isLoading !== null}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          <Card 
+            className={`cursor-pointer transition-all hover:shadow-xl ${
+              selectedRole === 'fan' ? 'ring-2 ring-purple-600' : ''
+            }`}
+            onClick={() => !isLoading && handleRoleSelection('fan')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Heart className="h-6 w-6 text-pink-600" />
+                I'm a Fan
+              </CardTitle>
+              <CardDescription>
+                Get personalized video messages from your favorite Haitian celebrities
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
+                  <span className="text-sm">Request custom video messages</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Gift className="h-5 w-5 text-purple-600 mt-0.5" />
+                  <span className="text-sm">Send gifts to friends and family</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Video className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <span className="text-sm">Watch exclusive content</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Users className="h-5 w-5 text-green-600 mt-0.5" />
+                  <span className="text-sm">Connect with your favorite stars</span>
+                </li>
+              </ul>
+              <Button 
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                disabled={isLoading}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRoleSelection('fan')
+                }}
               >
-                {isLoading === 'fan' ? (
-                  <span className="flex items-center gap-2">
-                    <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                    Creating your profile...
-                  </span>
+                {isLoading && selectedRole === 'fan' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Setting up...
+                  </>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Heart className="w-5 h-5" />
-                    Join as a Fan
-                  </span>
+                  'Join as a Fan'
                 )}
               </Button>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Creator Card */}
-          <Card className="relative overflow-hidden border-2 hover:border-pink-300 transition-all duration-300 hover:shadow-2xl">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-100 to-purple-100 rounded-bl-full opacity-50"></div>
-            
-            <div className="p-8 relative">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl mb-6">
-                <Star className="w-8 h-8 text-white" />
-              </div>
-              
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">I'm a Creator</h2>
-              <p className="text-gray-600 mb-6">
-                Share your talent and earn money creating personalized videos for fans
-              </p>
-
-              <div className="space-y-3 mb-8">
-                {creatorBenefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-pink-100 flex items-center justify-center mt-0.5">
-                      <Check className="w-3 h-3 text-pink-600" />
-                    </div>
-                    <span className="text-sm text-gray-700">{benefit.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                onClick={() => handleRoleSelection('creator')}
-                disabled={isLoading !== null}
-                className="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-semibold py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          <Card 
+            className={`cursor-pointer transition-all hover:shadow-xl ${
+              selectedRole === 'creator' ? 'ring-2 ring-purple-600' : ''
+            }`}
+            onClick={() => !isLoading && handleRoleSelection('creator')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Camera className="h-6 w-6 text-purple-600" />
+                I'm a Creator
+              </CardTitle>
+              <CardDescription>
+                Share your talent and connect with fans through personalized videos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <DollarSign className="h-5 w-5 text-green-600 mt-0.5" />
+                  <span className="text-sm">Earn money from your content</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Mic className="h-5 w-5 text-red-600 mt-0.5" />
+                  <span className="text-sm">Create personalized messages</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Users className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <span className="text-sm">Build your fanbase</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
+                  <span className="text-sm">Set your own prices</span>
+                </li>
+              </ul>
+              <Button 
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                disabled={isLoading}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRoleSelection('creator')
+                }}
               >
-                {isLoading === 'creator' ? (
-                  <span className="flex items-center gap-2">
-                    <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                    Creating your profile...
-                  </span>
+                {isLoading && selectedRole === 'creator' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Setting up...
+                  </>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Star className="w-5 h-5" />
-                    Join as a Creator
-                  </span>
+                  'Join as a Creator'
                 )}
               </Button>
-            </div>
+            </CardContent>
           </Card>
-        </div>
-
-        {/* Footer Note */}
-        <div className="text-center mt-12">
-          <p className="text-sm text-gray-500">
-            Need help deciding? You can always change your account type later in your profile settings.
-          </p>
         </div>
       </div>
     </div>
