@@ -37,21 +37,25 @@ import {
   LogOut
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
+import { FEATURES } from "@/lib/feature-flags"
 
 interface CustomerLayoutProps {
   children: ReactNode
 }
 
-const navigation = [
+const navigationItems = [
   { name: "Dashboard", href: "/fan/dashboard", icon: Home, helpKey: "dashboard_help" },
   { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
   { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
   { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
-  { name: "Live Streams", href: "/fan/livestreams", icon: Radio, helpKey: "livestreams_help" },
+  // Conditionally include Live Streams based on feature flag
+  ...(FEATURES.LIVESTREAMING ? [{ name: "Live Streams", href: "/fan/livestreams", icon: Radio, helpKey: "livestreams_help" }] : []),
   { name: "Orders", href: "/fan/orders", icon: Package, helpKey: "orders_help" },
   { name: "Messages", href: "/fan/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
   { name: "Settings", href: "/fan/settings", icon: Settings, helpKey: "settings_help" },
 ]
+
+const navigation = navigationItems
 
 // Help tooltips in multiple languages
 const helpTooltips: Record<string, Record<string, string>> = {
@@ -282,13 +286,15 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     </span>
                     <span className="font-semibold text-orange-600">3</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 flex items-center gap-2">
-                      <Radio className="h-4 w-4" />
-                      Live Now
-                    </span>
-                    <span className="font-semibold text-green-600">12</span>
-                  </div>
+                  {FEATURES.LIVESTREAMING && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 flex items-center gap-2">
+                        <Radio className="h-4 w-4" />
+                        Live Now
+                      </span>
+                      <span className="font-semibold text-green-600">12</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Notification Bell */}
