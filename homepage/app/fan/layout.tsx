@@ -36,7 +36,9 @@ import {
   Sparkles,
   LogOut,
   Users,
-  Rss
+  Rss,
+  Search,
+  Compass
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 import { FEATURES } from "@/lib/feature-flags"
@@ -47,8 +49,8 @@ interface CustomerLayoutProps {
 
 const navigation = [
   { name: "Feed", href: "/fan/feed", icon: Rss, helpKey: "feed_help" },
+  { name: "Explore", href: "/fan/explore", icon: Compass, helpKey: "explore_help", badge: "New" },
   { name: "Subscriptions", href: "/fan/subscriptions", icon: Users, helpKey: "subscriptions_help" },
-  { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
   { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
   { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
   // Conditionally include Live Streams based on feature flag
@@ -75,10 +77,10 @@ const helpTooltips: Record<string, Record<string, string>> = {
     fr: "Gérez vos abonnements aux créateurs et avantages par niveau",
     ht: "Jere abònman kreyatè ou yo ak avantaj pa nivo"
   },
-  favorites_help: {
-    en: "Manage your favorite creators and get notified of their activities",
-    fr: "Gérez vos créateurs favoris et soyez notifié de leurs activités",
-    ht: "Jere kreyatè pi renmen ou yo epi resevwa notifikasyon sou aktivite yo"
+  explore_help: {
+    en: "Discover amazing creators and search by category",
+    fr: "Découvrez des créateurs incroyables et recherchez par catégorie",
+    ht: "Dekouvri kreyatè enteresan ak chèche pa kategori"
   },
   bookings_help: {
     en: "View and manage your video message bookings",
