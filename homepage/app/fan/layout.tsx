@@ -35,7 +35,8 @@ import {
   TrendingUp,
   Sparkles,
   LogOut,
-  Users
+  Users,
+  Rss
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 import { FEATURES } from "@/lib/feature-flags"
@@ -45,7 +46,7 @@ interface CustomerLayoutProps {
 }
 
 const navigation = [
-  { name: "Home", href: "/fan/home", icon: Home, helpKey: "home_help" },
+  { name: "Feed", href: "/fan/feed", icon: Rss, helpKey: "feed_help" },
   { name: "Subscriptions", href: "/fan/subscriptions", icon: Users, helpKey: "subscriptions_help" },
   { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
   { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
@@ -59,6 +60,11 @@ const navigation = [
 
 // Help tooltips in multiple languages
 const helpTooltips: Record<string, Record<string, string>> = {
+  feed_help: {
+    en: "View your personalized feed and updates from creators",
+    fr: "Consultez votre fil personnalisé et les mises à jour des créateurs",
+    ht: "Gade fil pèsonalize ou ak mizajou kreyatè yo"
+  },
   home_help: {
     en: "View your personalized feed and updates from creators",
     fr: "Consultez votre fil personnalisé et les mises à jour des créateurs",
