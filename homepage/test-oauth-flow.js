@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 
 const { createClient } = require('@supabase/supabase-js')
+require('dotenv').config({ path: '.env.local' })
 
-const supabaseUrl = 'https://yijizsscwkvepljqojkz.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpaml6c3Njd2t2ZXBsanFvamt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MTk4OTAsImV4cCI6MjA3MTM5NTg5MH0.zlQQHLmGBojPbw9GsSJqSpsWT9SlANPtEhZyEYKr4g0'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Missing required environment variables')
+  process.exit(1)
+}
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
