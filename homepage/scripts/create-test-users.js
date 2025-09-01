@@ -32,6 +32,13 @@ const testUsers = [
     metadata: { test_account: true }
   },
   {
+    email: 'testcreator2@annpale.test',
+    password: 'TestCreator2123!',
+    role: 'creator',
+    name: 'Test Creator 2',
+    metadata: { test_account: true }
+  },
+  {
     email: 'testadmin@annpale.test',
     password: 'TestAdmin123!',
     role: 'admin',
