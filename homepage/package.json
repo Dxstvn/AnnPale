@@ -181,5 +181,8 @@
     "tw-animate-css": "1.3.3",
     "typescript": "^5",
     "vitest": "^3.2.4"
+  },
+  "optionalDependencies": {
+    "lightningcss": "^1.28.2"
   }
 }
