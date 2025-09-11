@@ -132,6 +132,12 @@ export async function cleanupTestVideoRequests(
   creatorId?: string,
   fanId?: string
 ): Promise<void> {
+  // Supabase requires a WHERE clause for DELETE operations
+  // If no specific IDs provided, skip cleanup
+  if (!creatorId && !fanId) {
+    return
+  }
+  
   let query = supabase.from('video_requests').delete()
   
   if (creatorId) {

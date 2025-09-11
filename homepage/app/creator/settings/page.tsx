@@ -15,6 +15,7 @@ import {
   Package,
   Calendar,
   User,
+  Users,
   DollarSign,
   Save,
   AlertCircle,
@@ -25,14 +26,19 @@ import {
   Eye,
   EyeOff,
   Upload,
-  Sparkles
+  Sparkles,
+  Loader2
 } from "lucide-react"
 import CreatorHeroSection from "@/components/creator/settings/hero-section"
 import PackageTierEditor from "@/components/creator/settings/package-tier-editor"
 import AddonEditor from "@/components/creator/settings/addon-editor"
 import AvailabilityCalendar from "@/components/creator/settings/availability-calendar"
 import PreviewPanel from "@/components/creator/settings/preview-panel"
+import { SubscriptionTierManager } from "@/components/creator/subscription-tier-manager"
+import { StripeOnboarding } from "@/components/creator/stripe-onboarding"
 import { useLanguage } from "@/contexts/language-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { createClient } from "@/lib/supabase/client"
 
 interface PackageTier {
   id: string
@@ -56,28 +62,117 @@ interface Addon {
 
 export default function CreatorSettingsPage() {
   const { language } = useLanguage()
+  const { user } = useSupabaseAuth()
   const { toast } = useToast()
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false)
   const [showPreview, setShowPreview] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("packages")
-
-  // Creator data (would come from API/context in real app)
-  const creatorData = {
-    name: "Wyclef Jean",
-    tagline: "Grammy Award Winner • Former Fugees Member",
-    category: "Musician",
-    image: "/images/wyclef-jean.png",
+  const [loading, setLoading] = React.useState(true)
+  const [stripeStatus, setStripeStatus] = React.useState({
+    isOnboarded: false,
+    chargesEnabled: false,
+    payoutsEnabled: false
+  })
+  
+  // Dynamic creator data state
+  const [creatorData, setCreatorData] = React.useState({
+    name: "",
+    tagline: "",
+    category: "",
+    image: "/images/default-creator.png",
     coverImage: "/placeholder.jpg",
-    verified: true,
-    featured: true,
-    trending: true,
+    verified: false,
+    featured: false,
+    trending: false,
     stats: {
-      completedVideos: 1247,
-      rating: 4.9,
-      responseTime: "24hr",
-      onTimeDelivery: 98,
-      repeatCustomers: 34,
-      totalEarned: "$186,500"
+      completedVideos: 0,
+      rating: 0,
+      responseTime: "N/A",
+      onTimeDelivery: 0,
+      repeatCustomers: 0,
+      totalEarned: "$0"
+    }
+  })
+  
+  // Load creator data on mount
+  React.useEffect(() => {
+    loadCreatorData()
+    checkStripeStatus()
+  }, [user])
+  
+  const loadCreatorData = async () => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
+    
+    try {
+      const supabase = createClient()
+      
+      // Fetch creator profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      
+      if (profileError) {
+        console.error('Error loading profile:', profileError)
+        toast({
+          title: "Error",
+          description: "Failed to load your profile",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
+      }
+      
+      // Fetch creator stats (mock for now, would come from analytics)
+      const stats = {
+        completedVideos: profile.completed_videos || 0,
+        rating: profile.rating || 0,
+        responseTime: profile.response_time || "24hr",
+        onTimeDelivery: profile.on_time_delivery || 95,
+        repeatCustomers: profile.repeat_customers || 30,
+        totalEarned: `$${(profile.total_earned || 0).toLocaleString()}`
+      }
+      
+      setCreatorData({
+        name: profile.name || user.email?.split('@')[0] || "Creator",
+        tagline: profile.tagline || profile.bio || "Welcome to my creator page",
+        category: profile.category || "Creator",
+        image: profile.avatar_url || profile.image || "/images/default-creator.png",
+        coverImage: profile.cover_image || "/placeholder.jpg",
+        verified: profile.is_verified || false,
+        featured: profile.is_featured || false,
+        trending: profile.is_trending || false,
+        stats
+      })
+    } catch (error) {
+      console.error('Error loading creator data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load creator data",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  const checkStripeStatus = async () => {
+    try {
+      const response = await fetch('/api/stripe/connect/status')
+      if (response.ok) {
+        const status = await response.json()
+        setStripeStatus({
+          isOnboarded: status.onboardingComplete,
+          chargesEnabled: status.chargesEnabled,
+          payoutsEnabled: status.payoutsEnabled
+        })
+      }
+    } catch (error) {
+      console.error('Error checking Stripe status:', error)
     }
   }
 
@@ -178,19 +273,31 @@ export default function CreatorSettingsPage() {
     businessHours: { start: "09:00", end: "18:00" }
   })
 
-  // Profile state
+  // Profile state - will be populated from database
   const [profile, setProfile] = React.useState({
-    bio: "Grammy-winning musician, producer, and humanitarian. Former member of the Fugees and solo artist with hits like 'Hips Don't Lie' and 'Gone Till November'. Proud Haitian-American artist bringing joy through personalized messages.",
+    bio: "",
     extendedBio: "",
-    languages: ["English", "Kreyòl", "Français"],
-    specialties: ["Birthday wishes", "Congratulations", "Motivational messages", "Music dedications"],
+    languages: [],
+    specialties: [],
     socialMedia: {
-      instagram: "@wyclefjean",
-      twitter: "@wyclef",
-      facebook: "wyclefjean",
-      youtube: "wyclefjeanVEVO"
+      instagram: "",
+      twitter: "",
+      facebook: "",
+      youtube: ""
     }
   })
+  
+  // Update profile state when creator data is loaded
+  React.useEffect(() => {
+    if (creatorData.name && !loading) {
+      setProfile(prev => ({
+        ...prev,
+        bio: creatorData.tagline || prev.bio,
+        languages: prev.languages.length > 0 ? prev.languages : ["English"],
+        specialties: prev.specialties.length > 0 ? prev.specialties : ["Custom messages"]
+      }))
+    }
+  }, [creatorData, loading])
 
   const handleSaveChanges = () => {
     // Simulate API call
@@ -220,6 +327,17 @@ export default function CreatorSettingsPage() {
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
   }, [hasUnsavedChanges])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-purple-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your creator settings...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
@@ -265,10 +383,18 @@ export default function CreatorSettingsPage() {
           {/* Settings Panel */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-4 w-full mb-6">
+              <TabsList className="grid grid-cols-6 w-full mb-6">
+                <TabsTrigger value="payments" className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  <span className="hidden sm:inline">Payments</span>
+                </TabsTrigger>
                 <TabsTrigger value="packages" className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   <span className="hidden sm:inline">Packages</span>
+                </TabsTrigger>
+                <TabsTrigger value="subscription-tiers" className="flex items-center gap-2" data-testid="subscription-tiers-tab">
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Tiers</span>
                 </TabsTrigger>
                 <TabsTrigger value="availability" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
@@ -279,10 +405,30 @@ export default function CreatorSettingsPage() {
                   <span className="hidden sm:inline">Profile</span>
                 </TabsTrigger>
                 <TabsTrigger value="pricing" className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4" />
                   <span className="hidden sm:inline">Pricing</span>
                 </TabsTrigger>
               </TabsList>
+
+              {/* Payment Setup Tab */}
+              <TabsContent value="payments" className="space-y-6">
+                <StripeOnboarding
+                  creatorId={user?.id || ''}
+                  creatorName={creatorData.name}
+                  isOnboarded={stripeStatus.isOnboarded}
+                  chargesEnabled={stripeStatus.chargesEnabled}
+                  payoutsEnabled={stripeStatus.payoutsEnabled}
+                />
+              </TabsContent>
+
+              {/* Subscription Tiers Tab */}
+              <TabsContent value="subscription-tiers" className="space-y-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <SubscriptionTierManager />
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
               {/* Packages Tab */}
               <TabsContent value="packages" className="space-y-6">

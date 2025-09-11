@@ -96,7 +96,7 @@ export default function CreatorBookingSidebar({
                 <p className="text-sm text-gray-600">{currentPackage.delivery} delivery</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-purple-600">${currentPackage.price}</p>
+                <p className="text-2xl font-bold text-purple-600" data-testid="base-video-price">${currentPackage.price}</p>
                 <ChevronDown className={cn(
                   "h-4 w-4 text-gray-400 transition-transform",
                   showPackageOptions && "rotate-180"
@@ -174,7 +174,10 @@ export default function CreatorBookingSidebar({
           {/* CTA Buttons */}
           <div className="space-y-3 pt-2">
             <Link href={`/book/${creatorId}?package=${selectedPackage}`}>
-              <Button className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:shadow-lg hover:translate-y-[-2px] transition-all">
+              <Button 
+                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:shadow-lg hover:translate-y-[-2px] transition-all"
+                data-testid="request-video-button"
+              >
                 <Sparkles className="h-5 w-5 mr-2" />
                 Book Now - ${currentPackage.price}
               </Button>

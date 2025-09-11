@@ -217,7 +217,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
           const redirectPath = 
             profile.role === 'admin' ? '/admin/dashboard' :
             profile.role === 'creator' ? '/creator/dashboard' :
-            '/fan/dashboard'
+            '/fan/home'
           
           router.push(redirectPath)
         }

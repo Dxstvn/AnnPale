@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
       currency = 'usd', 
       metadata = {},
       creatorId,
-      requestDetails 
+      requestDetails,
+      idempotencyKey 
     } = body
 
     // Validate amount
@@ -37,42 +38,96 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+    // Get creator's Stripe Connect account ID
+    if (!creatorId) {
+      return NextResponse.json(
+        { error: 'Creator ID is required' },
+        { status: 400 }
+      )
+    }
+
+    const { data: creatorProfile, error: creatorError } = await supabase
+      .from('profiles')
+      .select('stripe_account_id, display_name, username')
+      .eq('id', creatorId)
+      .single()
+
+    if (creatorError || !creatorProfile) {
+      console.error('Creator not found:', creatorError)
+      return NextResponse.json(
+        { error: 'Creator not found' },
+        { status: 404 }
+      )
+    }
+
+    if (!creatorProfile.stripe_account_id) {
+      console.error('Creator has no Stripe Connect account:', creatorId)
+      return NextResponse.json(
+        { error: 'Creator has not set up payments yet' },
+        { status: 400 }
+      )
+    }
+
+    // Calculate 70/30 split (amounts in cents)
+    const totalAmount = Math.round(amount * 100) // Convert to cents
+    const creatorAmount = Math.round(totalAmount * 0.70) // 70% to creator
+    const platformFee = totalAmount - creatorAmount // 30% to platform
+
+    console.log(`💰 Payment setup for ${creatorProfile.display_name || creatorProfile.username}:`);
+    console.log(`  Total: $${totalAmount / 100}`);
+    console.log(`  → Creator receives: $${creatorAmount / 100} (70% after platform fee)`);
+    console.log(`  → Platform fee: $${platformFee / 100} (30% application fee)`);
+
+    // Create payment intent with Stripe Connect (destination charge with application fee)
+    // Customer pays full amount, goes to creator, platform takes 30% application fee
+    const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
+      amount: totalAmount,
       currency: currency.toLowerCase(),
       automatic_payment_methods: {
         enabled: true,
       },
+      // Destination charge: payment goes to creator's account
+      transfer_data: {
+        destination: creatorProfile.stripe_account_id,
+      },
+      // Platform automatically receives 30% as application fee
+      application_fee_amount: platformFee,
       metadata: {
         userId: user.id,
         userEmail: user.email || '',
         creatorId: creatorId || '',
+        creatorStripeAccount: creatorProfile.stripe_account_id,
+        totalAmount: totalAmount.toString(),
+        creatorAmount: creatorAmount.toString(),
+        platformFee: platformFee.toString(),
+        requestDetails: JSON.stringify(requestDetails || {}),
+        source: 'ann-pale-video-request',
         ...metadata,
       },
       description: requestDetails?.occasion ? 
         `Video request: ${requestDetails.occasion}` : 
         'Ann Pale video request',
-    })
-
-    // Store payment intent in database
-    const { error: dbError } = await supabase
-      .from('payment_intents')
-      .insert({
-        id: paymentIntent.id,
-        user_id: user.id,
-        amount: amount,
-        currency: currency,
-        status: paymentIntent.status,
-        creator_id: creatorId,
-        metadata: { requestDetails, ...metadata },
-        created_at: new Date().toISOString()
-      })
-
-    if (dbError) {
-      console.error('Error storing payment intent:', dbError)
-      // Continue anyway - payment can still be processed
     }
+
+    // Add idempotency options if key is provided
+    const requestOptions: Stripe.RequestOptions = {}
+    if (idempotencyKey) {
+      requestOptions.idempotencyKey = idempotencyKey
+      console.log('🔑 Using idempotency key:', idempotencyKey)
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(
+      paymentIntentOptions,
+      requestOptions
+    )
+
+    // Skip storing payment intent in database due to RLS policy issues
+    // This will be handled via webhook processing instead
+    console.log('✅ Payment intent created with Stripe Connect destination charge + application fee')
+    console.log(`   Payment ID: ${paymentIntent.id}`)
+    console.log(`   Amount: $${paymentIntent.amount / 100}`)
+    console.log(`   Goes to creator: ${creatorProfile.stripe_account_id}`)
+    console.log(`   Creator receives: $${creatorAmount / 100} (after $${platformFee / 100} application fee)`)
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

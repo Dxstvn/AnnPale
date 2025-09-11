@@ -1,0 +1,209 @@
+'use client'
+
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Card, CardContent } from '@/components/ui/card'
+import { Loader2, CheckCircle, XCircle } from 'lucide-react'
+
+function AuthCallbackContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const supabase = createClient()
+  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
+  const [message, setMessage] = useState('Processing authentication...')
+  const [errorDetails, setErrorDetails] = useState('')
+
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      try {
+        console.log('OAuth callback started')
+        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+        console.log('Supabase Anon Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20) + '...')
+        
+        // Get the OAuth code from URL
+        const code = searchParams.get('code')
+        if (!code) {
+          throw new Error('No authentication code received')
+        }
+
+        console.log('Exchanging code for session with code:', code)
+        // Exchange code for session
+        const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
+        
+        if (sessionError) {
+          throw sessionError
+        }
+
+        if (!session?.user) {
+          throw new Error('No user session created')
+        }
+
+        console.log('Session created for user:', session.user.email)
+        
+        // Get the intended role from localStorage (set during OAuth initiation)
+        const intendedRole = localStorage.getItem('oauth_intended_role') || 'fan'
+        localStorage.removeItem('oauth_intended_role') // Clean up
+        
+        console.log('Intended role from OAuth:', intendedRole)
+        
+        // Check if profile already exists
+        const { data: existingProfile, error: profileCheckError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+
+        if (profileCheckError && profileCheckError.code !== 'PGRST116') {
+          console.error('Error checking profile:', profileCheckError)
+        }
+
+        if (!existingProfile) {
+          // No profile exists - redirect to role selection if no intended role
+          // or create profile with intended role
+          
+          if (intendedRole && intendedRole !== 'fan') {
+            // User specifically chose creator role during signup
+            console.log('Creating new profile with intended role:', intendedRole)
+            
+            const profileData = {
+              id: session.user.id,
+              email: session.user.email!,
+              name: session.user.user_metadata?.full_name || 
+                    session.user.user_metadata?.name || 
+                    session.user.email?.split('@')[0] || 
+                    'User',
+              role: intendedRole as 'fan' | 'creator',
+              avatar_url: session.user.user_metadata?.avatar_url || 
+                         session.user.user_metadata?.picture || 
+                         null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert(profileData)
+              .select()
+              .single()
+
+            if (createError) {
+              console.error('Profile creation error:', createError)
+              // Redirect to role selection page to let user choose
+              setStatus('success')
+              setMessage('Please complete your profile setup...')
+              setTimeout(() => {
+                router.push('/auth/role-selection')
+              }, 1500)
+              return
+            }
+            
+            console.log('Profile created successfully:', newProfile)
+            setStatus('success')
+            setMessage('Account created successfully! Redirecting...')
+            
+            // Redirect based on role
+            setTimeout(() => {
+              if (intendedRole === 'creator') {
+                router.push('/creator/dashboard')
+              } else {
+                router.push('/fan/dashboard')
+              }
+            }, 1500)
+          } else {
+            // No specific role chosen or default fan - redirect to role selection
+            console.log('No specific role chosen, redirecting to role selection')
+            setStatus('success')
+            setMessage('Please select how you want to use Ann Pale...')
+            
+            setTimeout(() => {
+              router.push('/auth/role-selection')
+            }, 1500)
+          }
+        } else {
+          // Profile exists, redirect based on existing role
+          console.log('Existing profile found with role:', existingProfile.role)
+          
+          setStatus('success')
+          setMessage('Welcome back! Redirecting...')
+          
+          setTimeout(() => {
+            if (existingProfile.role === 'admin') {
+              router.push('/admin/dashboard')
+            } else if (existingProfile.role === 'creator') {
+              router.push('/creator/dashboard')
+            } else {
+              router.push('/fan/dashboard')
+            }
+          }, 1500)
+        }
+      } catch (error) {
+        console.error('OAuth callback error:', error)
+        setStatus('error')
+        setMessage('Authentication failed')
+        setErrorDetails(error instanceof Error ? error.message : 'Unknown error occurred')
+        
+        // Redirect to login after error
+        setTimeout(() => {
+          router.push('/login?error=oauth_failed')
+        }, 3000)
+      }
+    }
+
+    handleOAuthCallback()
+  }, [router, searchParams, supabase])
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-4">
+            {status === 'processing' && (
+              <>
+                <Loader2 className="h-12 w-12 animate-spin mx-auto text-purple-600" />
+                <h2 className="text-xl font-semibold">{message}</h2>
+                <p className="text-sm text-gray-600">Please wait while we complete your authentication...</p>
+              </>
+            )}
+            
+            {status === 'success' && (
+              <>
+                <CheckCircle className="h-12 w-12 mx-auto text-green-600" />
+                <h2 className="text-xl font-semibold text-green-600">{message}</h2>
+                <p className="text-sm text-gray-600">You will be redirected shortly...</p>
+              </>
+            )}
+            
+            {status === 'error' && (
+              <>
+                <XCircle className="h-12 w-12 mx-auto text-red-600" />
+                <h2 className="text-xl font-semibold text-red-600">{message}</h2>
+                <p className="text-sm text-gray-600">{errorDetails}</p>
+                <p className="text-xs text-gray-500 mt-2">Redirecting to login page...</p>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto text-purple-600" />
+              <h2 className="text-xl font-semibold mt-4">Loading...</h2>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
+  )
+}

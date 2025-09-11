@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { CreatorRealDashboard } from "@/components/creator/real-dashboard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -28,6 +29,7 @@ import {
 import { CreatorPersona } from "@/components/creator/dashboard/CreatorPersona"
 import { WorkflowStages } from "@/components/creator/dashboard/WorkflowStages"
 import { EmotionalJourney, type EmotionalStage } from "@/components/creator/dashboard/EmotionalJourney"
+import { OrderManagement } from "@/components/creator/order-management"
 import { ImmediateStatus } from "@/components/creator/dashboard/ImmediateStatus"
 import { PerformanceOverview } from "@/components/creator/dashboard/PerformanceOverview"
 import { ManagementTools } from "@/components/creator/dashboard/ManagementTools"
@@ -181,6 +183,7 @@ export default function CreatorDashboard() {
   const { user, isLoading } = useSupabaseAuth()
   const { stats, weeklyEarnings, pendingRequests, topVideos, loading: statsLoading } = useCreatorStats()
   const [currentWorkflowStage, setCurrentWorkflowStage] = useState('review')
+  const [useRealData, setUseRealData] = useState(false) // Toggle for real vs mock data
   
   // Get translated text
   const t = (key: string) => {
@@ -229,6 +232,24 @@ export default function CreatorDashboard() {
     console.log('Bulk action:', action, items)
   }
 
+  // If using real data, show the real dashboard
+  if (useRealData) {
+    return (
+      <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
+        <div className="mb-4 flex justify-end">
+          <Button 
+            onClick={() => setUseRealData(false)}
+            variant="outline"
+            size="sm"
+          >
+            Switch to Demo Data
+          </Button>
+        </div>
+        <CreatorRealDashboard />
+      </div>
+    )
+  }
+
   return (
     <TooltipProvider>
       <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
@@ -238,9 +259,19 @@ export default function CreatorDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">
               {t('welcome')}, {user?.display_name || user?.email?.split('@')[0] || 'Creator'}!
             </h1>
-            <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-              {stats?.completedVideos > 100 ? 'Star Creator' : stats?.completedVideos > 50 ? 'Rising Star' : 'New Creator'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => setUseRealData(true)}
+                variant="outline"
+                size="sm"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90"
+              >
+                Use Real Data 🚀
+              </Button>
+              <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                {stats?.completedVideos > 100 ? 'Star Creator' : stats?.completedVideos > 50 ? 'Rising Star' : 'New Creator'}
+              </Badge>
+            </div>
           </div>
           <p className="text-gray-600">{t('dashboard_subtitle')}</p>
         </div>
@@ -354,6 +385,55 @@ export default function CreatorDashboard() {
             onRecord={handleRecordVideo}
             onViewAll={handleViewAllRequests}
           />
+        </section>
+
+        {/* Order Management Section - Real orders from backend */}
+        <section className="mb-8">
+          <OrderManagement />
+        </section>
+
+        {/* Content Management Section */}
+        <section className="mb-8">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Video className="h-5 w-5" />
+                    Content Management
+                  </CardTitle>
+                  <CardDescription>
+                    Create and manage your posts for subscribers
+                  </CardDescription>
+                </div>
+                <Button 
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90"
+                  onClick={() => window.location.href = '/creator/posts'}
+                >
+                  Create New Post
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">0</div>
+                  <div className="text-sm text-gray-600">Draft Posts</div>
+                </div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">0</div>
+                  <div className="text-sm text-gray-600">Published Posts</div>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">0</div>
+                  <div className="text-sm text-gray-600">Total Views</div>
+                </div>
+              </div>
+              <div className="mt-4 text-center text-gray-500">
+                Start creating content to engage your subscribers and grow your audience!
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
         {/* Level 2: Performance Overview - Fixed chart spacing */}

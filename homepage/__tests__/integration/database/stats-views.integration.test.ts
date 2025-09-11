@@ -341,11 +341,11 @@ describe('Stats Views Integration', () => {
     })
 
     test('aggregates subscription tier metrics', async () => {
-      // First clean up any existing test tiers
+      // First clean up ALL existing tiers to ensure clean state
       await supabase
         .from('creator_subscription_tiers')
         .delete()
-        .in('tier_name', ['Platform Test 1', 'Platform Test 2'])
+        .in('creator_id', [testCreatorId, testCreator2Id])
       
       // Create test tiers
       const { error: insertError } = await supabase
@@ -367,6 +367,12 @@ describe('Stats Views Integration', () => {
       
       expect(insertError).toBeNull()
       
+      // Get count of tiers we just created
+      const { data: tierCount } = await supabase
+        .from('creator_subscription_tiers')
+        .select('id')
+        .in('creator_id', [testCreatorId, testCreator2Id])
+      
       const { data: stats, error } = await supabase
         .from('platform_stats')
         .select('*')
@@ -374,7 +380,8 @@ describe('Stats Views Integration', () => {
       
       expect(error).toBeNull()
       expect(stats).toBeDefined()
-      expect(stats.total_subscription_tiers).toBeGreaterThanOrEqual(2)
+      // Check that we have at least as many tiers as we created
+      expect(stats.total_subscription_tiers).toBeGreaterThanOrEqual(tierCount?.length || 2)
       expect(stats.creators_with_tiers).toBeGreaterThanOrEqual(1) // At least one creator has tiers
       expect(stats.average_tier_price).toBeGreaterThan(0)
       
@@ -382,7 +389,7 @@ describe('Stats Views Integration', () => {
       await supabase
         .from('creator_subscription_tiers')
         .delete()
-        .in('tier_name', ['Platform Test 1', 'Platform Test 2'])
+        .in('creator_id', [testCreatorId, testCreator2Id])
     })
   })
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import {
   Elements,
@@ -15,8 +15,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, CreditCard, Lock, CheckCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
-// Initialize Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_SANDBOX_PUBLIC_KEY || process.env.STRIPE_SANDBOX_PUBLIC_KEY || '')
+// Initialize Stripe with the correct environment variable
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_SANDBOX_PUBLIC_KEY!)
 
 interface PaymentFormProps {
   amount: number
@@ -25,6 +25,7 @@ interface PaymentFormProps {
   requestDetails?: any
   onSuccess?: (paymentIntentId: string) => void
   onError?: (error: string) => void
+  paymentIntentId?: string | null
 }
 
 function CheckoutForm({ 
@@ -33,7 +34,8 @@ function CheckoutForm({
   creatorId,
   requestDetails,
   onSuccess, 
-  onError 
+  onError,
+  paymentIntentId
 }: PaymentFormProps) {
   const stripe = useStripe()
   const elements = useElements()
@@ -42,10 +44,12 @@ function CheckoutForm({
   const [error, setError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
 
+  console.log('🔧 DIAGNOSTIC: CheckoutForm rendered with paymentIntentId:', paymentIntentId)
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!stripe || !elements) {
+    if (!stripe || !elements || !paymentIntentId) {
       return
     }
 
@@ -53,30 +57,12 @@ function CheckoutForm({
     setError(null)
 
     try {
-      // Create payment intent
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount,
-          currency,
-          creatorId,
-          requestDetails,
-        }),
-      })
+      // Use the existing payment intent instead of creating a new one
+      console.log('🔄 Using existing payment intent:', paymentIntentId)
 
-      if (!response.ok) {
-        throw new Error('Failed to create payment intent')
-      }
-
-      const { clientSecret, paymentIntentId } = await response.json()
-
-      // Confirm payment
+      // Confirm payment using the existing payment intent
       const { error: stripeError } = await stripe.confirmPayment({
         elements,
-        clientSecret,
         confirmParams: {
           return_url: `${window.location.origin}/fan/orders/${paymentIntentId}`,
         },
@@ -162,6 +148,7 @@ function CheckoutForm({
       <Button
         type="submit"
         disabled={!stripe || isProcessing}
+        data-testid="pay-button"
         className="w-full"
         size="lg"
       >
@@ -181,9 +168,32 @@ function CheckoutForm({
 export default function StripePaymentForm(props: PaymentFormProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
 
-  // Create payment intent on component mount
-  useState(() => {
+  // Create payment intent on component mount (only once)
+  useEffect(() => {
+    // Check if this is a subscription payment - if so, don't create payment intent
+    if (props.requestDetails?.type === 'subscription') {
+      console.log('🔄 DIAGNOSTIC: Subscription detected, skipping payment intent creation')
+      setLoading(false)
+      // For subscriptions, we should redirect to Stripe Checkout instead
+      // This component shouldn't be used for subscriptions
+      props.onError?.('Please use the subscription checkout component for subscriptions')
+      return
+    }
+    
+    if (clientSecret || paymentIntentId) {
+      console.log('🔄 DIAGNOSTIC: Payment intent already exists, skipping creation')
+      return // Prevent duplicate creation if already exists
+    }
+    
+    console.log('🔄 DIAGNOSTIC: Creating payment intent for amount:', props.amount, 'creator:', props.creatorId)
+    
+    // Add idempotency key to prevent duplicates
+    const idempotencyKey = props.requestDetails?.requestId 
+      ? `video_${props.requestDetails.requestId}_${Date.now()}`
+      : `pi_${Date.now()}_${Math.random()}`
+    
     fetch('/api/payments/create-payment-intent', {
       method: 'POST',
       headers: {
@@ -194,19 +204,25 @@ export default function StripePaymentForm(props: PaymentFormProps) {
         currency: props.currency || 'usd',
         creatorId: props.creatorId,
         requestDetails: props.requestDetails,
+        idempotencyKey: idempotencyKey,
       }),
     })
       .then(res => res.json())
       .then(data => {
+        if (data.error) {
+          throw new Error(data.error)
+        }
+        console.log('✅ DIAGNOSTIC: Payment intent created:', data.paymentIntentId)
         setClientSecret(data.clientSecret)
+        setPaymentIntentId(data.paymentIntentId)
         setLoading(false)
       })
       .catch(err => {
-        console.error('Error creating payment intent:', err)
+        console.error('❌ DIAGNOSTIC: Error creating payment intent:', err)
         setLoading(false)
         props.onError?.('Failed to initialize payment')
       })
-  })
+  }, []) // Empty dependency array - only run once on mount
 
   if (loading) {
     return (
@@ -249,7 +265,7 @@ export default function StripePaymentForm(props: PaymentFormProps) {
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <CheckoutForm {...props} />
+      <CheckoutForm {...props} paymentIntentId={paymentIntentId} />
     </Elements>
   )
 }

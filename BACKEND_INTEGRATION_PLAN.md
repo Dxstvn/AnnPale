@@ -10,6 +10,33 @@ This comprehensive TDD-based plan ensures every feature is built with testing fi
 - **Test Coverage Target**: Minimum 80% for critical paths
 - **Authentication Testing**: Real login flows for all user roles
 
+## UI/UX Design Requirements
+All components created during backend integration must follow Ann Pale's design system:
+
+### Design Principles
+- **Brand Colors**: Purple (#9333EA) to Pink (#EC4899) gradient for CTAs and accents
+- **Typography**: Geist font family throughout
+- **Layout**: Card-based design with consistent shadows (`shadow-xl`, `shadow-2xl`)
+- **Interactions**: 
+  - Hover effects: `hover:shadow-xl hover:-translate-y-1` for elevation
+  - Transitions: `transition-all` for smooth animations
+- **Borders**: Purple-tinted borders (`border-purple-100` light, `border-purple-900` dark)
+- **Backgrounds**: Clean white/dark backgrounds with purple accents
+- **Cultural Elements**: Haitian imagery and emojis where appropriate
+- **Responsive**: Mobile-first approach with proper breakpoints
+
+### Component Standards
+- **Dialogs/Modals**: White background with purple borders, shadow-2xl
+- **Buttons**: Primary actions use gradient, secondary use purple borders
+- **Cards**: Consistent shadows with hover elevation effects
+- **Forms**: Purple focus states and validation colors
+- **Toasts**: Purple-bordered with appropriate shadows
+
+### Phase-Specific UI Requirements
+- Each phase must maintain visual consistency with existing components
+- New features should enhance, not disrupt, the established design language
+- All components must be accessible and follow WCAG 2.1 guidelines
+
 ## Phase 0: Test Authentication Setup (Day 1) ✅ COMPLETED
 
 ### 0.1 Create Test Accounts & Auth Helpers ✅ COMPLETED

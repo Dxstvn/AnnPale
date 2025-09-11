@@ -35,7 +35,8 @@ import {
   TrendingUp,
   Sparkles,
   LogOut,
-  Users
+  Users,
+  Search
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 import { FEATURES } from "@/lib/feature-flags"
@@ -46,7 +47,7 @@ interface CustomerLayoutProps {
 
 const navigation = [
   { name: "Home", href: "/fan/home", icon: Home, helpKey: "home_help" },
-  { name: "Subscriptions", href: "/fan/subscriptions", icon: Users, helpKey: "subscriptions_help" },
+  { name: "Explore", href: "/fan/explore", icon: Search, helpKey: "explore_help", badge: "New" },
   { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
   { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
   { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
@@ -63,6 +64,11 @@ const helpTooltips: Record<string, Record<string, string>> = {
     en: "View your personalized feed and updates from creators",
     fr: "Consultez votre fil personnalisé et les mises à jour des créateurs",
     ht: "Gade fil pèsonalize ou ak mizajou kreyatè yo"
+  },
+  explore_help: {
+    en: "Discover new creators and browse subscription tiers",
+    fr: "Découvrez de nouveaux créateurs et parcourez les niveaux d'abonnement",
+    ht: "Dekouvri nouvo kreyatè ak navige nan nivo abònman yo"
   },
   subscriptions_help: {
     en: "Manage your creator subscriptions and tier benefits",

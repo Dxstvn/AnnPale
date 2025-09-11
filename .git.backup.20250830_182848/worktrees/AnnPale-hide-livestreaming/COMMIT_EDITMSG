@@ -1,0 +1,10 @@
+feat(T2): hide livestreaming features from UI
+
+- Added feature flag system in /lib/feature-flags.ts
+- Conditionally hide 'Live Streams' navigation in fan layout
+- Hide livestream stats and events in fan dashboard
+- Hide 'Browse Live Streams' button when feature disabled
+- Add middleware redirects for streaming routes when disabled
+- Configure NEXT_PUBLIC_ENABLE_LIVESTREAMING=false in .env.local
+
+All livestream code remains intact and can be re-enabled by setting the environment variable to 'true'.

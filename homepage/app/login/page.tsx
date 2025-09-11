@@ -49,7 +49,7 @@ export default function LoginPage() {
       const redirectPath = 
         user.role === 'admin' ? '/admin/dashboard' :
         user.role === 'creator' ? '/creator/dashboard' :
-        '/fan/dashboard'
+        '/fan/home'
       router.push(redirectPath)
     }
   }, [isAuthenticated, user, router])

@@ -2,6 +2,10 @@ import { test as base, Page, BrowserContext } from '@playwright/test'
 import { AuthHelper } from '../helpers/auth.helper'
 import * as fs from 'fs'
 import * as path from 'path'
+import dotenv from 'dotenv'
+
+// Load environment variables at module level
+dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 
 export type AuthenticatedFixtures = {
   fanPage: Page
@@ -38,7 +42,9 @@ export const authenticatedTest = base.extend<AuthenticatedFixtures>({
       const authHelper = new AuthHelper()
       
       try {
-        const storageState = await authHelper.loginAs(page, 'fan')
+        // Use OAuth login for fan role by default (since Twitter OAuth is working)
+        const useOAuth = process.env.TWITTER_USERNAME && process.env.TWITTER_PASSWORD
+        const storageState = await authHelper.loginAs(page, 'fan', 3, useOAuth)
         
         // Save auth state for future use
         const authDir = path.dirname(authFile)
@@ -140,4 +146,38 @@ export const authenticatedTest = base.extend<AuthenticatedFixtures>({
   }
 })
 
-export { expect } from '@playwright/test'
+export { expect, Page } from '@playwright/test'
+
+/**
+ * Simple class-based authenticated test helper
+ */
+export class AuthenticatedTest {
+  private page: Page
+  private role: 'fan' | 'creator' | 'admin'
+  private authHelper: AuthHelper
+
+  constructor(page: Page, role: 'fan' | 'creator' | 'admin') {
+    this.page = page
+    this.role = role
+    this.authHelper = new AuthHelper()
+  }
+
+  async setup() {
+    // Check if already logged in
+    const isLoggedIn = await this.authHelper.isLoggedIn(this.page)
+    
+    if (!isLoggedIn) {
+      // Use OAuth for fan role if Twitter credentials are available
+      const useOAuth = this.role === 'fan' && process.env.TWITTER_USERNAME && process.env.TWITTER_PASSWORD
+      // Login with the specified role - the loginAs method now has built-in retry logic
+      await this.authHelper.loginAs(this.page, this.role, 3, useOAuth)
+    } else {
+      console.log(`Already logged in as ${this.role}`)
+    }
+  }
+
+  async cleanup() {
+    // Logout after test if needed
+    await this.authHelper.logout(this.page)
+  }
+}

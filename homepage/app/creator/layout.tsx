@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
@@ -29,9 +29,14 @@ import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
-  LogOut
+  LogOut,
+  Bell
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
+import { useCreatorNotifications } from "@/hooks/use-creator-notifications"
+import { NotificationBadge, NotificationPanel } from "@/components/creator/video-request-notification"
+import { useToast } from "@/hooks/use-toast"
+import { notificationService } from "@/lib/services/notification-service"
 
 interface CreatorLayoutProps {
   children: ReactNode
@@ -39,6 +44,7 @@ interface CreatorLayoutProps {
 
 const navigation = [
   { name: "Dashboard", href: "/creator/dashboard", icon: Home, helpKey: "dashboard_help" },
+  { name: "Requests", href: "/creator/requests", icon: Bell, helpKey: "requests_help", badge: "newRequests" },
   { name: "Revenue", href: "/creator/analytics/revenue", icon: DollarSign, helpKey: "revenue_help" },
   { name: "Audience", href: "/creator/analytics/audience", icon: Users, helpKey: "audience_help" },
   { name: "Content", href: "/creator/content", icon: Video, helpKey: "content_help" },
@@ -56,6 +62,11 @@ const helpTooltips: Record<string, Record<string, string>> = {
     en: "View your overall performance and key metrics",
     fr: "Consultez vos performances globales et métriques clés",
     ht: "Gade pèfòmans jeneral ou ak mezi enpòtan yo"
+  },
+  requests_help: {
+    en: "Manage and respond to video requests",
+    fr: "Gérez et répondez aux demandes de vidéo",
+    ht: "Jere ak reponn a demann videyo"
   },
   revenue_help: {
     en: "Track your earnings and financial analytics",
@@ -108,9 +119,29 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { language } = useLanguage()
-  const { logout } = useSupabaseAuth()
+  const { logout, user } = useSupabaseAuth()
+  const { toast } = useToast()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+  
+  // Set up real-time notifications
+  const { newRequests, unreadCount, markAsRead, isConnected } = useCreatorNotifications({
+    creatorId: user?.id || '',
+    onNewRequest: async (newRequest) => {
+      // Show browser notification
+      await notificationService.showVideoRequestNotification(newRequest)
+    },
+    playSound: true,
+    showToast: true,
+  })
+  
+  // Request notification permission on mount
+  useEffect(() => {
+    if (user) {
+      notificationService.requestPermission()
+    }
+  }, [user])
 
   const getHelpText = (helpKey: string) => {
     return helpTooltips[helpKey]?.[language] || helpTooltips[helpKey]?.en || ""
@@ -151,34 +182,78 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
           >
             {/* Sidebar Header */}
             <div className={cn(
-              "p-6 border-b border-gray-200 flex items-center justify-between",
+              "p-6 border-b border-gray-200",
               isSidebarCollapsed && "lg:p-4"
             )}>
-              {!isSidebarCollapsed && (
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between">
+                {!isSidebarCollapsed && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🎤</span>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      Creator Studio
+                    </h2>
+                  </div>
+                )}
+                {isSidebarCollapsed && (
                   <span className="text-2xl">🎤</span>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Creator Studio
-                  </h2>
+                )}
+                
+                <div className="flex items-center gap-2">
+                  {/* Notification Badge */}
+                  <div className="relative">
+                    <NotificationBadge 
+                      count={unreadCount} 
+                      onClick={() => setShowNotifications(!showNotifications)}
+                    />
+                    
+                    {/* Notification Panel Dropdown */}
+                    {showNotifications && !isSidebarCollapsed && (
+                      <div className="absolute top-12 right-0 w-96 bg-white rounded-lg shadow-xl border z-50">
+                        <NotificationPanel
+                          requests={newRequests}
+                          onView={(id) => {
+                            markAsRead([id])
+                            setShowNotifications(false)
+                            router.push(`/creator/requests?highlight=${id}`)
+                          }}
+                          onAccept={async (id) => {
+                            markAsRead([id])
+                            router.push(`/creator/requests?highlight=${id}`)
+                          }}
+                          onReject={async (id) => {
+                            markAsRead([id])
+                            router.push(`/creator/requests?highlight=${id}`)
+                          }}
+                          onDismiss={(id) => markAsRead([id])}
+                          onClearAll={() => markAsRead()}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Desktop Collapse Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden lg:flex"
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                  >
+                    {isSidebarCollapsed ? (
+                      <ChevronRight className="h-4 w-4" />
+                    ) : (
+                      <ChevronLeft className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Connection Status */}
+              {isConnected && !isSidebarCollapsed && (
+                <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
+                  <span>Live Updates Active</span>
                 </div>
               )}
-              {isSidebarCollapsed && (
-                <span className="text-2xl mx-auto">🎤</span>
-              )}
-              
-              {/* Desktop Collapse Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hidden lg:flex"
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              >
-                {isSidebarCollapsed ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronLeft className="h-4 w-4" />
-                )}
-              </Button>
             </div>
 
             {/* Navigation */}
@@ -208,6 +283,13 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
                         {!isSidebarCollapsed && (
                           <>
                             <span className="flex-1">{item.name}</span>
+                            
+                            {/* Badge for unread notifications */}
+                            {item.badge === 'newRequests' && unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
                             
                             {/* Help Icon with Tooltip */}
                             <Tooltip delayDuration={0}>

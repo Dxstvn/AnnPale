@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
-import { 
-  createViewSession, 
-  processViewData, 
-  getClientIP, 
-  getLocationFromIP,
-  type VideoAnalytics 
-} from '@/lib/utils/analytics'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,11 +16,11 @@ export async function POST(request: NextRequest) {
     // Check if user is a creator
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, is_creator')
       .eq('id', user.id)
       .single()
     
-    if (profile?.role !== 'creator' && profile?.role !== 'admin') {
+    if (!profile?.is_creator && profile?.role !== 'creator' && profile?.role !== 'admin') {
       return NextResponse.json({ error: 'Only creators can upload videos' }, { status: 403 })
     }
     
@@ -34,10 +28,14 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const requestId = formData.get('request_id') as string
-    const isTemp = formData.get('is_temp') === 'true'
+    const duration = parseInt(formData.get('duration') as string) || 0
     
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    }
+    
+    if (!requestId) {
+      return NextResponse.json({ error: 'Request ID is required' }, { status: 400 })
     }
     
     // Validate file type
@@ -48,48 +46,49 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
-    // Validate file size (max 500MB)
-    const maxSize = 500 * 1024 * 1024 // 500MB in bytes
+    // Validate file size (max 100MB for now)
+    const maxSize = 100 * 1024 * 1024 // 100MB in bytes
     if (file.size > maxSize) {
       return NextResponse.json({ 
-        error: 'File too large. Maximum size is 500MB.' 
+        error: 'File too large. Maximum size is 100MB.' 
       }, { status: 400 })
     }
     
-    // If uploading for a specific request, verify ownership
-    if (requestId && !isTemp) {
-      const { data: videoRequest } = await supabase
-        .from('video_requests')
-        .select('creator_id, status')
-        .eq('id', requestId)
-        .single()
-      
-      if (!videoRequest) {
-        return NextResponse.json({ error: 'Request not found' }, { status: 404 })
-      }
-      
-      if (videoRequest.creator_id !== user.id) {
-        return NextResponse.json({ error: 'Unauthorized to upload for this request' }, { status: 403 })
-      }
-      
-      if (videoRequest.status !== 'accepted' && videoRequest.status !== 'recording') {
-        return NextResponse.json({ 
-          error: 'Cannot upload video for this request. Request must be accepted first.' 
-        }, { status: 400 })
-      }
+    // Verify ownership of the video request
+    const { data: videoRequest, error: requestError } = await supabase
+      .from('video_requests')
+      .select('creator_id, status')
+      .eq('id', requestId)
+      .single()
+    
+    if (requestError || !videoRequest) {
+      return NextResponse.json({ error: 'Request not found' }, { status: 404 })
+    }
+    
+    if (videoRequest.creator_id !== user.id) {
+      return NextResponse.json({ error: 'Unauthorized to upload for this request' }, { status: 403 })
+    }
+    
+    if (!['accepted', 'recording'].includes(videoRequest.status)) {
+      return NextResponse.json({ 
+        error: 'Cannot upload video for this request. Request must be accepted first.' 
+      }, { status: 400 })
     }
     
     // Generate unique file name
     const fileExt = file.name.split('.').pop()
-    const fileName = `${uuidv4()}.${fileExt}`
-    
-    // Determine storage bucket and path
-    const bucket = isTemp ? 'temp-recordings' : 'creator-videos'
+    const fileName = `${requestId}-${uuidv4()}.${fileExt}`
     const filePath = `${user.id}/${fileName}`
     
-    // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(bucket)
+    // Create service client for storage operations (bypasses RLS)
+    const serviceSupabase = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    
+    // Upload to Supabase Storage using service role
+    const { data: uploadData, error: uploadError } = await serviceSupabase.storage
+      .from('creator-videos')
       .upload(filePath, file, {
         contentType: file.type,
         upsert: false
@@ -102,78 +101,49 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
     
-    // If this is a final upload (not temp), create video record
-    if (!isTemp && requestId) {
-      // Get video duration (would need client to send this)
-      const duration = parseInt(formData.get('duration') as string) || 0
-      
-      // Create video record in database
-      const { data: video, error: videoError } = await supabase
-        .from('videos')
-        .insert({
-          request_id: requestId,
-          creator_id: user.id,
-          storage_path: filePath,
-          duration_seconds: duration,
-          file_size_bytes: file.size,
-          mime_type: file.type,
-          is_processed: true, // Set to true for now, implement processing later
-          recorded_at: new Date().toISOString()
-        })
-        .select()
-        .single()
-      
-      if (videoError) {
-        // Try to delete uploaded file if database insert fails
-        await supabase.storage.from(bucket).remove([filePath])
-        
-        console.error('Database error:', videoError)
-        return NextResponse.json({ 
-          error: 'Failed to save video information. Please try again.' 
-        }, { status: 500 })
-      }
-      
-      // Update request status to completed
-      await supabase
-        .from('video_requests')
-        .update({ 
-          status: 'completed',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', requestId)
-      
-      // Grant access to the fan who requested the video
-      const { data: request } = await supabase
-        .from('video_requests')
-        .select('fan_id')
-        .eq('id', requestId)
-        .single()
-      
-      if (request?.fan_id) {
-        await supabase
-          .from('video_access')
-          .insert({
-            video_id: video.id,
-            user_id: request.fan_id,
-            granted_at: new Date().toISOString(),
-            download_allowed: true
-          })
-      }
-      
-      return NextResponse.json({
-        success: true,
-        video_id: video.id,
-        storage_path: filePath,
-        message: 'Video uploaded successfully!'
+    // Get public URL for the uploaded video
+    const { data: urlData } = serviceSupabase.storage
+      .from('creator-videos')
+      .getPublicUrl(filePath)
+    
+    // Update video_requests table with video information
+    const { data: updatedRequest, error: updateError } = await supabase
+      .from('video_requests')
+      .update({ 
+        status: 'completed',
+        video_url: urlData.publicUrl,
+        duration: duration,
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
+      .eq('id', requestId)
+      .select()
+      .single()
+    
+    if (updateError) {
+      // Try to delete uploaded file if database update fails
+      await serviceSupabase.storage.from('creator-videos').remove([filePath])
+      
+      console.error('Database update error:', updateError)
+      return NextResponse.json({ 
+        error: 'Failed to save video information. Please try again.' 
+      }, { status: 500 })
     }
     
-    // For temp uploads, just return the path
+    console.log('✅ Video uploaded successfully:', {
+      requestId,
+      filePath,
+      videoUrl: urlData.publicUrl,
+      duration,
+      fileSize: file.size
+    })
+    
     return NextResponse.json({
       success: true,
+      video_url: urlData.publicUrl,
       storage_path: filePath,
-      bucket: bucket,
-      message: 'Video uploaded to temporary storage'
+      duration: duration,
+      message: 'Video uploaded successfully!'
     })
     
   } catch (error: any) {
@@ -184,13 +154,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to check upload status or get signed URL
+// GET endpoint to get video info
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
-    const videoId = searchParams.get('video_id')
-    const action = searchParams.get('action') // 'url' or 'status'
+    const requestId = searchParams.get('request_id')
     
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -198,138 +167,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    if (!videoId) {
-      return NextResponse.json({ error: 'Video ID required' }, { status: 400 })
+    if (!requestId) {
+      return NextResponse.json({ error: 'Request ID required' }, { status: 400 })
     }
     
-    // Get video details
-    const { data: video, error: videoError } = await supabase
-      .from('videos')
-      .select('*, request:video_requests(*)')
-      .eq('id', videoId)
+    // Get video request details
+    const { data: videoRequest, error: requestError } = await supabase
+      .from('video_requests')
+      .select('*, creator:profiles!creator_id(display_name, username), fan:profiles!fan_id(display_name, username)')
+      .eq('id', requestId)
       .single()
     
-    if (videoError || !video) {
-      return NextResponse.json({ error: 'Video not found' }, { status: 404 })
+    if (requestError || !videoRequest) {
+      return NextResponse.json({ error: 'Video request not found' }, { status: 404 })
     }
     
-    // Check access permissions
-    const hasAccess = video.creator_id === user.id || 
-                     video.request?.fan_id === user.id ||
-                     await checkVideoAccess(supabase, videoId, user.id)
+    // Check access permissions (creator or fan can access)
+    const hasAccess = videoRequest.creator_id === user.id || videoRequest.fan_id === user.id
     
     if (!hasAccess) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
     
-    if (action === 'url') {
-      // Generate signed URL for video streaming
-      const { data: signedUrl, error: urlError } = await supabase.storage
-        .from('creator-videos')
-        .createSignedUrl(video.storage_path, 3600) // 1 hour expiry
-      
-      if (urlError) {
-        console.error('Signed URL error:', urlError)
-        return NextResponse.json({ error: 'Failed to generate video URL' }, { status: 500 })
-      }
-      
-      // Enhanced view tracking with session-based analytics
-      try {
-        const ipAddress = getClientIP(request)
-        const userAgent = request.headers.get('user-agent') || ''
-        const location = ipAddress ? await getLocationFromIP(ipAddress) : undefined
-        
-        // Create view session
-        const viewSession = createViewSession(
-          user.id,
-          ipAddress,
-          userAgent,
-          location
-        )
-        
-        // Get existing analytics from video record
-        const existingAnalytics: Partial<VideoAnalytics> = {
-          videoId: video.id,
-          totalViews: video.view_count || 0,
-          uniqueViews: video.unique_views || 0,
-          viewSessions: video.analytics?.viewSessions || [],
-          deviceTypes: video.analytics?.deviceTypes || {},
-          locations: video.analytics?.locations || {},
-          lastViewedAt: video.last_viewed_at,
-          averageViewDuration: video.analytics?.averageViewDuration,
-          completionRate: video.analytics?.completionRate
-        }
-        
-        // Process the new view
-        const updatedAnalytics = processViewData(existingAnalytics, viewSession)
-        
-        // Update video record with enhanced analytics
-        await supabase
-          .from('videos')
-          .update({ 
-            view_count: updatedAnalytics.totalViews,
-            unique_views: updatedAnalytics.uniqueViews,
-            last_viewed_at: updatedAnalytics.lastViewedAt,
-            analytics: {
-              viewSessions: updatedAnalytics.viewSessions.slice(-100), // Keep last 100 sessions
-              deviceTypes: updatedAnalytics.deviceTypes,
-              locations: updatedAnalytics.locations,
-              averageViewDuration: updatedAnalytics.averageViewDuration,
-              completionRate: updatedAnalytics.completionRate
-            }
-          })
-          .eq('id', videoId)
-        
-        // Update access record if exists
-        await supabase
-          .from('video_access')
-          .update({
-            view_count: updatedAnalytics.totalViews,
-            last_viewed_at: updatedAnalytics.lastViewedAt
-          })
-          .eq('video_id', videoId)
-          .eq('user_id', user.id)
-          
-      } catch (analyticsError) {
-        console.warn('Analytics tracking failed:', analyticsError)
-        
-        // Fallback to simple view count increment
-        await supabase
-          .from('videos')
-          .update({ 
-            view_count: video.view_count + 1,
-            last_viewed_at: new Date().toISOString()
-          })
-          .eq('id', videoId)
-      }
-      
-      return NextResponse.json({
-        url: signedUrl.signedUrl,
-        expires_in: 3600,
-        video: {
-          id: video.id,
-          duration: video.duration_seconds,
-          mime_type: video.mime_type,
-          created_at: video.created_at
-        }
-      })
-    }
-    
-    // Return video status/details
     return NextResponse.json({
       video: {
-        id: video.id,
-        status: video.is_processed ? 'ready' : 'processing',
-        duration: video.duration_seconds,
-        size: video.file_size_bytes,
-        views: video.view_count,
-        created_at: video.created_at
+        id: videoRequest.id,
+        status: videoRequest.status,
+        video_url: videoRequest.video_url,
+        thumbnail_url: videoRequest.thumbnail_url,
+        duration: videoRequest.duration,
+        occasion: videoRequest.occasion,
+        recipient_name: videoRequest.recipient_name,
+        created_at: videoRequest.created_at,
+        completed_at: videoRequest.completed_at
       },
-      request: video.request ? {
-        id: video.request.id,
-        occasion: video.request.occasion,
-        recipient: video.request.recipient_name
-      } : null
+      creator: videoRequest.creator,
+      fan: videoRequest.fan
     })
     
   } catch (error: any) {
@@ -338,16 +211,4 @@ export async function GET(request: NextRequest) {
       error: 'Failed to fetch video information' 
     }, { status: 500 })
   }
-}
-
-// Helper function to check video access
-async function checkVideoAccess(supabase: any, videoId: string, userId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from('video_access')
-    .select('id')
-    .eq('video_id', videoId)
-    .eq('user_id', userId)
-    .single()
-  
-  return !!data
 }

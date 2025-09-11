@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useCreatorNotifications } from '@/hooks/use-creator-notifications'
+import { NotificationBadge, NotificationPanel } from '@/components/creator/video-request-notification'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,23 +29,23 @@ interface VideoRequest {
   id: string
   fan_id: string
   creator_id: string
+  request_type: string
   occasion: string
   recipient_name: string
   instructions: string
   status: 'pending' | 'accepted' | 'rejected' | 'recording' | 'processing' | 'completed' | 'cancelled' | 'expired'
-  price_usd: number
-  currency: string
-  deadline: string
-  requested_at: string
-  created_at: string
-  accepted_at?: string
+  price: number
+  platform_fee: number
+  creator_earnings: number
+  video_url?: string
+  thumbnail_url?: string
+  duration?: number
+  rating?: number
+  review?: string
+  responded_at?: string
   completed_at?: string
-  fan?: {
-    id: string
-    username: string
-    full_name: string
-    avatar_url?: string
-  }
+  created_at: string
+  updated_at: string
 }
 
 export default function CreatorRequestsPage() {
@@ -53,11 +55,38 @@ export default function CreatorRequestsPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
   const [processingRequest, setProcessingRequest] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [showNotifications, setShowNotifications] = useState(false)
   const supabase = createClient()
+  
+  // Set up real-time notifications
+  const { newRequests, unreadCount, markAsRead, isConnected } = useCreatorNotifications({
+    creatorId: currentUser?.id || '',
+    onNewRequest: (newRequest) => {
+      // Refresh the requests list when new request arrives
+      fetchRequests()
+      toast({
+        title: "New Video Request! 🎬",
+        description: `${newRequest.fan?.display_name || newRequest.fan?.name || 'Someone'} requested a ${newRequest.occasion} video`,
+      })
+    },
+    playSound: true,
+    showToast: false, // We're handling toast ourselves
+  })
 
   useEffect(() => {
-    fetchRequests()
+    checkUser()
   }, [])
+  
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      setCurrentUser(user)
+      fetchRequests()
+    } else {
+      router.push('/login')
+    }
+  }
 
   const fetchRequests = async () => {
     try {
@@ -70,15 +99,7 @@ export default function CreatorRequestsPage() {
 
       const { data, error } = await supabase
         .from('video_requests')
-        .select(`
-          *,
-          fan:profiles!video_requests_fan_id_fkey(
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('creator_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -104,11 +125,20 @@ export default function CreatorRequestsPage() {
         .from('video_requests')
         .update({ 
           status: 'accepted',
-          accepted_at: new Date().toISOString()
+          responded_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .eq('id', requestId)
 
       if (error) throw error
+
+      // Refresh the requests list
+      fetchRequests()
+      
+      toast({
+        title: 'Request Accepted',
+        description: 'You can now start recording the video',
+      })
 
       // Navigate to recording page
       router.push(`/creator/record/${requestId}`)
@@ -129,16 +159,21 @@ export default function CreatorRequestsPage() {
     try {
       const { error } = await supabase
         .from('video_requests')
-        .update({ status: 'rejected' })
+        .update({ 
+          status: 'rejected',
+          responded_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .eq('id', requestId)
 
       if (error) throw error
 
-      await fetchRequests()
+      // Refresh the requests list
+      fetchRequests()
       
       toast({
         title: 'Request Declined',
-        description: 'The video request has been declined.',
+        description: 'The video request has been declined',
       })
     } catch (error) {
       console.error('Error declining request:', error)
@@ -168,12 +203,12 @@ export default function CreatorRequestsPage() {
   const completedCount = requests.filter(r => r.status === 'completed').length
   const weeklyEarnings = requests
     .filter(r => r.status === 'completed')
-    .reduce((sum, r) => sum + (r.price_usd || 0), 0)
+    .reduce((sum, r) => sum + (r.creator_earnings || 0), 0)
 
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency
+      currency: 'USD'
     }).format(amount)
   }
 
@@ -209,9 +244,46 @@ export default function CreatorRequestsPage() {
 
   return (
     <div className="container max-w-7xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Video Requests</h1>
-        <p className="text-muted-foreground">Manage and respond to video requests from your fans</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Video Requests</h1>
+          <p className="text-muted-foreground">Manage and respond to video requests from your fans</p>
+        </div>
+        <div className="flex items-center gap-4">
+          {isConnected && (
+            <Badge variant="outline" className="text-green-600 border-green-600">
+              <div className="w-2 h-2 bg-green-600 rounded-full mr-2 animate-pulse" />
+              Live Updates
+            </Badge>
+          )}
+          <div className="relative">
+            <NotificationBadge 
+              count={unreadCount} 
+              onClick={() => setShowNotifications(!showNotifications)}
+            />
+            {showNotifications && (
+              <div className="absolute top-12 right-0 w-96 bg-white rounded-lg shadow-xl border z-50">
+                <NotificationPanel
+                  requests={newRequests}
+                  onView={(id) => {
+                    markAsRead([id])
+                    setShowNotifications(false)
+                  }}
+                  onAccept={async (id) => {
+                    await handleAcceptRequest(id)
+                    markAsRead([id])
+                  }}
+                  onReject={async (id) => {
+                    await handleRejectRequest(id)
+                    markAsRead([id])
+                  }}
+                  onDismiss={(id) => markAsRead([id])}
+                  onClearAll={() => markAsRead()}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Stats Overview */}
@@ -255,7 +327,7 @@ export default function CreatorRequestsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(weeklyEarnings, 'USD')}</div>
+            <div className="text-2xl font-bold">{formatCurrency(weeklyEarnings)}</div>
             <p className="text-xs text-muted-foreground">From completed videos</p>
           </CardContent>
         </Card>
@@ -291,7 +363,7 @@ export default function CreatorRequestsPage() {
             </Card>
           ) : (
             filteredRequests.map((request) => {
-              const isOverdue = request.deadline && isPast(new Date(request.deadline))
+              const isOverdue = false // No deadline field in current schema
               
               return (
                 <Card key={request.id} className="overflow-hidden">
@@ -302,7 +374,7 @@ export default function CreatorRequestsPage() {
                           {request.occasion}
                         </CardTitle>
                         <CardDescription>
-                          For {request.recipient_name} • From: {request.fan?.full_name || request.fan?.username || 'Anonymous'}
+                          For {request.recipient_name} • Request Type: {request.request_type}
                         </CardDescription>
                       </div>
                       <div className="flex flex-col items-end gap-2">
@@ -324,21 +396,19 @@ export default function CreatorRequestsPage() {
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">
-                          {formatCurrency(request.price_usd || 0, request.currency || 'USD')}
+                          {formatCurrency(request.creator_earnings || 0)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {request.deadline ? 
-                            format(new Date(request.deadline), 'MMM d, yyyy') : 
-                            'No deadline'}
+                          {format(new Date(request.created_at), 'MMM d, yyyy')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {formatDistanceToNow(new Date(request.requested_at))} ago
+                          {formatDistanceToNow(new Date(request.created_at))} ago
                         </span>
                       </div>
                       <div className="flex items-center gap-2">

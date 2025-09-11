@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/language-context'
+import { createClient } from '@/lib/supabase/client'
 import {
   Crown, Shield, Star, Check, X, CreditCard, Calendar, 
   TrendingUp, Users, Video, Gift, Zap, Clock, Bell,
   ChevronRight, Info, AlertCircle, ArrowRight, Sparkles,
-  DollarSign, Tv, MessageSquare, Heart, Trophy, Flame
+  DollarSign, Tv, MessageSquare, Heart, Trophy, Flame,
+  Search, Filter, MoreVertical
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -41,8 +43,58 @@ export default function FanSubscriptionsPage() {
   }, [])
 
   const loadSubscriptions = async () => {
-    // Mock data - in production, fetch from API
-    const mockSubscriptions: FanSubscription[] = [
+    try {
+      // First try to fetch real subscriptions from API
+      const response = await fetch('/api/subscriptions/list')
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data.subscriptions && data.subscriptions.length > 0) {
+          // Transform the real data to match the FanSubscription interface
+          const transformedSubscriptions = data.subscriptions.map((sub: any) => ({
+            id: sub.id,
+            fan_id: sub.subscriber_id,
+            creator_id: sub.creator.id,
+            tier_id: sub.tier.id,
+            status: sub.is_expired ? 'expired' as const : sub.status,
+            start_date: sub.started_at,
+            next_billing_date: sub.expires_at,
+            end_date: sub.cancelled_at,
+            auto_renew: sub.status === 'active' && !sub.cancelled_at,
+            created_at: sub.started_at,
+            updated_at: sub.started_at,
+            tier: {
+              id: sub.tier.id,
+              creator_id: sub.creator.id,
+              tier_name: sub.tier.name,
+              tier_type: 'basic' as const,
+              price: sub.tier.price,
+              billing_period: 'monthly' as const,
+              benefits: sub.tier.benefits || [],
+              ad_free: true,
+              exclusive_content: true,
+              priority_chat: false,
+              vod_access: true,
+              max_quality: '1080p',
+              is_active: true,
+              created_at: sub.started_at,
+              updated_at: sub.started_at
+            },
+            creator: {
+              id: sub.creator.id,
+              name: sub.creator.name,
+              avatar_url: sub.creator.avatar_url || '/placeholder.svg'
+            }
+          }))
+          
+          setSubscriptions(transformedSubscriptions)
+          return
+        }
+      }
+      
+      // If no real data or API fails, show mock subscriptions
+      const mockSubscriptions: FanSubscription[] = [
       {
         id: 'sub-001',
         fan_id: 'user-123',
@@ -165,44 +217,63 @@ export default function FanSubscriptionsPage() {
       }
     ]
 
-    setTimeout(() => {
       setSubscriptions(mockSubscriptions)
+    } catch (error) {
+      console.error('Error loading subscriptions:', error)
+      toast.error('Failed to load subscriptions')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   const loadRecommendedCreators = async () => {
-    // Mock recommended creators
-    const mockCreators = [
-      {
-        id: 'creator-005',
-        name: 'Jean-Baptiste Pierre',
-        avatar_url: '/api/placeholder/100/100',
-        category: 'Comedy',
-        subscribers: 15420,
-        liveNow: true,
-        lowestTierPrice: 3.99
-      },
-      {
-        id: 'creator-006',
-        name: 'Lisa Chen',
-        avatar_url: '/api/placeholder/100/100',
-        category: 'Dance',
-        subscribers: 8930,
-        liveNow: false,
-        lowestTierPrice: 5.99
-      },
-      {
-        id: 'creator-007',
-        name: 'David Wilson',
-        avatar_url: '/api/placeholder/100/100',
-        category: 'Talk Shows',
-        subscribers: 22100,
-        liveNow: true,
-        lowestTierPrice: 2.99
+    try {
+      const supabase = createClient()
+      
+      // Fetch creators with subscription tiers from the database
+      const { data: creators, error } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          name,
+          email,
+          avatar_url,
+          bio,
+          creator_subscription_tiers (
+            price,
+            is_active
+          )
+        `)
+        .eq('role', 'creator')
+        .limit(3)
+      
+      if (error) {
+        console.error('Error fetching creators:', error)
+        return
       }
-    ]
-    setRecommendedCreators(mockCreators)
+      
+      // Process creators data
+      const processedCreators = creators?.map(creator => {
+        const activeTiers = creator.creator_subscription_tiers?.filter((t: any) => t.is_active) || []
+        const lowestPrice = activeTiers.length > 0 
+          ? Math.min(...activeTiers.map((t: any) => t.price))
+          : 9.99
+        
+        return {
+          id: creator.id,
+          name: creator.name,
+          avatar_url: creator.avatar_url || '/placeholder.svg',
+          category: 'Creator', // Default category
+          subscribers: Math.floor(Math.random() * 20000) + 1000, // Mock subscriber count
+          liveNow: Math.random() > 0.7, // Random live status for demo
+          lowestTierPrice: lowestPrice
+        }
+      }) || []
+      
+      setRecommendedCreators(processedCreators)
+    } catch (error) {
+      console.error('Error loading recommended creators:', error)
+    }
   }
 
   const getTierIcon = (tierType: SubscriptionTierType) => {
@@ -371,13 +442,13 @@ export default function FanSubscriptionsPage() {
               <Check className="h-4 w-4" />
               Active ({activeSubscriptions.length})
             </TabsTrigger>
-            <TabsTrigger value="inactive" className="flex items-center gap-2">
+            <TabsTrigger value="expired" className="flex items-center gap-2">
               <X className="h-4 w-4" />
-              Inactive ({cancelledSubscriptions.length})
+              Expired ({cancelledSubscriptions.length})
             </TabsTrigger>
-            <TabsTrigger value="discover" className="flex items-center gap-2">
+            <TabsTrigger value="recommended" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
-              Discover
+              Recommended
             </TabsTrigger>
           </TabsList>
 
@@ -506,7 +577,7 @@ export default function FanSubscriptionsPage() {
                     Subscribe to your favorite creators to support them and unlock exclusive benefits
                   </p>
                   <Button 
-                    onClick={() => setActiveTab('discover')}
+                    onClick={() => setActiveTab('recommended')}
                     className="bg-gradient-to-r from-purple-600 to-pink-600"
                   >
                     Discover Creators
@@ -516,8 +587,8 @@ export default function FanSubscriptionsPage() {
             )}
           </TabsContent>
 
-          {/* Inactive Subscriptions */}
-          <TabsContent value="inactive" className="mt-6">
+          {/* Expired Subscriptions */}
+          <TabsContent value="expired" className="mt-6">
             {cancelledSubscriptions.length > 0 ? (
               <div className="space-y-4">
                 {cancelledSubscriptions.map((subscription) => (
@@ -558,8 +629,8 @@ export default function FanSubscriptionsPage() {
             )}
           </TabsContent>
 
-          {/* Discover */}
-          <TabsContent value="discover" className="mt-6">
+          {/* Recommended */}
+          <TabsContent value="recommended" className="mt-6">
             <div className="space-y-6">
               <Alert className="bg-purple-50 border-purple-200">
                 <Sparkles className="h-4 w-4" />
@@ -604,7 +675,7 @@ export default function FanSubscriptionsPage() {
                             className="w-full"
                             onClick={() => handleSubscribe(creator.id)}
                           >
-                            View Tiers
+                            Subscribe
                           </Button>
                         </div>
                       </div>

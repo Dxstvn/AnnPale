@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/language-context'
 import {
   Settings, User, Bell, Shield, Globe, CreditCard, Smartphone,
   Eye, Lock, Mail, Phone, Camera, Check, X, AlertCircle,
   ChevronRight, Moon, Sun, Volume2, Vibrate, Download, Trash2,
-  LogOut, HelpCircle, FileText, Heart, Flag
+  LogOut, HelpCircle, FileText, Heart, Flag, Users, Star, Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,12 +41,23 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 import { Textarea } from '@/components/ui/textarea'
+import { SubscriptionManagement } from '@/components/subscription/subscription-management'
 
 export default function CustomerSettingsPage() {
   const { language } = useLanguage()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [selectedTab, setSelectedTab] = useState('profile')
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [profileImage, setProfileImage] = useState('/api/placeholder/100/100')
+  
+  // Set the tab based on URL parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab) {
+      setSelectedTab(tab)
+    }
+  }, [searchParams])
   
   // Mock user data
   const userData = {
@@ -113,14 +125,46 @@ export default function CustomerSettingsPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7">
             <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
           </TabsList>
+
+          {/* Subscriptions Tab */}
+          <TabsContent value="subscriptions" className="space-y-6">
+            <SubscriptionManagement />
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recommended Creators</CardTitle>
+                <CardDescription>Discover new creators based on your interests</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Mock recommended creators */}
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-4">
+                        <Avatar>
+                          <AvatarFallback>CR</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">Creator Name</p>
+                          <p className="text-sm text-gray-500">Music · Entertainment</p>
+                        </div>
+                      </div>
+                      <Button size="sm" onClick={() => router.push('/browse')}>View Profile</Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">

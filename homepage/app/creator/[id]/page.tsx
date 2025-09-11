@@ -40,7 +40,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/contexts/language-context"
 import { getTranslation } from "@/lib/translations"
@@ -48,8 +48,9 @@ import CreatorHeroSection from "@/components/creator/creator-hero-section"
 import CreatorVideoGallery from "@/components/creator/creator-video-gallery"
 import CreatorReviews from "@/components/creator/creator-reviews"
 import CreatorBookingWidget from "@/components/creator/creator-booking-widget"
+import { CreatorSubscriptionTiers } from "@/components/subscription/creator-subscription-tiers"
 import CreatorSocialProof from "@/components/creator/creator-social-proof"
-import CreatorPricingTiers from "@/components/creator/creator-pricing-tiers"
+import ErrorBoundary from "@/components/error-boundary"
 import CreatorAvailability from "@/components/creator/creator-availability"
 import CreatorSimilar from "@/components/creator/creator-similar"
 import CreatorVideoGrid from "@/components/creator/creator-video-grid"
@@ -63,6 +64,8 @@ const creatorsData = {
     category: "Musician",
     tagline: "Grammy Award Winner • Former Fugees Member",
     price: 150,
+    rushPrice: 75,
+    platformFeePercentage: 0.30,
     rating: 4.9,
     totalReviews: 1247,
     image: "/images/wyclef-jean.png",
@@ -91,6 +94,188 @@ const creatorsData = {
       { code: "fr", name: "Français", flag: "🇫🇷" }
     ],
     specialties: [
+      { name: "Birthday wishes", icon: "🎂", popular: true },
+      { name: "Congratulations", icon: "🎉", popular: true },
+      { name: "Motivational messages", icon: "💪" },
+      { name: "Music dedications", icon: "🎵" },
+      { name: "Cultural celebrations", icon: "🇭🇹" },
+      { name: "Wedding messages", icon: "💍" }
+    ],
+    availability: {
+      nextAvailable: "Today",
+      bookingSlots: ["Morning", "Afternoon", "Evening"]
+    },
+    reviews: [
+      {
+        id: 1,
+        name: "Sarah M.",
+        rating: 5,
+        date: "2 days ago",
+        message: "Wyclef's message to my mom was absolutely perfect! She cried happy tears. Worth every penny!",
+        type: "Birthday"
+      },
+      {
+        id: 2,
+        name: "Jean-Pierre L.",
+        rating: 5,
+        date: "1 week ago",
+        message: "The energy and authenticity in his message was incredible. My brother was so surprised!",
+        type: "Congratulations"
+      },
+      {
+        id: 3,
+        name: "Marie D.",
+        rating: 4,
+        date: "2 weeks ago",
+        message: "Great message, delivered on time. Would have loved it to be a bit longer.",
+        type: "Birthday"
+      }
+    ],
+    videoGallery: [
+      { id: 1, thumbnail: "/placeholder.jpg", duration: "1:23", type: "Birthday", views: 1234 },
+      { id: 2, thumbnail: "/placeholder.jpg", duration: "2:15", type: "Motivation", views: 892 },
+      { id: 3, thumbnail: "/placeholder.jpg", duration: "1:45", type: "Congratulations", views: 567 }
+    ],
+    packages: {
+      basic: {
+        name: "Standard",
+        price: 150,
+        duration: "30-60 seconds",
+        delivery: "7 days",
+        features: ["Personalized message", "HD quality", "Download link"]
+      },
+      premium: {
+        name: "Premium",
+        price: 250,
+        duration: "60-90 seconds",
+        delivery: "5 days",
+        features: ["Extended message", "HD quality", "Download link", "Social media format"]
+      },
+      vip: {
+        name: "VIP",
+        price: 500,
+        duration: "2-3 minutes",
+        delivery: "3 days",
+        features: ["Detailed message", "4K quality", "Multiple takes", "Priority delivery", "Behind the scenes"]
+      }
+    },
+    similarCreators: [
+      { id: 2, name: "Emeline Michel", category: "Singer", price: 100, rating: 4.8 },
+      { id: 3, name: "Roberto Martino", category: "Actor", price: 75, rating: 4.7 },
+      { id: 4, name: "Jimmy Jean-Louis", category: "Actor", price: 125, rating: 4.9 }
+    ]
+  },
+  "marie-jean": {
+    id: "marie-jean",
+    name: "Marie Jean",
+    category: "Actress",
+    tagline: "Award-winning Actress • Cultural Icon",
+    price: 50,
+    rushPrice: 25,
+    platformFeePercentage: 0.20, // 20% for testing (will be 30% in production)
+    rating: 4.8,
+    totalReviews: 892,
+    image: "/images/marie-jean.jpg",
+    coverImage: "/placeholder.jpg",
+    responseTime: "48hr",
+    verified: true,
+    featured: true,
+    trending: false,
+    bio: "Celebrated Haitian actress with over 20 years in film and television. Known for bringing authentic Haitian stories to global audiences. Passionate about representing our culture with pride and dignity.",
+    extendedBio: {
+      career: "Star of multiple award-winning Haitian films and international productions. Bringing our stories to Netflix, HBO, and major film festivals worldwide.",
+      personal: "Born and raised in Port-au-Prince. Mother of two beautiful children. Active in promoting Haitian arts and education.",
+      message: "Each video message is my way of connecting with our beautiful diaspora. Let me help celebrate your special moments!"
+    },
+    stats: {
+      completedVideos: 892,
+      responseTime: "48hr",
+      onTimeDelivery: 96,
+      repeatCustomers: 42,
+      avgRating: 4.8,
+      totalEarned: "$44,600"
+    },
+    languages: [
+      { code: "ht", name: "Kreyòl", flag: "🇭🇹" },
+      { code: "fr", name: "Français", flag: "🇫🇷" },
+      { code: "en", name: "English", flag: "🇺🇸" }
+    ],
+    specialties: [
+      { name: "Birthday wishes", icon: "🎂", popular: true },
+      { name: "Anniversary", icon: "💑", popular: true },
+      { name: "Encouragement", icon: "💝" },
+      { name: "Get well soon", icon: "🌻" },
+      { name: "Cultural celebrations", icon: "🇭🇹" },
+      { name: "Graduations", icon: "🎓" }
+    ],
+    availability: {
+      nextAvailable: "Tomorrow",
+      bookingSlots: ["Afternoon", "Evening"]
+    },
+    reviews: [
+      {
+        id: 1,
+        name: "Claudette B.",
+        rating: 5,
+        date: "3 days ago",
+        message: "Marie's message brought my mother to tears! So authentic and heartfelt. Merci!",
+        type: "Birthday"
+      },
+      {
+        id: 2,
+        name: "Pierre J.",
+        rating: 5,
+        date: "1 week ago",
+        message: "Perfect anniversary surprise for my wife. Marie spoke directly from the heart.",
+        type: "Anniversary"
+      },
+      {
+        id: 3,
+        name: "Sophia L.",
+        rating: 4,
+        date: "2 weeks ago",
+        message: "Beautiful message, great quality. Worth the wait!",
+        type: "Encouragement"
+      }
+    ],
+    videoGallery: [
+      { id: 1, thumbnail: "/placeholder.jpg", duration: "1:15", type: "Birthday", views: 892 },
+      { id: 2, thumbnail: "/placeholder.jpg", duration: "1:45", type: "Anniversary", views: 654 },
+      { id: 3, thumbnail: "/placeholder.jpg", duration: "1:30", type: "Encouragement", views: 421 }
+    ],
+    packages: {
+      basic: {
+        name: "Standard",
+        price: 50,
+        duration: "30-60 seconds",
+        delivery: "7 days",
+        features: ["Personalized message", "HD quality", "Download link"]
+      },
+      premium: {
+        name: "Premium",
+        price: 100,
+        duration: "60-90 seconds",
+        delivery: "5 days",
+        features: ["Extended message", "HD quality", "Download link", "Social media format"]
+      },
+      vip: {
+        name: "VIP",
+        price: 200,
+        duration: "2-3 minutes",
+        delivery: "3 days",
+        features: ["Detailed message", "4K quality", "Multiple takes", "Priority delivery", "Behind the scenes"]
+      }
+    },
+    similarCreators: [
+      { id: 1, name: "Wyclef Jean", category: "Musician", price: 150, rating: 4.9 },
+      { id: 3, name: "Roberto Martino", category: "Actor", price: 75, rating: 4.7 },
+      { id: 5, name: "Daphnee Louis", category: "Singer", price: 80, rating: 4.6 }
+    ]
+  }
+}
+
+const UNUSED_DATA = {
+  specialties: [
       { name: "Birthday wishes", icon: "🎂", popular: true },
       { name: "Congratulations", icon: "🎉", popular: true },
       { name: "Motivational messages", icon: "💪" },
@@ -214,11 +399,11 @@ const creatorsData = {
       { id: 6, name: "Rutshelle Guillaume", category: "Singer", price: 85, rating: 4.9 },
       { id: 13, name: "J Perry", category: "Singer", price: 90, rating: 4.8 }
     ]
-  }
 }
 
 export default function CreatorProfilePage() {
   const params = useParams()
+  const router = useRouter()
   const { language } = useLanguage()
   const creatorId = params.id as string
   const creator = creatorsData[creatorId as keyof typeof creatorsData] || creatorsData["1"]
@@ -243,7 +428,7 @@ export default function CreatorProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50" data-testid="creator-profile">
       {/* Decorative Cultural Emojis */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <motion.div 
@@ -331,8 +516,8 @@ export default function CreatorProfilePage() {
               
               <div className="flex-1 text-white">
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-4xl font-bold">{creator.name}</h1>
-                  {creator.badges.map((badge, index) => (
+                  <h1 className="text-4xl font-bold" data-testid="creator-name">{creator.name}</h1>
+                  {creator.badges?.map((badge, index) => (
                     <span key={index} className="text-2xl" title={badge.name}>
                       {badge.icon}
                     </span>
@@ -480,7 +665,7 @@ export default function CreatorProfilePage() {
                       Languages
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {creator.languages.map((lang) => (
+                      {creator.languages?.map((lang) => (
                         <Badge key={lang.code} variant="secondary" className="px-3 py-1">
                           <span className="mr-1">{lang.flag}</span>
                           {lang.name}
@@ -495,7 +680,7 @@ export default function CreatorProfilePage() {
                       Specialties
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {creator.specialties.map((specialty) => (
+                      {creator.specialties?.map((specialty) => (
                         <Badge 
                           key={specialty.name} 
                           variant={specialty.popular ? "default" : "outline"}
@@ -514,19 +699,19 @@ export default function CreatorProfilePage() {
                 <div className="mt-6 pt-6 border-t">
                   <h4 className="font-semibold text-gray-900 mb-3">Follow on Social Media</h4>
                   <div className="flex gap-3">
-                    {creator.socialMedia.instagram && (
+                    {creator.socialMedia?.instagram && (
                       <Button size="sm" variant="outline">
                         <Instagram className="h-4 w-4 mr-2" />
                         Instagram
                       </Button>
                     )}
-                    {creator.socialMedia.twitter && (
+                    {creator.socialMedia?.twitter && (
                       <Button size="sm" variant="outline">
                         <Twitter className="h-4 w-4 mr-2" />
                         Twitter
                       </Button>
                     )}
-                    {creator.socialMedia.youtube && (
+                    {creator.socialMedia?.youtube && (
                       <Button size="sm" variant="outline">
                         <Youtube className="h-4 w-4 mr-2" />
                         YouTube
@@ -540,11 +725,15 @@ export default function CreatorProfilePage() {
             {/* Enhanced Video Gallery */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <CreatorVideoGrid 
-                videos={creator.sampleVideos.map(v => ({
+                videos={creator.sampleVideos?.map(v => ({
                   ...v,
                   rating: 4.8 + Math.random() * 0.2,
                   featured: Math.random() > 0.7
-                }))}
+                })) || creator.videoGallery?.map(v => ({
+                  ...v,
+                  rating: 4.8 + Math.random() * 0.2,
+                  featured: Math.random() > 0.7
+                })) || []}
                 creatorName={creator.name}
               />
             </div>
@@ -569,16 +758,16 @@ export default function CreatorProfilePage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {creator.reviews.map((review) => (
+                {creator.reviews?.map((review) => (
                   <div key={review.id} className="border-b last:border-0 pb-4 last:pb-0">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold">
-                          {review.user.charAt(0)}
+                          {(review.user || review.name || 'A').charAt(0)}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold">{review.user}</span>
+                            <span className="font-semibold">{review.user || review.name}</span>
                             {review.verified && (
                               <Badge variant="secondary" className="text-xs">
                                 <CheckCircle className="h-3 w-3 mr-1" />
@@ -647,7 +836,7 @@ export default function CreatorProfilePage() {
                 <CardTitle className="text-lg">Similar Creators</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {creator.similarCreators.map((similar) => (
+                {creator.similarCreators?.map((similar) => (
                   <Link
                     key={similar.id}
                     href={`/creator/${similar.id}`}
@@ -669,6 +858,25 @@ export default function CreatorProfilePage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Subscription Tiers Section */}
+        <div className="mt-12" id="subscription-tiers">
+          <Card className="overflow-hidden border-2 border-purple-200">
+            <CardContent className="p-8">
+              <ErrorBoundary>
+                <CreatorSubscriptionTiers
+                  creatorId="530c7ea1-4946-4f34-b636-7530c2e376fb"
+                  creatorName={creator.name}
+                  onSubscribe={(tierId) => {
+                    console.log(`Subscribing to tier ${tierId}`)
+                    // Redirect to checkout page
+                    router.push(`/checkout?tier=${tierId}&creator=530c7ea1-4946-4f34-b636-7530c2e376fb`)
+                  }}
+                />
+              </ErrorBoundary>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Full-width Booking Packages Section */}

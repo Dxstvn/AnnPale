@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Metadata } from "next"
+import { createClient } from "@/lib/supabase/client"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,43 +29,185 @@ import {
   Sparkles,
   Star,
   ChevronLeft,
-  AlertCircle
+  AlertCircle,
+  Zap,
+  Crown,
+  RefreshCw
 } from "lucide-react"
 import Link from "next/link"
 import { CreatorAvatar } from "@/components/ui/avatar-with-fallback"
 import { useLanguage } from "@/contexts/language-context"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
-export default function CheckoutPage() {
+// Dynamically import Stripe components to avoid SSR issues
+const StripePaymentForm = dynamic(
+  () => import("@/components/payment/stripe-payment-form"),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-pulse">Loading payment system...</div>
+      </div>
+    )
+  }
+)
+
+const StripeSubscriptionCheckout = dynamic(
+  () => import("@/components/payment/stripe-subscription-checkout"),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-pulse">Loading subscription checkout...</div>
+      </div>
+    )
+  }
+)
+
+function CheckoutContent() {
   const { language } = useLanguage()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isProcessing, setIsProcessing] = useState(false)
   const [giftMode, setGiftMode] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [videoRequestData, setVideoRequestData] = useState<any>(null)
+  const [creatorInfo, setCreatorInfo] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [recipientName, setRecipientName] = useState('')
+  const [occasion, setOccasion] = useState('')
+  const [instructions, setInstructions] = useState('')
+  const [rushDelivery, setRushDelivery] = useState(false)
   
-  // Mock order data - in real app would come from context/params
-  const orderData = {
+  // Get params from URL (safely handle null searchParams)
+  const type = searchParams?.get('type') || null
+  const tier = searchParams?.get('tier') || null
+  const creatorId = searchParams?.get('creator') || null
+  const price = searchParams?.get('price') || null
+  const requestId = searchParams?.get('requestId') || null
+  
+  // Determine checkout type based on params
+  const isSubscriptionCheckout = !!(tier && creatorId && price && type !== 'video')
+  const isVideoCheckout = type === 'video' && !!requestId
+  const [checkoutType, setCheckoutType] = useState<'video' | 'subscription'>(
+    isVideoCheckout ? 'video' : isSubscriptionCheckout ? 'subscription' : 'video'
+  )
+  
+  // Get creator data from fetched video request or use fallback for subscriptions
+  const creatorData = isVideoCheckout && creatorInfo ? {
+    name: creatorInfo.display_name || creatorInfo.username || 'Creator',
+    image: creatorInfo.avatar_url || '/images/default-creator.png',
+    verified: true
+  } : {
+    name: 'Creator',
+    image: '/images/default-creator.png',
+    verified: false
+  }
+  
+  // Fetch video request data if it's a video checkout
+  useEffect(() => {
+    const fetchVideoRequestData = async () => {
+      if (isVideoCheckout && requestId) {
+        setLoading(true)
+        try {
+          const supabase = createClient()
+          
+          // Fetch the video request
+          const { data: videoRequest, error: requestError } = await supabase
+            .from('video_requests')
+            .select(`
+              *,
+              creator:creator_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                bio
+              )
+            `)
+            .eq('id', requestId)
+            .single()
+          
+          if (requestError) {
+            console.error('Error fetching video request:', requestError)
+          } else if (videoRequest) {
+            setVideoRequestData(videoRequest)
+            setCreatorInfo(videoRequest.creator)
+            // Prefill form fields with data from the video request
+            setRecipientName(videoRequest.recipient_name || '')
+            setOccasion(videoRequest.occasion || '')
+            setInstructions(videoRequest.instructions || '')
+          }
+        } catch (error) {
+          console.error('Error:', error)
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false)
+      }
+    }
+    
+    fetchVideoRequestData()
+  }, [isVideoCheckout, requestId])
+  
+  // Calculate rush fee and total
+  const rushFee = 25
+  const basePrice = videoRequestData?.price || 50
+  const serviceFee = 0 // Removed service fee
+  const calculatedTotal = basePrice + (rushDelivery ? rushFee : 0)
+  
+  // Video order data (use actual data if available, otherwise fallback)
+  const videoOrderData = videoRequestData ? {
     creator: {
-      name: "Wyclef Jean",
-      image: "/images/wyclef-jean.png",
-      price: 150,
-      responseTime: "24hr",
+      name: creatorInfo?.display_name || creatorInfo?.username || "Creator",
+      image: creatorInfo?.avatar_url || "/images/default-creator.png",
+      price: basePrice,
+      responseTime: rushDelivery ? "24hr" : "24-48hr",
       rating: 4.9,
       verified: true
     },
-    package: "Premium",
-    addOns: {
-      rushDelivery: true,
-      extraLength: false,
-      hdQuality: true,
-      giftWrap: false
+    occasion: videoRequestData.occasion,
+    recipientName: videoRequestData.recipient_name,
+    instructions: videoRequestData.instructions,
+    requestType: videoRequestData.request_type,
+    package: "Standard",
+    subtotal: basePrice,
+    serviceFee: serviceFee,
+    rushFee: rushFee,
+    rushDelivery: rushDelivery,
+    total: calculatedTotal
+  } : {
+    creator: {
+      name: "Loading...",
+      image: "/images/default-creator.png",
+      price: 50,
+      responseTime: rushDelivery ? "24hr" : "24-48hr",
+      rating: 4.9,
+      verified: true
     },
-    subtotal: 150,
-    rushFee: 25,
-    hdFee: 10,
-    serviceFee: 5,
-    total: 190
+    package: "Standard",
+    subtotal: 50,
+    serviceFee: 0,
+    rushFee: rushFee,
+    rushDelivery: rushDelivery,
+    total: 50 + (rushDelivery ? rushFee : 0)
+  }
+  
+  // Subscription order data
+  const subscriptionOrderData = {
+    creator: creatorData,
+    tier: tier || 'Unknown Tier',
+    price: parseFloat(price || '0'),
+    billingCycle: 'monthly',
+    nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+    features: [
+      'Exclusive content access',
+      'Direct messaging with creator',
+      'Early access to new videos',
+      'Monthly live sessions',
+      'Member-only community access'
+    ]
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,226 +231,205 @@ export default function CheckoutPage() {
         {/* Header */}
         <div className="mb-8">
           <Button variant="ghost" asChild className="mb-4">
-            <Link href="/browse">
+            <Link href={checkoutType === 'subscription' ? `/fan/creators/${creatorId}` : "/browse"}>
               <ChevronLeft className="h-4 w-4 mr-2" />
-              Back to Browse
+              Back to {checkoutType === 'subscription' ? 'Creator' : 'Browse'}
             </Link>
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900">Complete Your Order</h1>
-          <p className="text-gray-600 mt-2">Secure checkout powered by Stripe</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {checkoutType === 'subscription' ? 'Subscribe to Creator' : 'Complete Your Order'}
+          </h1>
+          <p className="text-gray-600 mt-2">
+            {checkoutType === 'subscription' 
+              ? 'Start your monthly subscription' 
+              : 'Secure checkout powered by Stripe'}
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Summary Card */}
-            <Card className="border-0 shadow-lg">
+            <Card className="border-0 shadow-lg" data-testid="checkout-order-details">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <CardTitle>Order Details</CardTitle>
+                <CardTitle>{checkoutType === 'subscription' ? 'Subscription Details' : 'Order Details'}</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
                   <CreatorAvatar
-                    src={orderData.creator.image}
-                    name={orderData.creator.name}
+                    src={checkoutType === 'subscription' ? creatorData.image : videoOrderData.creator.image}
+                    name={checkoutType === 'subscription' ? creatorData.name : videoOrderData.creator.name}
                     size="lg"
-                    verified={orderData.creator.verified}
+                    verified={checkoutType === 'subscription' ? creatorData.verified : videoOrderData.creator.verified}
                   />
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{orderData.creator.name}</h3>
-                    <p className="text-gray-600">Personalized Video Message</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        <span>{orderData.creator.responseTime} delivery</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{orderData.creator.rating}</span>
-                      </div>
-                    </div>
+                    <h3 className="font-semibold text-lg" data-testid="checkout-creator-name">
+                      {checkoutType === 'subscription' ? creatorData.name : videoOrderData.creator.name}
+                    </h3>
+                    {checkoutType === 'subscription' ? (
+                      <>
+                        <p className="text-gray-600" data-testid="checkout-tier-name">
+                          {subscriptionOrderData.tier} Subscription
+                        </p>
+                        <div className="flex items-center gap-4 mt-2 text-sm">
+                          <div className="flex items-center gap-1">
+                            <RefreshCw className="h-4 w-4 text-gray-400" />
+                            <span data-testid="checkout-billing-cycle">
+                              Billed {subscriptionOrderData.billingCycle}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <span data-testid="checkout-next-billing">
+                              Next: {subscriptionOrderData.nextBilling}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-600">Personalized Video Message</p>
+                        <div className="flex items-center gap-4 mt-2 text-sm">
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4 text-gray-400" />
+                            <span>{videoOrderData.creator.responseTime} delivery</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span>{videoOrderData.creator.rating}</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="text-right">
-                    <Badge className="bg-purple-600 text-white">{orderData.package}</Badge>
-                    <p className="text-2xl font-bold mt-2">${orderData.total}</p>
+                    {checkoutType === 'subscription' ? (
+                      <>
+                        <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                          <Crown className="h-3 w-3 mr-1" />
+                          {subscriptionOrderData.tier}
+                        </Badge>
+                        <p className="text-2xl font-bold mt-2" data-testid="checkout-price">
+                          ${subscriptionOrderData.price}/mo
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        {videoOrderData.requestType && (
+                          <Badge className="bg-purple-600 text-white">
+                            {videoOrderData.requestType === 'myself' ? 'For Me' : 'For Someone Else'}
+                          </Badge>
+                        )}
+                        <p className="text-2xl font-bold mt-2">${videoOrderData.total}</p>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                {/* Add-ons Summary */}
-                {(orderData.addOns.rushDelivery || orderData.addOns.hdQuality) && (
+                {/* Subscription Features or Video Details Summary */}
+                {checkoutType === 'subscription' ? (
                   <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Selected Add-ons:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {orderData.addOns.rushDelivery && (
-                        <Badge variant="secondary">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Rush Delivery (+$25)
-                        </Badge>
-                      )}
-                      {orderData.addOns.hdQuality && (
-                        <Badge variant="secondary">
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          4K Ultra HD (+$10)
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Recipient Information */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Recipient Information</CardTitle>
-                <CardDescription>Who is this video for?</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4 mb-4">
-                  <Label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox 
-                      checked={giftMode}
-                      onCheckedChange={(checked) => setGiftMode(checked as boolean)}
-                    />
-                    <Gift className="h-4 w-4" />
-                    This is a gift for someone else
-                  </Label>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="recipient-name">
-                      {giftMode ? "Recipient's Name *" : "Your Name *"}
-                    </Label>
-                    <Input id="recipient-name" placeholder="Enter name" required />
-                  </div>
-                  <div>
-                    <Label htmlFor="occasion">Occasion *</Label>
-                    <Input id="occasion" placeholder="e.g., Birthday, Graduation" required />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="instructions">Special Instructions (Optional)</Label>
-                  <Textarea 
-                    id="instructions" 
-                    placeholder="Any specific message or pronunciation notes for the creator"
-                    className="min-h-[100px]"
-                  />
-                </div>
-
-                {giftMode && (
-                  <Alert className="bg-purple-50 border-purple-200">
-                    <Info className="h-4 w-4 text-purple-600" />
-                    <AlertDescription className="text-purple-700">
-                      We'll send the video to you first so you can review it before gifting
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Contact Information */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-                <CardDescription>Where should we send the video?</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="email">Email Address *</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input id="email" type="email" className="pl-10" placeholder="your@email.com" required />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number (Optional)</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input id="phone" type="tel" className="pl-10" placeholder="+1 (555) 000-0000" />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Payment Method */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Payment Method</CardTitle>
-                <CardDescription>All transactions are secure and encrypted</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex-1 cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="h-4 w-4" />
-                          Credit/Debit Card
+                    <p className="text-sm font-medium text-gray-700 mb-2">Included Benefits:</p>
+                    <div className="space-y-2">
+                      {subscriptionOrderData.features.map((feature, index) => (
+                        <div key={index} className="flex items-center gap-2" data-testid={`checkout-feature-${index}`}>
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="text-sm text-gray-600">{feature}</span>
                         </div>
-                        <div className="flex gap-2">
-                          <img src="/visa.svg" alt="Visa" className="h-6" />
-                          <img src="/mastercard.svg" alt="Mastercard" className="h-6" />
-                          <img src="/amex.svg" alt="Amex" className="h-6" />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Video Order Details */}
+                    {videoOrderData.occasion && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Video Details:</p>
+                        <div className="space-y-2 text-sm text-gray-600">
+                          {videoOrderData.recipientName && (
+                            <div>
+                              <span className="font-medium">For:</span> {videoOrderData.recipientName}
+                            </div>
+                          )}
+                          {videoOrderData.occasion && (
+                            <div>
+                              <span className="font-medium">Occasion:</span> {videoOrderData.occasion}
+                            </div>
+                          )}
+                          {videoOrderData.instructions && (
+                            <div>
+                              <span className="font-medium">Instructions:</span> {videoOrderData.instructions}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                    <RadioGroupItem value="paypal" id="paypal" />
-                    <Label htmlFor="paypal" className="flex-1 cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <img src="/paypal.svg" alt="PayPal" className="h-4" />
-                        PayPal
+                    )}
+                    
+                    {/* Rush Delivery Option */}
+                    {checkoutType === 'video' && (
+                      <div className="mt-4 pt-4 border-t">
+                        <Label className="flex items-center justify-between cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <Checkbox 
+                              checked={rushDelivery}
+                              onCheckedChange={(checked) => setRushDelivery(checked as boolean)}
+                              data-testid="rush-delivery-checkbox"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <Zap className="h-4 w-4 text-yellow-500" />
+                                <span className="font-medium">Rush Delivery</span>
+                              </div>
+                              <span className="text-sm text-gray-600">Get your video within 24 hours</span>
+                            </div>
+                          </div>
+                          <span className="font-semibold text-purple-600">+${rushFee}</span>
+                        </Label>
                       </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-
-                {paymentMethod === "card" && (
-                  <div className="space-y-4 pt-4">
-                    <div>
-                      <Label htmlFor="card-number">Card Number</Label>
-                      <div className="relative">
-                        <CreditCard className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input id="card-number" className="pl-10" placeholder="1234 5678 9012 3456" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="expiry">Expiry Date</Label>
-                        <Input id="expiry" placeholder="MM/YY" />
-                      </div>
-                      <div>
-                        <Label htmlFor="cvv">CVV</Label>
-                        <Input id="cvv" placeholder="123" />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="billing-name">Name on Card</Label>
-                      <Input id="billing-name" placeholder="John Doe" />
-                    </div>
-                  </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
 
-            {/* Terms & Conditions */}
-            <div className="flex items-start gap-3">
-              <Checkbox 
-                id="terms"
-                checked={agreedToTerms}
-                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+            {/* Payment Method - Use different component for subscriptions */}
+            {checkoutType === 'subscription' ? (
+              <StripeSubscriptionCheckout
+                tierId={tier || ''}
+                creatorId={creatorId || ''}
+                price={subscriptionOrderData.price}
+                billingPeriod="monthly"
+                onSuccess={(sessionId) => {
+                  console.log('Subscription checkout initiated:', sessionId)
+                }}
+                onError={(error) => {
+                  console.error('Subscription checkout error:', error)
+                  alert(`Subscription failed: ${error}`)
+                }}
               />
-              <Label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                I agree to the <Link href="/terms" className="text-purple-600 hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-purple-600 hover:underline">Privacy Policy</Link>
-              </Label>
-            </div>
+            ) : (
+              <StripePaymentForm
+                amount={videoOrderData.total}
+                currency="usd"
+                creatorId={creatorId || undefined}
+                requestDetails={{
+                  type: 'video',
+                  recipientName: videoRequestData?.recipient_name || recipientName,
+                  occasion: videoRequestData?.occasion || occasion,
+                  instructions: videoRequestData?.instructions || instructions,
+                  rushDelivery: rushDelivery,
+                  requestId,
+                }}
+                onSuccess={(paymentIntentId) => {
+                  router.push(`/fan/orders/${paymentIntentId}`)
+                }}
+                onError={(error) => {
+                  console.error('Payment error:', error)
+                  alert(`Payment failed: ${error}`)
+                }}
+              />
+            )}
+
           </div>
 
           {/* Sidebar */}
@@ -318,49 +441,50 @@ export default function CheckoutPage() {
                   <CardTitle>Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span>Video Message ({orderData.package})</span>
-                    <span>${orderData.subtotal}</span>
-                  </div>
-                  {orderData.addOns.rushDelivery && (
-                    <div className="flex justify-between text-sm">
-                      <span>Rush Delivery</span>
-                      <span>+${orderData.rushFee}</span>
-                    </div>
+                  {checkoutType === 'subscription' ? (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span>Subscription ({subscriptionOrderData.tier})</span>
+                        <span>${subscriptionOrderData.price}/mo</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>Billing Cycle</span>
+                        <span>Monthly</span>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex justify-between font-semibold text-lg">
+                        <span>Total Due Today</span>
+                        <span className="text-purple-600">${subscriptionOrderData.price}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span>Video Message ({videoOrderData.package})</span>
+                        <span>${videoOrderData.subtotal}</span>
+                      </div>
+                      {videoOrderData.rushDelivery && (
+                        <div className="flex justify-between text-sm">
+                          <span>Rush Delivery</span>
+                          <span>+${videoOrderData.rushFee}</span>
+                        </div>
+                      )}
+                      
+                      <Separator />
+                      
+                      <div className="flex justify-between font-semibold text-lg">
+                        <span>Total</span>
+                        <span className="text-purple-600">${videoOrderData.total}</span>
+                      </div>
+                    </>
                   )}
-                  {orderData.addOns.hdQuality && (
-                    <div className="flex justify-between text-sm">
-                      <span>4K Ultra HD</span>
-                      <span>+${orderData.hdFee}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm">
-                    <span>Service Fee</span>
-                    <span>${orderData.serviceFee}</span>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
-                    <span className="text-purple-600">${orderData.total}</span>
-                  </div>
 
-                  <Button 
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                    size="lg"
-                    onClick={handleSubmit}
-                    disabled={isProcessing || !agreedToTerms}
-                  >
-                    {isProcessing ? (
-                      <>Processing...</>
-                    ) : (
-                      <>
-                        <Lock className="h-4 w-4 mr-2" />
-                        Complete Order • ${orderData.total}
-                      </>
-                    )}
-                  </Button>
+                  <div className="text-center text-sm text-gray-600">
+                    <Lock className="h-4 w-4 inline mr-1" />
+                    Secure payment powered by Stripe
+                  </div>
                 </CardContent>
               </Card>
 
@@ -397,5 +521,17 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">Loading checkout...</div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   )
 }

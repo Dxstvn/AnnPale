@@ -44,10 +44,11 @@ export default function CreatorRecordPage() {
         .from('video_requests')
         .select(`
           *,
-          fan:profiles!video_requests_fan_id_fkey(
+          fan:fan_id(
             id,
             username,
-            full_name,
+            display_name,
+            name,
             avatar_url
           )
         `)
@@ -111,15 +112,7 @@ export default function CreatorRecordPage() {
 
       const result = await response.json()
 
-      // Update request status to completed
-      await supabase
-        .from('video_requests')
-        .update({ 
-          status: 'completed',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', requestId)
-
+      // The API already updated the request status to completed
       setRecordingComplete(true)
       
       toast({
@@ -231,7 +224,7 @@ export default function CreatorRecordPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">From</p>
                     <p className="font-medium">
-                      {request.fan?.full_name || request.fan?.username || 'Anonymous'}
+                      {request.fan?.display_name || request.fan?.name || request.fan?.username || 'Anonymous'}
                     </p>
                   </div>
                 </div>
@@ -241,7 +234,7 @@ export default function CreatorRecordPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Payment</p>
                     <p className="font-medium">
-                      {formatCurrency(request.price_usd || 0, request.currency || 'USD')}
+                      {formatCurrency(request.price || 0, 'USD')}
                     </p>
                   </div>
                 </div>
@@ -266,7 +259,7 @@ export default function CreatorRecordPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Requested</p>
                     <p className="font-medium">
-                      {formatDistanceToNow(new Date(request.requested_at))} ago
+                      {formatDistanceToNow(new Date(request.created_at))} ago
                     </p>
                   </div>
                 </div>

@@ -1,3 +1,0 @@
-# Ignore all auth session files
-*.json
-!.gitignore

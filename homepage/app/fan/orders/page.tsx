@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/language-context'
 import { 
   Package, Clock, CheckCircle, XCircle, Download, MessageSquare,
   Calendar, CreditCard, Video, Gift, Star, Filter, Search,
-  ChevronRight, AlertCircle, Truck, RefreshCw
+  ChevronRight, AlertCircle, Truck, RefreshCw, Play, Eye
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Select,
   SelectContent,
@@ -27,104 +29,202 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { VideoPlayerModal } from '@/components/video/video-player'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { createClient } from '@/lib/supabase/client'
+import { formatDistanceToNow, format } from 'date-fns'
+import { cn } from '@/lib/utils'
 
 interface Order {
   id: string
-  type: 'video' | 'call' | 'livestream' | 'gift'
-  creatorName: string
-  creatorImage: string
-  recipientName?: string
-  amount: number
-  status: 'pending' | 'processing' | 'completed' | 'cancelled' | 'refunded'
-  date: string
-  deliveryDate?: string
-  duration?: string
+  creator_id: string
+  user_id: string
+  video_request_id?: string
+  payment_intent_id?: string
+  amount: number  // Changed from total_amount to match database
+  currency?: string
+  platform_fee: number
+  creator_earnings: number
+  status: 'pending' | 'accepted' | 'recording' | 'in_progress' | 'completed' | 'rejected' | 'cancelled' | 'refunded'
+  created_at: string
+  updated_at: string
+  completed_at?: string
+  accepted_at?: string
   occasion?: string
-  message?: string
+  recipient_name?: string
+  instructions?: string
+  metadata?: any
+  video_url?: string
+  video_metadata?: any
+  video_uploaded_at?: string
+  video_duration?: number
+  video_size?: number
+  creator?: {
+    id: string
+    display_name?: string
+    avatar_url?: string
+    bio?: string
+  }
 }
 
 export default function CustomerOrdersPage() {
   const { language } = useLanguage()
+  const { user, isLoading: authLoading } = useSupabaseAuth()
   const [selectedTab, setSelectedTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [videoPlayer, setVideoPlayer] = useState<{
+    isOpen: boolean
+    videoUrl: string
+    title?: string
+    creatorName?: string
+    creatorAvatar?: string
+  }>({ isOpen: false, videoUrl: '' })
+  const [isLoadingVideo, setIsLoadingVideo] = useState(false)
+  const supabase = createClient()
 
-  // Mock orders data
-  const orders: Order[] = [
-    {
-      id: 'ORD-001',
-      type: 'video',
-      creatorName: 'Marie-Claire Laurent',
-      creatorImage: '/api/placeholder/40/40',
-      recipientName: 'John Doe',
-      amount: 50,
-      status: 'processing',
-      date: '2024-01-15',
-      deliveryDate: '2024-01-18',
-      occasion: 'Birthday',
-      message: 'Happy birthday message for my brother'
-    },
-    {
-      id: 'ORD-002',
-      type: 'call',
-      creatorName: 'Jean-Baptiste Pierre',
-      creatorImage: '/api/placeholder/40/40',
-      amount: 75,
-      status: 'completed',
-      date: '2024-01-14',
-      duration: '10 minutes'
-    },
-    {
-      id: 'ORD-003',
-      type: 'livestream',
-      creatorName: 'Sophie Duval',
-      creatorImage: '/api/placeholder/40/40',
-      amount: 25,
-      status: 'completed',
-      date: '2024-01-13'
-    },
-    {
-      id: 'ORD-004',
-      type: 'gift',
-      creatorName: 'Marcus Thompson',
-      creatorImage: '/api/placeholder/40/40',
-      recipientName: 'Sarah Johnson',
-      amount: 100,
-      status: 'pending',
-      date: '2024-01-16',
-      deliveryDate: '2024-01-20',
-      occasion: 'Anniversary'
-    },
-    {
-      id: 'ORD-005',
-      type: 'video',
-      creatorName: 'Lisa Chen',
-      creatorImage: '/api/placeholder/40/40',
-      amount: 45,
-      status: 'cancelled',
-      date: '2024-01-12'
-    },
-    {
-      id: 'ORD-006',
-      type: 'call',
-      creatorName: 'David Kim',
-      creatorImage: '/api/placeholder/40/40',
-      amount: 60,
-      status: 'refunded',
-      date: '2024-01-10',
-      duration: '5 minutes'
+  // Fetch orders from database - now using video_requests table for accurate status
+  const fetchOrders = async () => {
+    if (!user?.id) return
+
+    try {
+      setError(null)
+      setLoading(true)
+      
+      // Get all video requests for this fan user
+      const { data: requestsData, error: fetchError } = await supabase
+        .from('video_requests')
+        .select('*')
+        .eq('fan_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (fetchError) {
+        console.error('Error fetching requests:', fetchError)
+        setError('Failed to load orders')
+        return
+      }
+
+      if (!requestsData || requestsData.length === 0) {
+        setOrders([])
+        return
+      }
+
+      // Get unique creator IDs
+      const creatorIds = [...new Set(requestsData.map(request => request.creator_id))]
+      
+      // Fetch creator profiles separately
+      const { data: creatorsData, error: creatorsError } = await supabase
+        .from('profiles')
+        .select('id, display_name, avatar_url, bio')
+        .in('id', creatorIds)
+
+      if (creatorsError) {
+        console.error('Error fetching creators:', creatorsError)
+        // Still show orders even if creator info fails
+        setOrders(requestsData.map(request => ({ 
+          id: request.id,
+          creator_id: request.creator_id,
+          user_id: request.fan_id,
+          video_request_id: request.id,
+          amount: request.price || 0,
+          currency: 'USD',
+          platform_fee: request.platform_fee || 0,
+          creator_earnings: request.creator_earnings || 0,
+          status: request.status,
+          created_at: request.created_at,
+          updated_at: request.updated_at,
+          completed_at: request.completed_at,
+          occasion: request.occasion,
+          recipient_name: request.recipient_name,
+          instructions: request.instructions,
+          video_url: request.video_url,
+          creator: null 
+        })))
+        return
+      }
+
+      // Convert video requests to order format with creator information
+      const ordersWithCreators = requestsData.map(request => ({
+        id: request.id,
+        creator_id: request.creator_id,
+        user_id: request.fan_id,
+        video_request_id: request.id,
+        amount: request.price || 0,
+        currency: 'USD',
+        platform_fee: request.platform_fee || 0,
+        creator_earnings: request.creator_earnings || 0,
+        status: request.status, // This will now show the correct status (pending, accepted, rejected, completed)
+        created_at: request.created_at,
+        updated_at: request.updated_at,
+        completed_at: request.completed_at,
+        occasion: request.occasion,
+        recipient_name: request.recipient_name, // Add recipient name for video titles
+        instructions: request.instructions,
+        video_url: request.video_url,
+        creator: creatorsData.find(creator => creator.id === request.creator_id)
+      }))
+
+      setOrders(ordersWithCreators)
+    } catch (err) {
+      console.error('Error in fetchOrders:', err)
+      setError('Failed to load orders')
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  useEffect(() => {
+    fetchOrders()
+  }, [user?.id])
+
+  // Set up real-time subscriptions
+  useEffect(() => {
+    if (!user?.id) return
+
+    const channel = supabase.channel(`fan-video-requests-${user.id}`)
+
+    // Subscribe to database changes in video_requests table
+    channel
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'video_requests',
+        filter: `fan_id=eq.${user.id}`,
+      }, () => {
+        fetchOrders()
+      })
+      .on('broadcast', { event: 'video_request_update' }, () => {
+        fetchOrders()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id])
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await fetchOrders()
+    setTimeout(() => setIsRefreshing(false), 1000)
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
         return <Clock className="h-4 w-4" />
-      case 'processing':
+      case 'accepted':
+      case 'recording':
+      case 'in_progress':
         return <RefreshCw className="h-4 w-4 animate-spin" />
       case 'completed':
         return <CheckCircle className="h-4 w-4" />
+      case 'rejected':
       case 'cancelled':
         return <XCircle className="h-4 w-4" />
       case 'refunded':
@@ -138,10 +238,16 @@ export default function CustomerOrdersPage() {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800'
-      case 'processing':
+      case 'accepted':
         return 'bg-blue-100 text-blue-800'
+      case 'recording':
+        return 'bg-purple-100 text-purple-800'
+      case 'in_progress':
+        return 'bg-purple-100 text-purple-800'
       case 'completed':
         return 'bg-green-100 text-green-800'
+      case 'rejected':
+        return 'bg-red-100 text-red-800'
       case 'cancelled':
         return 'bg-red-100 text-red-800'
       case 'refunded':
@@ -151,38 +257,30 @@ export default function CustomerOrdersPage() {
     }
   }
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'video':
-        return <Video className="h-4 w-4" />
-      case 'call':
-        return <Phone className="h-4 w-4" />
-      case 'livestream':
-        return <Radio className="h-4 w-4" />
-      case 'gift':
-        return <Gift className="h-4 w-4" />
-      default:
-        return null
-    }
+  // Always return video icon for now since all orders are video requests
+  const getTypeIcon = () => {
+    return <Video className="h-4 w-4" />
   }
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.creatorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.id.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = filterType === 'all' || order.type === filterType
+    const searchLower = searchQuery.toLowerCase()
+    const matchesSearch = !searchQuery || 
+                         order.creator?.display_name?.toLowerCase().includes(searchLower) ||
+                         order.occasion?.toLowerCase().includes(searchLower) ||
+                         order.id.toLowerCase().includes(searchLower)
     const matchesTab = selectedTab === 'all' || 
-                       (selectedTab === 'active' && ['pending', 'processing'].includes(order.status)) ||
+                       (selectedTab === 'active' && ['pending', 'accepted', 'recording', 'in_progress'].includes(order.status)) ||
                        (selectedTab === 'completed' && order.status === 'completed') ||
-                       (selectedTab === 'cancelled' && ['cancelled', 'refunded'].includes(order.status))
+                       (selectedTab === 'cancelled' && ['rejected', 'cancelled', 'refunded'].includes(order.status))
     
-    return matchesSearch && matchesType && matchesTab
+    return matchesSearch && matchesTab
   })
 
   const stats = {
     total: orders.length,
-    active: orders.filter(o => ['pending', 'processing'].includes(o.status)).length,
+    active: orders.filter(o => ['pending', 'accepted', 'recording', 'in_progress'].includes(o.status)).length,
     completed: orders.filter(o => o.status === 'completed').length,
-    totalSpent: orders.reduce((sum, o) => sum + o.amount, 0)
+    totalSpent: orders.reduce((sum, o) => sum + (o.amount || 0), 0)
   }
 
   const OrderCard = ({ order }: { order: Order }) => (
@@ -194,24 +292,18 @@ export default function CustomerOrdersPage() {
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-4">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={order.creatorImage} alt={order.creatorName} />
-              <AvatarFallback>{order.creatorName[0]}</AvatarFallback>
+              <AvatarImage src={order.creator?.avatar_url} alt={order.creator?.display_name} />
+              <AvatarFallback>{order.creator?.display_name?.[0] || 'C'}</AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <h3 className="font-semibold text-gray-900">{order.creatorName}</h3>
+                <h3 className="font-semibold text-gray-900">{order.creator?.display_name || 'Creator'}</h3>
                 <Badge variant="outline" className="flex items-center space-x-1">
-                  {getTypeIcon(order.type)}
-                  <span className="capitalize">{order.type}</span>
+                  {getTypeIcon()}
+                  <span className="capitalize">Video</span>
                 </Badge>
               </div>
-              <p className="text-sm text-gray-500">Order #{order.id}</p>
-              {order.recipientName && (
-                <p className="text-sm text-gray-600">
-                  <Gift className="inline h-3 w-3 mr-1" />
-                  For: {order.recipientName}
-                </p>
-              )}
+              <p className="text-sm text-gray-500">Order #{order.id.slice(0, 8)}</p>
               {order.occasion && (
                 <p className="text-sm text-purple-600">{order.occasion}</p>
               )}
@@ -219,33 +311,56 @@ export default function CustomerOrdersPage() {
           </div>
           
           <div className="text-right space-y-2">
-            <p className="text-lg font-bold text-gray-900">${order.amount}</p>
-            <Badge className={`${getStatusColor(order.status)} flex items-center space-x-1`}>
+            <p className="text-lg font-bold text-gray-900">${order.amount.toFixed(2)}</p>
+            <Badge className={cn(getStatusColor(order.status), "flex items-center space-x-1")}>
               {getStatusIcon(order.status)}
-              <span className="capitalize">{order.status}</span>
+              <span className="capitalize">{order.status.replace('_', ' ')}</span>
             </Badge>
-            <p className="text-xs text-gray-500">{order.date}</p>
+            <p className="text-xs text-gray-500">{format(new Date(order.created_at), 'MMM d, yyyy')}</p>
           </div>
         </div>
 
-        {order.deliveryDate && order.status === 'processing' && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-blue-700">Expected Delivery</span>
-              <span className="text-sm font-semibold text-blue-900">{order.deliveryDate}</span>
-            </div>
+
+        {order.instructions && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 italic">"{order.instructions}"</p>
           </div>
         )}
 
         <div className="mt-4 flex items-center justify-between">
           <div className="flex space-x-2">
-            {order.status === 'completed' && (
-              <Button size="sm" variant="outline">
-                <Download className="h-4 w-4 mr-1" />
-                Download
+            {order.status === 'completed' && order.video_url && (
+              <Button 
+                size="sm" 
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                disabled={isLoadingVideo}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Since video is stored in public Supabase Storage, use URL directly
+                  if (order.video_url) {
+                    setVideoPlayer({
+                      isOpen: true,
+                      videoUrl: order.video_url,
+                      title: `${order.occasion} video for ${order.recipient_name || 'you'}`,
+                      creatorName: order.creator?.display_name || 'Creator',
+                      creatorAvatar: order.creator?.avatar_url
+                    })
+                  } else {
+                    alert('Video URL not available. Please contact support.')
+                  }
+                }}
+              >
+                <Play className="h-4 w-4 mr-1" />
+                {isLoadingVideo ? 'Loading...' : 'Watch'}
               </Button>
             )}
-            {['pending', 'processing'].includes(order.status) && (
+            {order.status === 'completed' && (
+              <Button size="sm" variant="outline">
+                <Star className="h-4 w-4 mr-1" />
+                Rate
+              </Button>
+            )}
+            {['pending', 'accepted', 'recording', 'in_progress'].includes(order.status) && (
               <Button size="sm" variant="outline">
                 <MessageSquare className="h-4 w-4 mr-1" />
                 Contact
@@ -261,9 +376,56 @@ export default function CustomerOrdersPage() {
     </Card>
   )
 
-  // Fix import for Phone and Radio icons
-  const Phone = () => <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-  const Radio = () => <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
+  // Loading skeleton
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <Skeleton className="h-8 w-48 mb-2 bg-white/20" />
+            <Skeleton className="h-4 w-64 bg-white/20" />
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Alert className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+            <Button 
+              onClick={handleRefresh} 
+              variant="link" 
+              className="ml-2 p-0 h-auto"
+            >
+              Try again
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -284,6 +446,15 @@ export default function CustomerOrdersPage() {
               <p className="text-sm text-purple-100">Total Orders</p>
               <p className="text-3xl font-bold">{stats.total}</p>
             </div>
+            <Button 
+              onClick={handleRefresh}
+              variant="ghost"
+              size="sm"
+              disabled={isRefreshing}
+              className="text-white hover:bg-white/10"
+            >
+              <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+            </Button>
           </div>
 
           {/* Stats Cards */}
@@ -414,28 +585,28 @@ export default function CustomerOrdersPage() {
 
       {/* Order Details Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl !bg-white !text-gray-900 dark:!bg-white dark:!text-gray-900">
           <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
-            <DialogDescription>
-              Order #{selectedOrder?.id}
+            <DialogTitle className="!text-gray-900 dark:!text-gray-900">Order Details</DialogTitle>
+            <DialogDescription className="!text-gray-600 dark:!text-gray-600">
+              Order #{selectedOrder?.id.slice(0, 8)}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src={selectedOrder.creatorImage} />
-                  <AvatarFallback>{selectedOrder.creatorName[0]}</AvatarFallback>
+                  <AvatarImage src={selectedOrder.creator?.avatar_url} />
+                  <AvatarFallback>{selectedOrder.creator?.display_name?.[0] || 'C'}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-lg">{selectedOrder.creatorName}</h3>
+                  <h3 className="font-semibold text-lg !text-gray-900 dark:!text-gray-900">{selectedOrder.creator?.display_name || 'Creator'}</h3>
                   <div className="flex items-center space-x-2 mt-1">
-                    <Badge variant="outline" className="capitalize">
-                      {selectedOrder.type}
+                    <Badge variant="outline" className="capitalize !text-gray-700 !border-gray-300 dark:!text-gray-700 dark:!border-gray-300">
+                      Video Request
                     </Badge>
                     <Badge className={getStatusColor(selectedOrder.status)}>
-                      {selectedOrder.status}
+                      {selectedOrder.status.replace('_', ' ')}
                     </Badge>
                   </div>
                 </div>
@@ -443,44 +614,98 @@ export default function CustomerOrdersPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500">Order Date</p>
-                  <p className="font-semibold">{selectedOrder.date}</p>
+                  <p className="text-sm !text-gray-500 dark:!text-gray-500">Order Date</p>
+                  <p className="font-semibold !text-gray-900 dark:!text-gray-900">{format(new Date(selectedOrder.created_at), 'PPP')}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Amount</p>
-                  <p className="font-semibold">${selectedOrder.amount}</p>
+                  <p className="text-sm !text-gray-500 dark:!text-gray-500">Amount Paid</p>
+                  <p className="font-semibold !text-gray-900 dark:!text-gray-900">${selectedOrder.amount.toFixed(2)}</p>
                 </div>
-                {selectedOrder.deliveryDate && (
+                {selectedOrder.completed_at && (
                   <div>
-                    <p className="text-sm text-gray-500">Delivery Date</p>
-                    <p className="font-semibold">{selectedOrder.deliveryDate}</p>
+                    <p className="text-sm !text-gray-500 dark:!text-gray-500">Completed Date</p>
+                    <p className="font-semibold !text-gray-900 dark:!text-gray-900">{format(new Date(selectedOrder.completed_at), 'PPP')}</p>
                   </div>
                 )}
-                {selectedOrder.duration && (
+                {selectedOrder.occasion && (
                   <div>
-                    <p className="text-sm text-gray-500">Duration</p>
-                    <p className="font-semibold">{selectedOrder.duration}</p>
+                    <p className="text-sm !text-gray-500 dark:!text-gray-500">Occasion</p>
+                    <p className="font-semibold !text-gray-900 dark:!text-gray-900">{selectedOrder.occasion}</p>
                   </div>
                 )}
               </div>
 
-              {selectedOrder.message && (
+              {selectedOrder.instructions && (
                 <div>
-                  <p className="text-sm text-gray-500 mb-2">Message</p>
-                  <p className="p-3 bg-gray-50 rounded-lg">{selectedOrder.message}</p>
+                  <p className="text-sm !text-gray-500 dark:!text-gray-500 mb-2">Instructions</p>
+                  <p className="p-3 !bg-gray-50 dark:!bg-gray-50 rounded-lg !text-gray-800 dark:!text-gray-800">{selectedOrder.instructions}</p>
                 </div>
               )}
 
+
               <div className="flex justify-end space-x-2 pt-4">
-                {selectedOrder.status === 'completed' && (
-                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Video
-                  </Button>
+                {selectedOrder.status === 'completed' && selectedOrder.video_url && (
+                  <>
+                    <Button 
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                      disabled={isLoadingVideo}
+                      onClick={() => {
+                        // Since video is stored in public Supabase Storage, use URL directly
+                        if (selectedOrder.video_url) {
+                          setVideoPlayer({
+                            isOpen: true,
+                            videoUrl: selectedOrder.video_url,
+                            title: `${selectedOrder.occasion} video for ${selectedOrder.recipient_name || 'you'}`,
+                            creatorName: selectedOrder.creator?.display_name || 'Creator',
+                            creatorAvatar: selectedOrder.creator?.avatar_url
+                          })
+                        } else {
+                          alert('Video URL not available. Please contact support.')
+                        }
+                      }}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      {isLoadingVideo ? 'Loading...' : 'Watch Video'}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      disabled={isLoadingVideo}
+                      onClick={() => {
+                        if (selectedOrder.video_url) {
+                          // Create download link for the video
+                          const link = document.createElement('a')
+                          link.href = selectedOrder.video_url
+                          link.download = `${selectedOrder.occasion}-video-${selectedOrder.id.slice(0, 8)}.webm`
+                          link.target = '_blank'
+                          link.click()
+                        } else {
+                          alert('Video URL not available. Please contact support.')
+                        }
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                    <Button variant="outline">
+                      <Star className="h-4 w-4 mr-2" />
+                      Rate
+                    </Button>
+                  </>
                 )}
-                {['pending', 'processing'].includes(selectedOrder.status) && (
-                  <Button variant="outline" className="text-red-600 border-red-600">
-                    Cancel Order
+                {['pending', 'accepted', 'recording', 'in_progress'].includes(selectedOrder.status) && (
+                  <>
+                    <Button variant="outline">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Contact Creator
+                    </Button>
+                    <Button variant="outline" className="text-red-600 border-red-600">
+                      Cancel Order
+                    </Button>
+                  </>
+                )}
+                {selectedOrder.status === 'cancelled' && (
+                  <Button variant="outline">
+                    Request Refund
                   </Button>
                 )}
               </div>
@@ -488,6 +713,16 @@ export default function CustomerOrdersPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Video Player Modal */}
+      <VideoPlayerModal
+        isOpen={videoPlayer.isOpen}
+        onClose={() => setVideoPlayer({ isOpen: false, videoUrl: '' })}
+        videoUrl={videoPlayer.videoUrl}
+        title={videoPlayer.title}
+        creatorName={videoPlayer.creatorName}
+        creatorAvatar={videoPlayer.creatorAvatar}
+      />
     </div>
   )
 }
