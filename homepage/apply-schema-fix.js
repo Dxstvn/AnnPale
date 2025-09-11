@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('dotenv').config({ path: '.env.local' })
 const { createClient } = require('@supabase/supabase-js')
 const fs = require('fs')
 const path = require('path')
@@ -8,9 +9,15 @@ const path = require('path')
 const migrationPath = path.join(__dirname, 'supabase/migrations/20250906_fix_webhook_processing_schema.sql')
 const migrationSQL = fs.readFileSync(migrationPath, 'utf8')
 
-// Create admin client
-const supabaseUrl = 'https://yijizsscwkvepljqojkz.supabase.co'
-const serviceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpaml6c3Njd2t2ZXBsanFvamt6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjU5MzI4OCwiZXhwIjoyMDcyMTY5Mjg4fQ.YmQiXzpBOPBKvRKBJZjIBJh1uRQBQWKP5_kT5u71Lqw'
+// Create admin client using environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !serviceKey) {
+  console.error('❌ Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+  console.error('   Please ensure these are set in your .env.local file')
+  process.exit(1)
+}
 
 const supabase = createClient(supabaseUrl, serviceKey)
 

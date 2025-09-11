@@ -1,10 +1,18 @@
+require('dotenv').config({ path: '.env.local' })
 const { createClient } = require('@supabase/supabase-js')
 
+// Validate environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !serviceKey) {
+  console.error('❌ Missing required environment variables: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+  console.error('   Please ensure these are set in your .env.local file')
+  process.exit(1)
+}
+
 // Initialize Supabase client with service role
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://yijizsscwkvepljqojkz.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpaml6c3Njd2t2ZXBsanFvamt6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjU5MzI4OCwiZXhwIjoyMDcyMTY5Mjg4fQ.G9G6t9CxTa3RTFEHWrsOAd7NeOXCcPlwF0NuOKuw-M4'
-)
+const supabase = createClient(supabaseUrl, serviceKey)
 
 // Test Stripe account ID (from the API code)
 const TEST_STRIPE_ACCOUNT_ID = 'acct_1S3TOyEM4K7HiodW'
