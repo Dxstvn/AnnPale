@@ -48,13 +48,13 @@ interface CustomerLayoutProps {
 const navigation = [
   { name: "Home", href: "/fan/home", icon: Home, helpKey: "home_help" },
   { name: "Explore", href: "/fan/explore", icon: Search, helpKey: "explore_help", badge: "New" },
-  { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
-  { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
-  { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
+  // Archived 2025-01-15: { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
+  // Archived 2025-01-15: { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
+  // Archived 2025-01-15: { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
   // Conditionally include Live Streams based on feature flag
   ...(FEATURES.LIVESTREAMING ? [{ name: "Live Streams", href: "/fan/livestreams", icon: Radio, helpKey: "livestreams_help" }] : []),
   { name: "Orders", href: "/fan/orders", icon: Package, helpKey: "orders_help" },
-  { name: "Messages", href: "/fan/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
+  // Archived 2025-01-15: { name: "Messages", href: "/fan/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
   { name: "Settings", href: "/fan/settings", icon: Settings, helpKey: "settings_help" },
 ]
 

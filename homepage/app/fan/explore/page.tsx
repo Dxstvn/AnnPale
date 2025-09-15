@@ -81,7 +81,8 @@ export default function FanExplorePage() {
     try {
       const supabase = createClient()
       
-      // Fetch creators with their tier information
+      // Fetch all creators (regardless of Stripe onboarding status)
+      // This allows discovery of all creators, even those still setting up payments
       const { data, error } = await supabase
         .from('profiles')
         .select(`
@@ -90,18 +91,32 @@ export default function FanExplorePage() {
           email,
           avatar_url,
           bio,
-          is_demo_account,
-          demo_tier,
           created_at,
           category,
-          public_figure_verified,
-          creator_subscription_tiers (
-            price,
-            is_active
-          )
+          stripe_charges_enabled,
+          stripe_payouts_enabled
         `)
         .eq('role', 'creator')
         .order('name')
+
+      // Also fetch their subscription tiers separately if needed
+      let creatorsWithTiers = data || []
+      if (data && data.length > 0) {
+        const creatorIds = data.map(c => c.id)
+        const { data: tiersData } = await supabase
+          .from('creator_subscription_tiers')
+          .select('creator_id, price, is_active')
+          .in('creator_id', creatorIds)
+          .eq('is_active', true)
+
+        // Map tiers to creators
+        if (tiersData) {
+          creatorsWithTiers = data.map(creator => ({
+            ...creator,
+            creator_subscription_tiers: tiersData.filter(t => t.creator_id === creator.id)
+          }))
+        }
+      }
 
       if (error) {
         console.error('Supabase query error:', error)
@@ -114,11 +129,11 @@ export default function FanExplorePage() {
         return
       }
       
-      console.log('Raw query data:', data)
-      console.log('Number of creators found:', data?.length || 0)
+      console.log('Raw query data:', creatorsWithTiers)
+      console.log('Number of creators found:', creatorsWithTiers?.length || 0)
 
       // If no creators found, use mock data
-      if (!data || data.length === 0) {
+      if (!creatorsWithTiers || creatorsWithTiers.length === 0) {
         const mockCreators = getMockCreators()
         setCreators(mockCreators)
         setFilteredCreators(mockCreators)
@@ -128,13 +143,10 @@ export default function FanExplorePage() {
       }
 
       // Process creators with tier information
-      const processedCreators = data?.map(creator => {
+      const processedCreators = creatorsWithTiers?.map(creator => {
         const activeTiers = creator.creator_subscription_tiers?.filter((t: any) => t.is_active) || []
-        // Use actual category from database or map demo_tier for demo accounts
+        // Use actual category from database
         let category = creator.category || 'Entertainment'
-        if (!creator.category && creator.demo_tier === 'music') category = 'Music'
-        else if (!creator.category && creator.demo_tier === 'entertainment') category = 'Entertainment'
-        else if (!creator.category && creator.demo_tier === 'dj') category = 'Media'
         
         return {
           id: creator.id,
@@ -148,7 +160,8 @@ export default function FanExplorePage() {
           tier_count: activeTiers.length,
           min_price: activeTiers.length > 0 ? Math.min(...activeTiers.map((t: any) => t.price)) : 0,
           max_price: activeTiers.length > 0 ? Math.max(...activeTiers.map((t: any) => t.price)) : 0,
-          created_at: creator.created_at
+          created_at: creator.created_at,
+          stripe_onboarded: creator.stripe_charges_enabled && creator.stripe_payouts_enabled
         }
       }) || []
 
@@ -432,12 +445,12 @@ export default function FanExplorePage() {
                     {/* Category Filter */}
                     <div className="space-y-3">
                       <Label className="text-sm font-semibold">Category</Label>
-                      <ScrollArea className="h-48">
+                      <div className="max-h-80 overflow-y-auto pr-2">
                         <div className="space-y-2" data-testid="filter-category">
                           <Button
                             variant={categoryFilter === 'all' ? 'default' : 'outline'}
                             size="sm"
-                            className="w-full justify-start"
+                            className="w-full justify-start text-left"
                             onClick={() => setCategoryFilter('all')}
                           >
                             All Categories
@@ -449,17 +462,17 @@ export default function FanExplorePage() {
                                 key={cat.value}
                                 variant={categoryFilter === cat.value ? 'default' : 'outline'}
                                 size="sm"
-                                className="w-full justify-start"
+                                className="w-full justify-start text-left"
                                 onClick={() => setCategoryFilter(cat.value)}
                                 data-testid={`category-${cat.value.toLowerCase()}`}
                               >
-                                <Icon className="h-4 w-4 mr-2" />
-                                {cat.label}
+                                <Icon className="h-4 w-4 mr-2 flex-shrink-0" />
+                                <span className="truncate">{cat.label}</span>
                               </Button>
                             )
                           })}
                         </div>
-                      </ScrollArea>
+                      </div>
                     </div>
 
                     <Separator />
@@ -709,8 +722,8 @@ export default function FanExplorePage() {
                         {/* Category Badge Overlay */}
                         {creator.category && (
                           <div className="absolute top-4 right-4 z-10">
-                            <Badge 
-                              className="bg-white/90 backdrop-blur-sm shadow-lg"
+                            <Badge
+                              className="bg-white/90 backdrop-blur-sm shadow-lg text-gray-800"
                               data-testid="creator-category"
                             >
                               {React.createElement(getCategoryIcon(creator.category), { className: "h-3 w-3 mr-1" })}

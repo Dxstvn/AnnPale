@@ -2,27 +2,27 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Video,
   Radio,
   Calendar,
   Clock,
-  Heart,
   Play,
   Users,
-  MessageSquare,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Search,
   Filter,
-  Eye,
   ThumbsUp,
-  Share2,
   BookmarkPlus,
   MoreVertical,
   Grid,
@@ -30,9 +30,13 @@ import {
   Globe,
   Lock,
   FileText,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Send,
+  MessageSquare
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { PostInteractions } from "@/components/ui/post-interactions"
+import { CommentsSection } from "@/components/ui/comments-section"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,11 +49,13 @@ import { formatDistanceToNow } from "date-fns"
 
 interface RealContentFeedProps {
   isAuthenticated: boolean
+  userId?: string
   userSubscriptions?: { creator_id: string; tier_id: string }[]
+  excludeLockedContent?: boolean
   className?: string
 }
 
-export function RealContentFeed({ isAuthenticated, userSubscriptions = [], className }: RealContentFeedProps) {
+export function RealContentFeed({ isAuthenticated, userId, userSubscriptions = [], excludeLockedContent = false, className }: RealContentFeedProps) {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -60,8 +66,10 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
   const [viewMode, setViewMode] = useState<"grid" | "vertical">("grid")
   const [offset, setOffset] = useState(0)
   const [total, setTotal] = useState(0)
-  
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
+
   const { toast } = useToast()
+  const router = useRouter()
 
   // Load posts from API
   const loadPosts = async (reset: boolean = false) => {
@@ -90,7 +98,12 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
       if (!isAuthenticated) {
         params.set('preview', 'true')
       }
-      
+
+      // Add excludeLockedContent parameter if set
+      if (excludeLockedContent) {
+        params.set('excludeLockedContent', 'true')
+      }
+
       const response = await fetch(`/api/feed/posts?${params.toString()}`)
       if (!response.ok) {
         throw new Error('Failed to load posts')
@@ -126,50 +139,7 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
 
   useEffect(() => {
     loadPosts(true) // Reset when filters change
-  }, [activeTab, isAuthenticated])
-
-  const handleLikeToggle = async (postId: string) => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Please log in",
-        description: "You need to be logged in to like posts.",
-        variant: "destructive"
-      })
-      return
-    }
-
-    try {
-      const response = await fetch(`/api/creator/posts/${postId}/like`, {
-        method: 'POST'
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to like post')
-      }
-
-      const result = await response.json()
-      
-      // Update post in local state
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              likes_count: result.likesCount,
-              // Add a temporary is_liked property for UI state
-              is_liked: result.isLiked 
-            }
-          : post
-      ))
-    } catch (error: any) {
-      console.error('Like error:', error)
-      toast({
-        title: "Failed to like post",
-        description: error.message,
-        variant: "destructive"
-      })
-    }
-  }
+  }, [activeTab, isAuthenticated, excludeLockedContent])
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -197,18 +167,18 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
   }
 
   const canUserAccessPost = (post: Post) => {
+    // The API already determines access based on tier restrictions
+    // Use the has_access field if it exists, otherwise fall back to basic checks
+    if ('has_access' in post) {
+      return post.has_access ?? false
+    }
+    
+    // Fallback for posts that don't have has_access field
     // Public posts are always accessible
     if (post.is_public) return true
     
     // Preview posts are accessible to non-authenticated users
     if (post.is_preview && !isAuthenticated) return true
-    
-    // Creator can always access their own posts
-    if (isAuthenticated && post.creator_id) {
-      // Check if user has subscription to this creator
-      const hasSubscription = userSubscriptions?.some(sub => sub.creator_id === post.creator_id)
-      if (hasSubscription) return true
-    }
     
     return false
   }
@@ -233,7 +203,7 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
           </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="flex flex-wrap justify-center gap-6">
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <div className="aspect-video bg-muted"></div>
@@ -327,17 +297,22 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
         </div>
       ) : (
         <div className={cn(
-          viewMode === 'grid' 
-            ? "grid grid-cols-1 lg:grid-cols-2 gap-6" 
+          viewMode === 'grid'
+            ? "flex flex-wrap justify-center gap-6"
             : "space-y-4"
         )}>
           {filteredPosts.map((post) => {
             const hasAccess = canUserAccessPost(post)
             
             return (
-              <Card 
-                key={post.id} 
-                className="overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1"
+              <Card
+                key={post.id}
+                className={cn(
+                  "overflow-hidden hover:shadow-xl transition-all",
+                  viewMode === "grid" && "w-full max-w-md hover:-translate-y-1",
+                  viewMode !== "grid" && "w-full",
+                  expandedPostId === post.id && "ring-2 ring-purple-500/20"
+                )}
               >
                 {/* Media Thumbnail */}
                 {(post.content_type === "video" || post.content_type === "image") && post.thumbnail_url && (
@@ -355,14 +330,18 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
                     <img 
                       src={post.thumbnail_url} 
                       alt={post.title}
-                      className="w-full h-full object-cover"
+                      className={cn(
+                        "w-full h-full object-cover",
+                        !hasAccess && "blur-3xl"
+                      )}
                     />
                     
                     {!hasAccess && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center">
                         <div className="text-center text-white">
-                          <Lock className="h-8 w-8 mx-auto mb-2" />
-                          <p className="text-sm font-medium">Subscribe to Access</p>
+                          <Lock className="h-12 w-12 mx-auto mb-3" />
+                          <p className="text-base font-semibold">Premium Content</p>
+                          <p className="text-sm mt-1 opacity-90">Subscribe to view</p>
                         </div>
                       </div>
                     )}
@@ -380,7 +359,13 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
 
                 <CardHeader className="space-y-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
+                    <div
+                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        router.push(`/fan/creators/${post.creator_id}`)
+                      }}
+                    >
                       <Avatar>
                         <AvatarImage src={post.creator?.profile_image_url} />
                         <AvatarFallback>
@@ -388,7 +373,7 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-semibold">{post.creator?.display_name}</p>
+                        <p className="font-semibold hover:underline">{post.creator?.display_name}</p>
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className="text-xs">
                             @{post.creator?.username}
@@ -400,26 +385,48 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
                       </div>
                     </div>
                     
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      {hasAccess && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setExpandedPostId(expandedPostId === post.id ? null : post.id)
+                          }}
+                          title={expandedPostId === post.id ? "Collapse" : "Expand"}
+                        >
+                          {expandedPostId === post.id ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>
-                          <BookmarkPlus className="h-4 w-4 mr-2" />
-                          Save
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Share2 className="h-4 w-4 mr-2" />
-                          Share
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem>
+                            <BookmarkPlus className="h-4 w-4 mr-2" />
+                            Save
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
 
-                  <div>
+                  <div
+                    className={hasAccess ? "cursor-pointer" : ""}
+                    onClick={() => hasAccess && setExpandedPostId(expandedPostId === post.id ? null : post.id)}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       {getTypeIcon(post.content_type)}
                       <Badge variant={getTypeBadgeVariant(post.content_type)}>
@@ -432,9 +439,16 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
                         </Badge>
                       )}
                     </div>
-                    <h3 className="text-lg font-semibold">{post.title}</h3>
+                    <h3 className={cn(
+                      "text-lg font-semibold",
+                      hasAccess && "hover:text-purple-600 transition-colors",
+                      !hasAccess && "blur-md select-none"
+                    )}>{post.title}</h3>
                     {post.description && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                      <p className={cn(
+                        "text-sm text-gray-600 mt-1 line-clamp-2",
+                        !hasAccess && "blur-lg select-none"
+                      )}>
                         {post.description}
                       </p>
                     )}
@@ -459,36 +473,40 @@ export function RealContentFeed({ isAuthenticated, userSubscriptions = [], class
                   )}
 
                   {/* Engagement Stats */}
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        {(post.views_count ?? 0).toLocaleString()}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageSquare className="h-4 w-4" />
-                        {(post.comments_count ?? 0).toLocaleString()}
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      variant="ghost" 
+                  <div className="pt-2 border-t">
+                    <PostInteractions
+                      postId={post.id}
+                      creatorId={post.creator_id}
+                      initialLikes={post.likes_count ?? 0}
+                      initialComments={post.comments_count ?? 0}
+                      initialViews={post.views_count ?? 0}
+                      isLiked={(post as any).is_liked || false}
+                      isViewed={(post as any).is_viewed || false}
+                      isAuthenticated={isAuthenticated}
+                      currentUserId={userId}
                       size="sm"
-                      onClick={() => handleLikeToggle(post.id)}
-                      className={cn(
-                        "gap-1 hover:text-red-600",
-                        (post as any).is_liked && "text-red-600"
-                      )}
-                    >
-                      <Heart 
-                        className={cn(
-                          "h-4 w-4",
-                          (post as any).is_liked && "fill-current"
-                        )}
-                      />
-                      {(post.likes_count ?? 0).toLocaleString()}
-                    </Button>
+                      className="justify-between"
+                      onCommentClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                        setExpandedPostId(expandedPostId === post.id ? null : post.id)
+                      }}
+                    />
                   </div>
+
+                  {/* Expanded Comments Section */}
+                  {expandedPostId === post.id && hasAccess && (
+                    <div
+                      className="mt-4 pt-4 border-t space-y-4 animate-in slide-in-from-top-2 duration-200"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <CommentsSection
+                        postId={post.id}
+                        isAuthenticated={isAuthenticated}
+                        currentUserId={userId}
+                        creatorId={post.creator_id}
+                      />
+                    </div>
+                  )}
                 </CardHeader>
               </Card>
             )

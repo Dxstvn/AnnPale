@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const creatorId = searchParams.get('creatorId')
     const contentType = searchParams.get('contentType')
     const isPreview = searchParams.get('preview') === 'true'
+    const excludeLockedContent = searchParams.get('excludeLockedContent') === 'true'
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
 
@@ -44,27 +45,6 @@ export async function GET(request: NextRequest) {
     // Handle preview mode (non-authenticated users)
     if (isPreview || !user) {
       query = query.eq('is_public', true)
-    } else {
-      // For authenticated users, check their subscriptions
-      const { data: activeSubscriptions } = await supabase
-        .from('creator_subscriptions')
-        .select('creator_id, tier_id')
-        .eq('subscriber_id', user.id)
-        .eq('status', 'active')
-
-      if (activeSubscriptions && activeSubscriptions.length > 0) {
-        // Get posts that are either public or from subscribed creators
-        const subscribedCreatorIds = activeSubscriptions.map(s => s.creator_id)
-        
-        // Build a query that shows:
-        // 1. All public posts
-        // 2. All posts from creators they're subscribed to
-        // 3. Posts from the user themselves
-        query = query.or(`is_public.eq.true,creator_id.in.(${subscribedCreatorIds.join(',')}),creator_id.eq.${user.id}`)
-      } else {
-        // No active subscriptions - show only public posts and user's own posts
-        query = query.or(`is_public.eq.true,creator_id.eq.${user.id}`)
-      }
     }
 
     const { data: posts, error, count } = await query
@@ -77,10 +57,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // For authenticated users, get their like status for each post
+    // Process posts and check tier access for authenticated users
     let formattedPosts = posts || []
     
     if (user && formattedPosts.length > 0) {
+      // Get user's active subscriptions with tier information
+      const { data: userSubscriptions } = await supabase
+        .from('subscription_orders')
+        .select('creator_id, tier_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+      
+      // Create a map of creator_id to tier_id for quick lookup
+      const subscriptionMap = new Map<string, string>()
+      userSubscriptions?.forEach(sub => {
+        subscriptionMap.set(sub.creator_id, sub.tier_id)
+      })
+      
       const postIds = formattedPosts.map(p => p.id)
       
       // Get user's likes for these posts
@@ -92,16 +85,56 @@ export async function GET(request: NextRequest) {
       
       const likedPostIds = new Set(userLikes?.map(like => like.post_id) || [])
       
-      // Add like status to posts
+      // Process each post to determine access and add metadata
+      formattedPosts = formattedPosts.map(post => {
+        // Determine if user has access to this post
+        let hasAccess = false
+        
+        // Public posts are always accessible
+        if (post.is_public) {
+          hasAccess = true
+        }
+        // User's own posts are always accessible
+        else if (post.creator_id === user.id) {
+          hasAccess = true
+        }
+        // Check subscription and tier access
+        else if (subscriptionMap.has(post.creator_id)) {
+          const userTierId = subscriptionMap.get(post.creator_id)
+          
+          // If post has no tier restrictions, any subscription gives access
+          if (!post.access_tier_ids || post.access_tier_ids.length === 0) {
+            hasAccess = true
+          }
+          // Check if user's tier is in the allowed tiers
+          else if (userTierId && post.access_tier_ids.includes(userTierId)) {
+            hasAccess = true
+          }
+        }
+        
+        return {
+          ...post,
+          is_liked: likedPostIds.has(post.id),
+          has_access: hasAccess
+        }
+      })
+    } else if (!user) {
+      // For non-authenticated users, mark all posts as having no access unless public
       formattedPosts = formattedPosts.map(post => ({
         ...post,
-        is_liked: likedPostIds.has(post.id)
+        has_access: post.is_public
       }))
     }
 
+    // Filter out locked content if requested (for home feed)
+    let finalPosts = formattedPosts
+    if (excludeLockedContent) {
+      finalPosts = formattedPosts.filter(post => post.has_access === true)
+    }
+
     return NextResponse.json({
-      posts: formattedPosts,
-      total: count || 0,
+      posts: finalPosts,
+      total: finalPosts.length,
       has_more: (count || 0) > offset + limit
     })
 

@@ -29,9 +29,14 @@ export default function RoleSelectionPage() {
 
   useEffect(() => {
     checkUser()
-  }, [])
+  }, [supabase])
 
   const checkUser = async () => {
+    if (!supabase) {
+      console.error('Supabase client not available')
+      return
+    }
+
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {

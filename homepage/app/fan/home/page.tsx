@@ -137,9 +137,11 @@ export default function FanHomePage() {
 
         {/* Main Content Feed */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <RealContentFeed 
+          <RealContentFeed
             isAuthenticated={isAuthenticated}
+            userId={user?.id}
             userSubscriptions={userSubscriptions}
+            excludeLockedContent={true}
           />
         </div>
 

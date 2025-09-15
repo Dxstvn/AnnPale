@@ -107,9 +107,27 @@ export async function POST(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check if creator has completed Stripe onboarding
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('stripe_charges_enabled, stripe_payouts_enabled')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.stripe_charges_enabled || !profile?.stripe_payouts_enabled) {
+    return NextResponse.json(
+      {
+        error: 'Payment setup required',
+        message: 'You must complete Stripe onboarding before creating subscription tiers',
+        action: 'complete_onboarding'
+      },
+      { status: 403 }
+    )
   }
 
   const body = await request.json()

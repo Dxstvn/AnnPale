@@ -58,6 +58,15 @@ export default function CreatorRequestsPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [showNotifications, setShowNotifications] = useState(false)
   const supabase = createClient()
+
+  // Read tab from URL parameters on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const tabParam = urlParams.get('tab')
+    if (tabParam && ['all', 'pending', 'in-progress', 'completed'].includes(tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [])
   
   // Set up real-time notifications
   const { newRequests, unreadCount, markAsRead, isConnected } = useCreatorNotifications({

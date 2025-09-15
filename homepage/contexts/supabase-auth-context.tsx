@@ -27,6 +27,8 @@ interface AuthContextType {
   isLoading: boolean
   /** Whether user is authenticated */
   isAuthenticated: boolean
+  /** Supabase client instance */
+  supabase: ReturnType<typeof createClient>
   /** Sign in with email and password */
   login: (email: string, password: string) => Promise<{ error?: string }>
   /** Create new account */
@@ -174,12 +176,18 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
   const login = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
+      console.log('Attempting login for email:', email)
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
 
       if (error) {
+        console.error('Login error:', error)
+        // Provide more helpful error messages
+        if (error.message === 'Email not confirmed') {
+          return { error: 'Please check your email to verify your account before logging in.' }
+        }
         return { error: error.message }
       }
 
@@ -231,21 +239,39 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   }
 
   const signup = async (
-    email: string, 
-    password: string, 
-    name: string, 
-    role: 'fan' | 'creator'
+    email: string,
+    password: string,
+    name: string,
+    role: 'fan' | 'creator',
+    metadata?: {
+      firstName?: string
+      lastName?: string
+      displayName?: string
+      category?: string
+      bio?: string
+      pricePerVideo?: string
+      socialMedia?: string
+    }
   ): Promise<{ error?: string }> => {
     try {
       console.log('Starting signup for:', { email, name, role })
-      
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             name,
-            role
+            role,
+            full_name: name,
+            display_name: metadata?.displayName || name,
+            first_name: metadata?.firstName,
+            last_name: metadata?.lastName,
+            category: metadata?.category,
+            bio: metadata?.bio,
+            price_per_video: metadata?.pricePerVideo,
+            social_media: metadata?.socialMedia,
+            email_verified: true
           }
         }
       })
@@ -257,50 +283,52 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
 
       if (data.user) {
         // Create profile with all necessary fields
-        const profileData = {
+        const profileData: any = {
           id: data.user.id,
           email: data.user.email,
           name,
           role,
+          first_name: metadata?.firstName || name.split(' ')[0],
+          last_name: metadata?.lastName || name.split(' ').slice(1).join(' '),
+          display_name: metadata?.displayName || name,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
+        }
+
+        // Add creator-specific metadata if provided
+        if (metadata && role === 'creator') {
+          profileData.category = metadata.category
+          profileData.bio = metadata.bio
+          profileData.price_per_video = metadata.pricePerVideo ? parseFloat(metadata.pricePerVideo) : null
+          profileData.social_media = metadata.socialMedia
         }
         
         console.log('Creating profile for new user:', profileData)
         
         const { data: profileResult, error: profileError } = await supabase
           .from('profiles')
-          .insert(profileData)
+          .upsert(profileData, {
+            onConflict: 'id',
+            ignoreDuplicates: false
+          })
           .select()
           .single()
 
         if (profileError) {
-          console.error('Profile creation error details:', {
+          console.error('Profile upsert error details:', {
             error: profileError,
             code: profileError.code,
             message: profileError.message,
             details: profileError.details,
             hint: profileError.hint
           })
-          
-          // Check if it's a duplicate key error (profile already exists)
-          if (profileError.code === '23505') {
-            // Profile might already exist, try to continue with login
-            console.log('Profile may already exist, attempting login...')
-            const loginResult = await login(email, password)
-            if (!loginResult.error) {
-              return {} // Success
-            }
-          }
-          
+
           // Return a user-friendly error message
-          return { 
-            error: profileError.message?.includes('duplicate') 
-              ? 'An account with this email already exists. Please try logging in.'
-              : `Failed to create profile: ${profileError.message || 'Database error. Please try again.'}` 
+          return {
+            error: `Failed to create/update profile: ${profileError.message || 'Database error. Please try again.'}`
           }
         } else {
-          console.log('Profile created successfully:', profileResult)
+          console.log('Profile created/updated successfully:', profileResult)
         }
 
         // Auto-login after signup
@@ -537,12 +565,13 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   }
 
   return (
-    <AuthContext.Provider 
+    <AuthContext.Provider
       value={{
         user,
         supabaseUser,
         isLoading,
         isAuthenticated: !!supabaseUser,
+        supabase,
         login,
         signup,
         loginWithProvider,

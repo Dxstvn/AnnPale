@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 
 // Initialize Stripe with sandbox credentials
 const stripe = new Stripe(process.env.STRIPE_SANDBOX_SECRET_KEY || '', {
@@ -40,22 +40,21 @@ export interface EarningsReport {
 
 export class StripeConnectService {
   private stripe: Stripe
-  private supabase: ReturnType<typeof createClient>
 
   constructor() {
     this.stripe = stripe
-    this.supabase = createClient()
   }
 
   /**
    * Create a Stripe Connect account for a creator
    */
-  async createConnectedAccount(creatorId: string): Promise<{ accountId: string; onboardingUrl: string }> {
+  async createConnectedAccount(creatorId: string, country?: string): Promise<{ accountId: string; onboardingUrl: string }> {
     try {
-      // Get creator details from database
-      const { data: creator, error } = await this.supabase
+      // Get creator details from database - fetch all fields for prefilling
+      const supabase = await createClient()
+      const { data: creator, error } = await supabase
         .from('profiles')
-        .select('name, email')
+        .select('name, email, first_name, last_name, display_name, phone, bio, website, category')
         .eq('id', creatorId)
         .single()
 
@@ -63,20 +62,40 @@ export class StripeConnectService {
         throw new Error('Creator not found')
       }
 
-      // Create Stripe Connect account
-      const account = await this.stripe.accounts.create({
+      // Parse name into first and last if not already separated
+      let firstName = creator.first_name
+      let lastName = creator.last_name
+
+      if (!firstName || !lastName) {
+        const nameParts = creator.name.split(' ')
+        firstName = firstName || nameParts[0]
+        lastName = lastName || nameParts.slice(1).join(' ')
+      }
+
+      // Build the Ann Pale fan-facing profile URL
+      const profileUrl = `https://annpale.com/fan/creator/${creatorId}`
+
+      // Create Stripe Connect account with enhanced prefilling
+      const accountData: any = {
         type: 'express',
-        country: 'US',
         email: creator.email,
         capabilities: {
           card_payments: { requested: true },
           transfers: { requested: true },
         },
         business_type: 'individual',
+        // Prefill individual information for faster onboarding
+        individual: {
+          email: creator.email,
+          first_name: firstName,
+          last_name: lastName || undefined,
+          phone: creator.phone || undefined,
+        },
         business_profile: {
           mcc: '5815', // Digital Goods Media
-          name: creator.name,
-          product_description: 'Personalized video messages and content subscriptions',
+          name: creator.display_name || creator.name,
+          product_description: `Personalized video messages from ${creator.display_name || creator.name} on Ann Pale - Haitian celebrity video platform`,
+          url: creator.website || profileUrl, // Use creator's website or Ann Pale fan-facing profile
         },
         settings: {
           payouts: {
@@ -88,22 +107,30 @@ export class StripeConnectService {
         metadata: {
           creatorId,
           platform: 'AnnPale',
+          display_name: creator.display_name || creator.name,
+          category: creator.category || undefined,
         },
-      })
+      }
+
+      // Add country if specified
+      if (country) {
+        accountData.country = country
+      }
+
+      const account = await this.stripe.accounts.create(accountData)
 
       // Create account onboarding link
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
       const accountLink = await this.stripe.accountLinks.create({
         account: account.id,
-        refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/creator/settings/payments?refresh=true`,
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/creator/settings/payments?success=true`,
+        refresh_url: `${appUrl}/creator/dashboard?onboarding=refresh`,
+        return_url: `${appUrl}/creator/dashboard?onboarding=complete&account=${account.id}`,
         type: 'account_onboarding',
       })
 
-      // Save Stripe account ID to database
-      await this.supabase
-        .from('profiles')
-        .update({ stripe_account_id: account.id })
-        .eq('id', creatorId)
+      // DON'T save the account ID yet - wait until onboarding is complete
+      // The account ID will be saved when the user returns from successful onboarding
+      console.log(`Created Stripe account ${account.id} for creator ${creatorId}, but not saving until onboarding completes`)
 
       return {
         accountId: account.id,
@@ -186,7 +213,8 @@ export class StripeConnectService {
       })
 
       // Save payment record to database
-      await this.supabase.from('transactions').insert({
+      const supabase = await createClient()
+      await supabase.from('transactions').insert({
         stripe_payment_intent_id: paymentIntent.id,
         creator_id: metadata.creatorId || creatorAccountId,
         customer_id: customerId,
@@ -217,7 +245,8 @@ export class StripeConnectService {
       })
 
       // Update transaction status
-      await this.supabase
+      const supabase = await createClient()
+      await supabase
         .from('transactions')
         .update({ status: 'completed' })
         .eq('stripe_payment_intent_id', paymentIntentId)
@@ -267,7 +296,8 @@ export class StripeConnectService {
       })
 
       // Update transaction status
-      await this.supabase
+      const supabase = await createClient()
+      await supabase
         .from('transactions')
         .update({ 
           status: 'refunded',
@@ -356,7 +386,8 @@ export class StripeConnectService {
       })
 
       // Save subscription to database
-      await this.supabase.from('subscriptions').insert({
+      const supabase = await createClient()
+      await supabase.from('subscriptions').insert({
         stripe_subscription_id: subscription.id,
         creator_id: creatorAccountId,
         customer_id: customerId,
@@ -383,7 +414,8 @@ export class StripeConnectService {
       const subscription = await this.stripe.subscriptions.cancel(subscriptionId, options)
 
       // Update database
-      await this.supabase
+      const supabase = await createClient()
+      await supabase
         .from('subscriptions')
         .update({ 
           status: 'canceled',
@@ -430,7 +462,8 @@ export class StripeConnectService {
   async getCreatorEarnings(accountId: string, dateRange: { startDate: Date; endDate: Date }): Promise<EarningsReport> {
     try {
       // Get all transactions for the creator in the date range
-      const { data: transactions, error } = await this.supabase
+      const supabase = await createClient()
+      const { data: transactions, error } = await supabase
         .from('transactions')
         .select('amount, platform_fee, creator_earnings, status')
         .eq('creator_id', accountId)

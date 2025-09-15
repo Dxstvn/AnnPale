@@ -123,44 +123,56 @@ export function VideoRecorder({
   const initializeStream = useCallback(async () => {
     setIsInitializing(true)
     setError(null)
-    
+
     try {
       // Stop existing stream
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(track => track.stop())
       }
-      
-      // Request permissions and get stream
+
+      // Always request both video and audio for smooth toggling
+      // We'll control their enabled state after getting the stream
       const constraints: MediaStreamConstraints = {
-        video: videoEnabled ? {
+        video: {
           deviceId: selectedCamera ? { exact: selectedCamera } : undefined,
           width: { ideal: 1920 },
           height: { ideal: 1080 },
           facingMode: 'user'
-        } : false,
-        audio: audioEnabled ? {
+        },
+        audio: {
           deviceId: selectedMicrophone ? { exact: selectedMicrophone } : undefined,
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true
-        } : false
+        }
       }
-      
+
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
       mediaStreamRef.current = stream
-      
+
+      // Set initial enabled states based on current settings
+      const videoTrack = stream.getVideoTracks()[0]
+      if (videoTrack) {
+        videoTrack.enabled = videoEnabled
+      }
+
+      const audioTrack = stream.getAudioTracks()[0]
+      if (audioTrack) {
+        audioTrack.enabled = audioEnabled
+      }
+
       // Set video preview
       if (videoPreviewRef.current) {
         videoPreviewRef.current.srcObject = stream
       }
-      
+
       setHasPermission(true)
       await getDevices() // Refresh device list after permission granted
-      
+
     } catch (err: any) {
       console.error('Error accessing media devices:', err)
       setError(
-        err.name === 'NotAllowedError' 
+        err.name === 'NotAllowedError'
           ? 'Camera and microphone access denied. Please grant permissions.'
           : 'Failed to access camera and microphone. Please check your device settings.'
       )
@@ -168,7 +180,7 @@ export function VideoRecorder({
     } finally {
       setIsInitializing(false)
     }
-  }, [videoEnabled, audioEnabled, selectedCamera, selectedMicrophone, getDevices])
+  }, [selectedCamera, selectedMicrophone, getDevices, videoEnabled, audioEnabled])
   
   // Start recording
   const startRecording = useCallback(() => {
@@ -306,21 +318,29 @@ export function VideoRecorder({
     if (mediaStreamRef.current) {
       const videoTrack = mediaStreamRef.current.getVideoTracks()[0]
       if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled
-        setVideoEnabled(videoTrack.enabled)
+        const newState = !videoEnabled
+        videoTrack.enabled = newState
+        setVideoEnabled(newState)
       }
+    } else {
+      // No stream yet, just toggle the state
+      setVideoEnabled(!videoEnabled)
     }
-  }, [])
-  
+  }, [videoEnabled])
+
   const toggleAudio = useCallback(() => {
     if (mediaStreamRef.current) {
       const audioTrack = mediaStreamRef.current.getAudioTracks()[0]
       if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled
-        setAudioEnabled(audioTrack.enabled)
+        const newState = !audioEnabled
+        audioTrack.enabled = newState
+        setAudioEnabled(newState)
       }
+    } else {
+      // No stream yet, just toggle the state
+      setAudioEnabled(!audioEnabled)
     }
-  }, [])
+  }, [audioEnabled])
   
   // Upload recording
   const handleUpload = useCallback(async () => {
@@ -364,8 +384,9 @@ export function VideoRecorder({
   
   // Initialize on mount
   useEffect(() => {
+    // Initialize stream on component mount
     initializeStream()
-    
+
     return () => {
       // Cleanup
       if (mediaStreamRef.current) {
@@ -375,14 +396,14 @@ export function VideoRecorder({
         clearInterval(timerRef.current)
       }
     }
-  }, [initializeStream]) // Include initializeStream in dependencies
-  
-  // Re-initialize when devices change
+  }, [initializeStream]) // Only run on mount/unmount
+
+  // Re-initialize only when devices change (not when toggling on/off)
   useEffect(() => {
-    if (hasPermission) {
+    if (!isRecording && !hasRecording && hasPermission) {
       initializeStream()
     }
-  }, [selectedCamera, selectedMicrophone])
+  }, [selectedCamera, selectedMicrophone, isRecording, hasRecording, hasPermission, initializeStream]) // Only reinitialize for device changes
   
   return (
     <>

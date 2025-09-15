@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from "@/contexts/language-context"
 import { SupabaseAuthProvider } from "@/contexts/supabase-auth-context"
+import { StripeStatusProvider } from "@/contexts/stripe-status-context"
 import { Toaster } from "@/components/ui/toaster"
 import { ProfileRedirect } from "@/components/auth/profile-redirect"
 
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <LanguageProvider>
           <SupabaseAuthProvider>
-            <ProfileRedirect />
-            {children}
-            <Toaster />
+            <StripeStatusProvider>
+              <ProfileRedirect />
+              {children}
+              <Toaster />
+            </StripeStatusProvider>
           </SupabaseAuthProvider>
         </LanguageProvider>
       </body>

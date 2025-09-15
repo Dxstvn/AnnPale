@@ -4,38 +4,44 @@ export interface Post {
   title: string
   description?: string
   content_type: 'video' | 'image' | 'text' | 'live'
-  
+
   // Media URLs
   thumbnail_url?: string
   video_url?: string
   image_url?: string
-  
+
   // Access control
   access_tier_ids?: string[]
   is_public: boolean
   is_preview: boolean
   is_featured: boolean
-  
+
   // Engagement metrics
   likes_count: number
   views_count: number
   comments_count: number
   shares_count: number
-  
+
   // Status and timing
   status: 'draft' | 'published' | 'archived'
   published_at?: string
   created_at: string
   updated_at: string
-  
+
   // Relations
   creator?: {
     id: string
     display_name: string
     username: string
     profile_image_url?: string
+    avatar_url?: string
   }
   access_tiers?: SubscriptionTier[]
+
+  // User-specific data
+  is_liked?: boolean
+  is_viewed?: boolean
+  has_access?: boolean
 }
 
 export interface SubscriptionTier {
@@ -83,17 +89,36 @@ export interface PostComment {
   parent_comment_id?: string
   content: string
   likes_count: number
-  status: 'active' | 'deleted' | 'hidden'
   created_at: string
   updated_at: string
-  
+
+  // Relations
   user?: {
     id: string
     display_name: string
     username: string
     profile_image_url?: string
+    avatar_url?: string
+  }
+  parent_comment?: {
+    id: string
+    user?: {
+      display_name: string
+      username: string
+    }
   }
   replies?: PostComment[]
+
+  // User-specific data
+  is_liked?: boolean
+  is_own?: boolean
+}
+
+export interface PostView {
+  id: string
+  post_id: string
+  user_id: string
+  viewed_at: string
 }
 
 export interface MediaUploadResponse {

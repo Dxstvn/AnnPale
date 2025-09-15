@@ -469,12 +469,12 @@ export default function CreatorFeedPage() {
             <InfiniteScrollFeed
               creatorId={creator.id}
               creatorName={creator.name}
-              creatorAvatar={creator.avatar}
-              userTier={currentTier?.slug || null}
-              userId={user?.id || null}
-              initialLimit={3}
-              loadMoreLimit={6}
-            />
+                creatorAvatar={creator.avatar}
+                userTier={currentTier?.slug || null}
+                userId={user?.id || null}
+                initialLimit={3}
+                loadMoreLimit={6}
+              />
           </TabsContent>
 
           {/* Subscriptions Tab */}

@@ -98,10 +98,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is a creator
+    // Check if user is a creator and has Stripe onboarding
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role, display_name')
+      .select('role, display_name, stripe_charges_enabled, stripe_payouts_enabled')
       .eq('id', user.id)
       .single()
 
@@ -127,6 +127,18 @@ export async function POST(request: NextRequest) {
       preview_order,
       status = 'published'
     } = body
+
+    // Check if creator has completed Stripe onboarding for monetized content
+    if (!is_public && (!profile?.stripe_charges_enabled || !profile?.stripe_payouts_enabled)) {
+      return NextResponse.json(
+        {
+          error: 'Payment setup required',
+          message: 'You must complete Stripe onboarding before creating monetized content',
+          action: 'complete_onboarding'
+        },
+        { status: 403 }
+      )
+    }
 
     // Validate required fields
     if (!title || !content_type) {

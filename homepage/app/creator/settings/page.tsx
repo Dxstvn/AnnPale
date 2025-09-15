@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -64,9 +65,13 @@ export default function CreatorSettingsPage() {
   const { language } = useLanguage()
   const { user } = useSupabaseAuth()
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false)
   const [showPreview, setShowPreview] = React.useState(false)
-  const [activeTab, setActiveTab] = React.useState("packages")
+  const [activeTab, setActiveTab] = React.useState(() => {
+    const tabParam = searchParams.get('tab')
+    return tabParam || "packages"
+  })
   const [loading, setLoading] = React.useState(true)
   const [stripeStatus, setStripeStatus] = React.useState({
     isOnboarded: false,
@@ -175,6 +180,7 @@ export default function CreatorSettingsPage() {
       console.error('Error checking Stripe status:', error)
     }
   }
+
 
   // Package tiers state
   const [packageTiers, setPackageTiers] = React.useState<PackageTier[]>([

@@ -116,6 +116,7 @@ export function CreatorRealDashboard() {
           description={`${monthGrowth > 0 ? '+' : ''}${monthGrowth}% from last month`}
           icon={DollarSign}
           trend={monthGrowth}
+          onClick={() => window.location.href = '/creator/analytics/revenue'}
         />
         
         <MetricCard
@@ -124,6 +125,7 @@ export function CreatorRealDashboard() {
           description={`${pendingRequests.length} need action`}
           icon={Clock}
           highlight={pendingRequests.length > 0}
+          onClick={() => window.location.href = '/creator/requests?tab=pending'}
         />
         
         <MetricCard
@@ -131,6 +133,7 @@ export function CreatorRealDashboard() {
           value={stats?.completedVideos || 0}
           description={`${stats?.completionRate.toFixed(0)}% completion rate`}
           icon={CheckCircle2}
+          onClick={() => window.location.href = '/creator/requests?tab=completed'}
         />
         
         <MetricCard
@@ -264,6 +267,48 @@ export function CreatorRealDashboard() {
         </CardContent>
       </Card>
 
+      {/* Content Management */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="h-5 w-5" />
+                Content Management
+              </CardTitle>
+              <CardDescription>
+                Create and manage your posts for subscribers
+              </CardDescription>
+            </div>
+            <Button 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90"
+              onClick={() => window.location.href = '/creator/content'}
+            >
+              Manage Posts
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">0</div>
+              <div className="text-sm text-gray-600">Draft Posts</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">0</div>
+              <div className="text-sm text-gray-600">Published Posts</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">0</div>
+              <div className="text-sm text-gray-600">Total Views</div>
+            </div>
+          </div>
+          <div className="mt-4 text-center text-gray-500">
+            Start creating content to engage your subscribers and grow your audience!
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Recent Completed Videos */}
       <Card>
         <CardHeader>
@@ -312,6 +357,7 @@ interface MetricCardProps {
   icon: React.ElementType
   trend?: number
   highlight?: boolean
+  onClick?: () => void
 }
 
 function MetricCard({ 
@@ -320,10 +366,17 @@ function MetricCard({
   description, 
   icon: Icon, 
   trend, 
-  highlight 
+  highlight,
+  onClick 
 }: MetricCardProps) {
   return (
-    <Card className={cn(highlight && "border-destructive")}>
+    <Card 
+      className={cn(
+        highlight && "border-destructive",
+        onClick && "cursor-pointer hover:shadow-md transition-shadow"
+      )}
+      onClick={onClick}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <Icon className={cn("h-4 w-4 text-muted-foreground", highlight && "text-destructive")} />

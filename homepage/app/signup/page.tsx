@@ -44,7 +44,7 @@ export default function SignUpPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    stageName: "",
+    displayName: "",
     category: "",
     bio: "",
     price: "",
@@ -113,6 +113,7 @@ export default function SignUpPage() {
         toast({
           title: "Welcome to Ann Pale!",
           description: "Your account has been created successfully.",
+          variant: "success"
         })
         router.push('/fan/dashboard')
       }
@@ -130,10 +131,13 @@ export default function SignUpPage() {
 
   const handleCreatorSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    console.log('Creator form submission started')
+    console.log('Form data:', creatorForm)
+
     // Validate password strength
     const passwordError = validatePassword(creatorForm.password)
     if (passwordError) {
+      console.error('Password validation failed:', passwordError)
       toast({
         title: "Invalid password",
         description: passwordError,
@@ -141,8 +145,12 @@ export default function SignUpPage() {
       })
       return
     }
-    
+
     if (creatorForm.password !== creatorForm.confirmPassword) {
+      console.error('Password mismatch:', {
+        password: creatorForm.password,
+        confirmPassword: creatorForm.confirmPassword
+      })
       toast({
         title: "Passwords don't match",
         description: "Please make sure your passwords match.",
@@ -152,6 +160,7 @@ export default function SignUpPage() {
     }
 
     if (!creatorForm.agreeToTerms) {
+      console.error('Terms not accepted')
       toast({
         title: "Terms not accepted",
         description: "Please accept the Terms of Service and Creator Agreement.",
@@ -160,15 +169,27 @@ export default function SignUpPage() {
       return
     }
 
+    console.log('All validations passed, starting signup...')
     setIsLoading(true)
-    
+
     try {
-      const fullName = creatorForm.stageName || `${creatorForm.firstName} ${creatorForm.lastName}`.trim()
+      const fullName = `${creatorForm.firstName} ${creatorForm.lastName}`.trim()
+      const metadata = {
+        firstName: creatorForm.firstName,
+        lastName: creatorForm.lastName,
+        displayName: creatorForm.displayName || fullName,
+        category: creatorForm.category,
+        bio: creatorForm.bio,
+        pricePerVideo: creatorForm.price,
+        socialMedia: creatorForm.socialMedia
+      }
+
       const result = await signup(
-        creatorForm.email, 
-        creatorForm.password, 
+        creatorForm.email,
+        creatorForm.password,
         fullName,
-        'creator'
+        'creator',
+        metadata
       )
       
       if (result.error) {
@@ -181,6 +202,7 @@ export default function SignUpPage() {
         toast({
           title: "Application submitted!",
           description: "Your creator application has been submitted for review.",
+          variant: "success"
         })
         router.push('/creator/dashboard')
       }
@@ -581,12 +603,12 @@ export default function SignUpPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="creator-stageName">Stage/Professional Name</Label>
+                        <Label htmlFor="creator-displayName">Display Name</Label>
                         <Input
-                          id="creator-stageName"
+                          id="creator-displayName"
                           placeholder="How you want to be known on the platform"
-                          value={creatorForm.stageName}
-                          onChange={(e) => setCreatorForm({ ...creatorForm, stageName: e.target.value })}
+                          value={creatorForm.displayName}
+                          onChange={(e) => setCreatorForm({ ...creatorForm, displayName: e.target.value })}
                           required
                           disabled={isLoading || oauthLoading !== null}
                         />

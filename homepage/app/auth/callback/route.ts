@@ -60,16 +60,26 @@ export async function GET(request: NextRequest) {
         }
       } else {
         // New user - create profile with OAuth data
+        const fullName = session.user.user_metadata?.full_name ||
+                        session.user.user_metadata?.name ||
+                        session.user.email?.split('@')[0] ||
+                        'User'
+
+        // Parse first and last name from full name
+        const nameParts = fullName.split(' ')
+        const firstName = nameParts[0]
+        const lastName = nameParts.slice(1).join(' ')
+
         const profileData = {
           id: session.user.id,
           email: session.user.email!,
-          name: session.user.user_metadata?.full_name || 
-                session.user.user_metadata?.name || 
-                session.user.email?.split('@')[0] || 
-                'User',
-          role: 'fan', // Default role for OAuth users
-          avatar_url: session.user.user_metadata?.avatar_url || 
-                     session.user.user_metadata?.picture || 
+          name: fullName,
+          first_name: firstName,
+          last_name: lastName || null,
+          display_name: session.user.user_metadata?.display_name || fullName,
+          role: session.user.user_metadata?.role || 'fan', // Check if role was set in metadata
+          avatar_url: session.user.user_metadata?.avatar_url ||
+                     session.user.user_metadata?.picture ||
                      null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()

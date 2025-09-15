@@ -17,10 +17,16 @@ import {
   Lock,
   Play,
   ChevronDown,
-  Radio
+  ChevronUp,
+  Radio,
+  Send
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
+import { CommentsSection } from "@/components/ui/comments-section"
+import { useRouter } from "next/navigation"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/hooks/use-toast"
 
 interface Post {
   id: string
@@ -81,10 +87,15 @@ export function InfiniteScrollFeed({
   const [offset, setOffset] = useState(0)
   const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null) // null = loading, false = not subscribed, true = subscribed
   const [userSubscriptionTier, setUserSubscriptionTier] = useState<string | null>(null)
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
+  const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({})
+  const [postingComment, setPostingComment] = useState<{ [key: string]: boolean }>({})
   const observerRef = useRef<IntersectionObserver>()
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
   const supabase = createClient()
+  const router = useRouter()
+  const { toast } = useToast()
 
   // Check subscription status
   useEffect(() => {
@@ -96,19 +107,23 @@ export function InfiniteScrollFeed({
       }
       
       const { data: subscription } = await supabase
-        .from('creator_subscriptions')
-        .select('tier_id, status')
-        .eq('subscriber_id', userId)
+        .from('subscription_orders')
+        .select('tier_id, status, tier:creator_subscription_tiers!subscription_orders_tier_id_fkey(tier_name, price)')
+        .eq('user_id', userId)
         .eq('creator_id', creatorId)
         .eq('status', 'active')
         .single()
       
       if (subscription) {
-        console.log('Subscription found:', subscription)
+        console.log('🔍 Subscription found:', {
+          tier_id: subscription.tier_id,
+          status: subscription.status,
+          tier_details: subscription.tier
+        })
         setIsSubscribed(true)
         setUserSubscriptionTier(subscription.tier_id)
       } else {
-        console.log('No subscription found for user:', userId, 'creator:', creatorId)
+        console.log('❌ No subscription found for user:', userId, 'creator:', creatorId)
         setIsSubscribed(false)
         setUserSubscriptionTier(null)
       }
@@ -120,19 +135,34 @@ export function InfiniteScrollFeed({
   // Determine if user has access based on subscription
   const hasAccessToPost = (postIsPublic: boolean, postTierIds?: string[]): boolean => {
     // Public posts are always accessible
-    if (postIsPublic) return true
+    if (postIsPublic) {
+      console.log('✅ Access granted: Public post')
+      return true
+    }
     
     // User's own posts are always accessible
-    if (userId === creatorId) return true
+    if (userId === creatorId) {
+      console.log('✅ Access granted: Creator viewing own post')
+      return true
+    }
     
     // If user is not subscribed, no access to non-public posts
-    if (!isSubscribed) return false
+    if (!isSubscribed) {
+      console.log('❌ Access denied: Not subscribed')
+      return false
+    }
+    
+    // If post has specific tier restrictions
+    if (postTierIds && postTierIds.length > 0) {
+      // User must have one of the required tiers
+      const hasRequiredTier = userSubscriptionTier && postTierIds.includes(userSubscriptionTier)
+      console.log(`🔐 Tier check: User tier ${userSubscriptionTier} ${hasRequiredTier ? 'IS' : 'NOT'} in required tiers [${postTierIds.join(', ')}]`)
+      return hasRequiredTier
+    }
     
     // If post has no tier restrictions, any subscription gives access
-    if (!postTierIds || postTierIds.length === 0) return true
-    
-    // Check if user's tier is in the allowed tiers
-    return userSubscriptionTier ? postTierIds.includes(userSubscriptionTier) : false
+    console.log('✅ Access granted: No tier restrictions, subscriber has access')
+    return true
   }
 
   const fetchPosts = useCallback(async (isLoadMore = false) => {
@@ -146,19 +176,41 @@ export function InfiniteScrollFeed({
       const limit = isLoadMore ? loadMoreLimit : initialLimit
       const currentOffset = isLoadMore ? offset : 0
 
-      // Query posts with engagement data
+      // Query posts with engagement data - only published posts
       const { data, error } = await supabase
         .from("posts")
         .select("*")
         .eq("creator_id", creatorId)
+        .eq("status", "published")  // Only show published posts, not archived
         .order("created_at", { ascending: false })
         .range(currentOffset, currentOffset + limit - 1)
 
       if (error) throw error
 
+      // Fetch user's likes for these posts if logged in
+      let userLikes: string[] = []
+      if (userId && data && data.length > 0) {
+        const postIds = data.map(p => p.id)
+        const { data: likesData } = await supabase
+          .from("post_likes")
+          .select("post_id")
+          .eq("user_id", userId)
+          .in("post_id", postIds)
+
+        userLikes = likesData?.map(l => l.post_id) || []
+      }
+
       const processedPosts = (data || []).map(post => {
         const access = hasAccessToPost(post.is_public, post.access_tier_ids)
-        console.log(`Post ${post.id}: public=${post.is_public}, tiers=${post.access_tier_ids}, subscribed=${isSubscribed}, access=${access}`)
+        console.log(`📄 Post ${post.title || post.id}:`, {
+          is_public: post.is_public,
+          access_tier_ids: post.access_tier_ids,
+          user_tier_id: userSubscriptionTier,
+          is_subscribed: isSubscribed,
+          has_access: access,
+          tier_match: post.access_tier_ids && userSubscriptionTier ? 
+            post.access_tier_ids.includes(userSubscriptionTier) : 'N/A'
+        })
         return {
           ...post,
           author: {
@@ -169,7 +221,8 @@ export function InfiniteScrollFeed({
           },
           likes_count: post.likes_count || 0,
           comments_count: post.comments_count || 0,
-          has_access: access
+          has_access: access,
+          has_liked: userLikes.includes(post.id)
         }
       })
 
@@ -225,8 +278,42 @@ export function InfiniteScrollFeed({
   }, [creatorId, isSubscribed, userSubscriptionTier])
 
   const handleLike = async (postId: string) => {
-    // Like functionality would go here
-    console.log("Like post:", postId)
+    if (!userId) {
+      console.log("User must be logged in to like posts")
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/creator/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+
+        // Update the local state to reflect the like change
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post.id === postId
+              ? {
+                  ...post,
+                  has_liked: data.liked,
+                  likes_count: data.liked
+                    ? (post.likes_count || 0) + 1
+                    : Math.max((post.likes_count || 0) - 1, 0)
+                }
+              : post
+          )
+        )
+      } else {
+        console.error("Failed to toggle like")
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error)
+    }
   }
 
   const handleShare = async (postId: string) => {
@@ -234,26 +321,91 @@ export function InfiniteScrollFeed({
     console.log("Share post:", postId)
   }
 
+  const handlePostComment = async (postId: string) => {
+    const content = commentInputs[postId]?.trim()
+    if (!content || !userId) {
+      if (!userId) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to comment",
+          variant: "destructive"
+        })
+      }
+      return
+    }
+
+    setPostingComment({ ...postingComment, [postId]: true })
+    try {
+      const response = await fetch(`/api/creator/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content })
+      })
+
+      if (response.ok) {
+        // Clear input and update comment count
+        setCommentInputs({ ...commentInputs, [postId]: '' })
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post.id === postId
+              ? { ...post, comments_count: (post.comments_count || 0) + 1 }
+              : post
+          )
+        )
+        toast({
+          title: "Comment posted!",
+          variant: "success"
+        })
+      } else {
+        throw new Error('Failed to post comment')
+      }
+    } catch (error) {
+      console.error('Error posting comment:', error)
+      toast({
+        title: "Failed to post comment",
+        description: "Please try again later",
+        variant: "destructive"
+      })
+    } finally {
+      setPostingComment({ ...postingComment, [postId]: false })
+    }
+  }
+
+  const togglePostExpansion = (postId: string) => {
+    setExpandedPostId(expandedPostId === postId ? null : postId)
+  }
+
+  const navigateToCreatorProfile = (e: React.MouseEvent, creatorId: string) => {
+    e.stopPropagation()
+    router.push(`/fan/creators/${creatorId}`)
+  }
+
   const renderPostContent = (post: Post) => {
     const hasMedia = post.thumbnail_url || (post.images?.length || 0) > 0 || (post.videos?.length || 0) > 0
 
     return (
-      <Card 
-        key={post.id}
+      <Card
         className={cn(
-          "overflow-hidden transition-all hover:shadow-lg",
-          !post.has_access && "opacity-90"
+          "overflow-hidden transition-all hover:shadow-lg cursor-pointer",
+          !post.has_access && "opacity-90",
+          expandedPostId === post.id && "ring-2 ring-purple-500/20"
         )}
+        onClick={() => post.has_access && togglePostExpansion(post.id)}
       >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
+            <div
+              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={(e) => navigateToCreatorProfile(e, post.creator_id)}
+            >
               <Avatar className="h-10 w-10">
                 <AvatarImage src={post.author?.avatar_url} />
                 <AvatarFallback>{post.author?.name?.[0]}</AvatarFallback>
               </Avatar>
               <div>
-                <h4 className="font-semibold text-sm">{post.author?.name}</h4>
+                <h4 className="font-semibold text-sm hover:underline">{post.author?.name}</h4>
                 <p className="text-xs text-muted-foreground">
                   @{post.author?.username} · {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                 </p>
@@ -391,7 +543,10 @@ export function InfiniteScrollFeed({
                 variant="ghost"
                 size="sm"
                 className="h-8 px-2"
-                onClick={() => handleLike(post.id)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleLike(post.id)
+                }}
                 disabled={!post.has_access}
               >
                 <Heart className={cn(
@@ -400,11 +555,15 @@ export function InfiniteScrollFeed({
                 )} />
                 {post.likes_count || 0}
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-8 px-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  togglePostExpansion(post.id)
+                }}
                 disabled={!post.has_access}
               >
                 <MessageSquare className="h-4 w-4 mr-1" />
@@ -417,15 +576,77 @@ export function InfiniteScrollFeed({
               </span>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2"
-              onClick={() => handleShare(post.id)}
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleShare(post.id)
+                }}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+
+              {expandedPostId === post.id && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    togglePostExpansion(post.id)
+                  }}
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
+
+          {/* Expanded Comments Section */}
+          {expandedPostId === post.id && post.has_access && (
+            <div className="mt-4 pt-4 border-t space-y-4 animate-in slide-in-from-top-2 duration-200">
+              {/* Comments */}
+              <CommentsSection
+                postId={post.id}
+                isAuthenticated={!!userId}
+                currentUserId={userId || undefined}
+                creatorId={post.creator_id}
+                className="max-h-96 overflow-y-auto"
+              />
+
+              {/* Comment Input Form */}
+              {userId && (
+                <div className="flex gap-2 pt-4 border-t">
+                  <Textarea
+                    placeholder="Write a comment..."
+                    value={commentInputs[post.id] || ''}
+                    onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
+                    className="flex-1 min-h-[60px] resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handlePostComment(post.id)
+                      }
+                    }}
+                    disabled={postingComment[post.id]}
+                  />
+                  <Button
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handlePostComment(post.id)
+                    }}
+                    disabled={!commentInputs[post.id]?.trim() || postingComment[post.id]}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     )
@@ -469,8 +690,12 @@ export function InfiniteScrollFeed({
       </div>
 
       {/* Posts */}
-      <div className="space-y-4">
-        {posts.map(post => renderPostContent(post))}
+      <div className="flex flex-col items-center gap-4">
+        {posts.map(post => (
+          <div key={post.id} className="w-full max-w-2xl">
+            {renderPostContent(post)}
+          </div>
+        ))}
       </div>
 
       {/* Load more trigger */}

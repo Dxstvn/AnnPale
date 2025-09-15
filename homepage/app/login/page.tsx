@@ -71,6 +71,7 @@ export default function LoginPage() {
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
+          variant: "success"
         })
       }
     } catch (error) {

@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
-import { 
-  CreditCard, 
-  CheckCircle, 
-  AlertCircle, 
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  CreditCard,
+  CheckCircle,
+  AlertCircle,
   ArrowRight,
   DollarSign,
   Shield,
@@ -18,7 +20,8 @@ import {
   TrendingUp,
   Info,
   Loader2,
-  Calculator
+  Calculator,
+  Globe
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -32,20 +35,89 @@ interface StripeOnboardingProps {
   className?: string
 }
 
-export function StripeOnboarding({ 
-  creatorId, 
+// Stripe Connect supported countries (46 countries as of 2024)
+const SUPPORTED_COUNTRIES = [
+  // Americas
+  { code: 'US', name: 'United States', region: 'Americas' },
+  { code: 'CA', name: 'Canada', region: 'Americas' },
+  { code: 'MX', name: 'Mexico', region: 'Americas' },
+  { code: 'BR', name: 'Brazil', region: 'Americas' },
+  // Europe
+  { code: 'GB', name: 'United Kingdom', region: 'Europe' },
+  { code: 'IE', name: 'Ireland', region: 'Europe' },
+  { code: 'FR', name: 'France', region: 'Europe' },
+  { code: 'DE', name: 'Germany', region: 'Europe' },
+  { code: 'NL', name: 'Netherlands', region: 'Europe' },
+  { code: 'BE', name: 'Belgium', region: 'Europe' },
+  { code: 'LU', name: 'Luxembourg', region: 'Europe' },
+  { code: 'ES', name: 'Spain', region: 'Europe' },
+  { code: 'PT', name: 'Portugal', region: 'Europe' },
+  { code: 'IT', name: 'Italy', region: 'Europe' },
+  { code: 'AT', name: 'Austria', region: 'Europe' },
+  { code: 'CH', name: 'Switzerland', region: 'Europe' },
+  { code: 'SE', name: 'Sweden', region: 'Europe' },
+  { code: 'NO', name: 'Norway', region: 'Europe' },
+  { code: 'DK', name: 'Denmark', region: 'Europe' },
+  { code: 'FI', name: 'Finland', region: 'Europe' },
+  { code: 'EE', name: 'Estonia', region: 'Europe' },
+  { code: 'LV', name: 'Latvia', region: 'Europe' },
+  { code: 'LT', name: 'Lithuania', region: 'Europe' },
+  { code: 'PL', name: 'Poland', region: 'Europe' },
+  { code: 'CZ', name: 'Czech Republic', region: 'Europe' },
+  { code: 'SK', name: 'Slovakia', region: 'Europe' },
+  { code: 'HU', name: 'Hungary', region: 'Europe' },
+  { code: 'RO', name: 'Romania', region: 'Europe' },
+  { code: 'BG', name: 'Bulgaria', region: 'Europe' },
+  { code: 'HR', name: 'Croatia', region: 'Europe' },
+  { code: 'SI', name: 'Slovenia', region: 'Europe' },
+  { code: 'GR', name: 'Greece', region: 'Europe' },
+  { code: 'CY', name: 'Cyprus', region: 'Europe' },
+  { code: 'MT', name: 'Malta', region: 'Europe' },
+  // Asia-Pacific
+  { code: 'AU', name: 'Australia', region: 'Asia-Pacific' },
+  { code: 'NZ', name: 'New Zealand', region: 'Asia-Pacific' },
+  { code: 'JP', name: 'Japan', region: 'Asia-Pacific' },
+  { code: 'SG', name: 'Singapore', region: 'Asia-Pacific' },
+  { code: 'HK', name: 'Hong Kong', region: 'Asia-Pacific' },
+  { code: 'IN', name: 'India', region: 'Asia-Pacific' },
+  { code: 'MY', name: 'Malaysia', region: 'Asia-Pacific' },
+  { code: 'TH', name: 'Thailand', region: 'Asia-Pacific' },
+  { code: 'ID', name: 'Indonesia', region: 'Asia-Pacific' },
+  { code: 'PH', name: 'Philippines', region: 'Asia-Pacific' },
+  // Middle East & Africa
+  { code: 'AE', name: 'United Arab Emirates', region: 'Middle East & Africa' },
+  { code: 'IL', name: 'Israel', region: 'Middle East & Africa' },
+  { code: 'ZA', name: 'South Africa', region: 'Middle East & Africa' },
+  { code: 'EG', name: 'Egypt', region: 'Middle East & Africa' },
+  { code: 'NG', name: 'Nigeria', region: 'Middle East & Africa' },
+  { code: 'KE', name: 'Kenya', region: 'Middle East & Africa' },
+].sort((a, b) => {
+  if (a.region !== b.region) {
+    return a.region.localeCompare(b.region)
+  }
+  return a.name.localeCompare(b.name)
+})
+
+export function StripeOnboarding({
+  creatorId,
   creatorName,
   isOnboarded = false,
   chargesEnabled = false,
   payoutsEnabled = false,
-  className 
+  className
 }: StripeOnboardingProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedCountry, setSelectedCountry] = useState<string>('')
   const supabase = createClient()
 
   const handleStartOnboarding = async () => {
+    if (!selectedCountry) {
+      setError('Please select your country to continue')
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -58,6 +130,7 @@ export function StripeOnboarding({
         },
         body: JSON.stringify({
           creatorId,
+          country: selectedCountry,
         }),
       })
 
@@ -203,10 +276,42 @@ export function StripeOnboarding({
                 </p>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Country Selection for re-onboarding */}
+            <div className="space-y-2">
+              <Label htmlFor="country-incomplete" className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                Select your country
+              </Label>
+              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                <SelectTrigger id="country-incomplete" className="w-full">
+                  <SelectValue placeholder="Choose your country..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_COUNTRIES.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                Select the country where you'll receive payments.
+              </p>
+            </div>
           </div>
+
+          {error && (
+            <Alert variant="destructive" className="mt-3">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
         </CardContent>
         <CardFooter className="flex gap-2">
-          <Button 
+          <Button
             className="flex-1"
             onClick={handleStartOnboarding}
             disabled={loading}
@@ -218,7 +323,7 @@ export function StripeOnboarding({
             )}
             Complete Setup
           </Button>
-          <Button 
+          <Button
             variant="outline"
             onClick={handleRefreshStatus}
             disabled={loading}
@@ -280,6 +385,31 @@ export function StripeOnboarding({
               </p>
             </div>
           </div>
+        </div>
+
+        <Separator />
+
+        {/* Country Selection */}
+        <div className="space-y-2">
+          <Label htmlFor="country" className="flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            Select your country
+          </Label>
+          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+            <SelectTrigger id="country" className="w-full">
+              <SelectValue placeholder="Choose your country..." />
+            </SelectTrigger>
+            <SelectContent>
+              {SUPPORTED_COUNTRIES.map((country) => (
+                <SelectItem key={country.code} value={country.code}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-gray-500">
+            Select the country where you'll receive payments. This cannot be changed later.
+          </p>
         </div>
 
         <Separator />
