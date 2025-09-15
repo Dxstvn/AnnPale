@@ -6,38 +6,55 @@ import { RealContentFeed } from "@/components/feed/real-content-feed"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Users, Star, TrendingUp, Heart } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Heart, ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+
+interface SubscribedCreator {
+  id: string
+  username: string
+  display_name: string
+  avatar_url: string
+  category?: string
+}
 
 export default function FanHomePage() {
   const { user, isLoading, isAuthenticated } = useSupabaseAuth()
   const [userSubscriptions, setUserSubscriptions] = useState<{ creator_id: string; tier_id: string }[]>([])
-  const [subscriptionStats, setSubscriptionStats] = useState({
-    total: 0,
-    active: 0,
-    totalSpent: 0
-  })
+  const [subscribedCreators, setSubscribedCreators] = useState<SubscribedCreator[]>([])
+  const [currentPage, setCurrentPage] = useState(0)
+  const supabase = createClientComponentClient()
 
-  // Load user subscriptions if authenticated
+  // Pagination settings
+  const creatorsPerPage = 8 // Show 8 creators at a time on desktop
+  const totalPages = Math.ceil(subscribedCreators.length / creatorsPerPage)
+
+  // Load user subscriptions and creator profiles if authenticated
   useEffect(() => {
     const loadSubscriptions = async () => {
       if (!isAuthenticated || !user) return
-      
+
       try {
         const response = await fetch('/api/subscriptions/manage')
         if (response.ok) {
           const data = await response.json()
-          setUserSubscriptions(data.subscriptions || [])
-          
-          // Calculate stats
-          const active = data.subscriptions?.filter((sub: any) => sub.status === 'active').length || 0
-          const totalSpent = data.subscriptions?.reduce((sum: number, sub: any) => sum + (sub.amount || 0), 0) || 0
-          
-          setSubscriptionStats({
-            total: data.subscriptions?.length || 0,
-            active,
-            totalSpent
-          })
+          const subs = data.subscriptions || []
+          setUserSubscriptions(subs)
+
+          // Load creator profiles for subscriptions
+          if (subs.length > 0) {
+            const creatorIds = [...new Set(subs.map((sub: any) => sub.creator_id))]
+            const { data: creators } = await supabase
+              .from('profiles')
+              .select('id, username, display_name, avatar_url, category')
+              .in('id', creatorIds)
+              .eq('role', 'creator')
+
+            if (creators) {
+              setSubscribedCreators(creators)
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to load subscriptions:', error)
@@ -45,7 +62,7 @@ export default function FanHomePage() {
     }
 
     loadSubscriptions()
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user, supabase])
 
   // Show loading while checking auth
   if (isLoading) {
@@ -89,48 +106,130 @@ export default function FanHomePage() {
             )}
           </div>
 
-          {/* Subscription Stats for authenticated users */}
+          {/* Subscribed Creators Section */}
           {isAuthenticated && (
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Users className="h-5 w-5 text-purple-600" />
-                    <span className="text-2xl font-bold">{subscriptionStats.total}</span>
+            <div className="mt-6">
+              {subscribedCreators.length > 0 ? (
+                <div className="bg-white/95 backdrop-blur-sm rounded-xl border border-purple-100 shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-purple-600" />
+                      <h3 className="text-lg font-semibold">Your Creators</h3>
+                      <Badge variant="secondary" className="ml-2">
+                        {subscribedCreators.length}
+                      </Badge>
+                    </div>
+
+                    {/* Pagination controls for many creators */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                          disabled={currentPage === 0}
+                          className="h-8 w-8"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="text-sm text-muted-foreground">
+                          {currentPage + 1} / {totalPages}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                          disabled={currentPage === totalPages - 1}
+                          className="h-8 w-8"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-sm text-muted-foreground">Total Subscriptions</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Star className="h-5 w-5 text-green-600" />
-                    <span className="text-2xl font-bold">{subscriptionStats.active}</span>
+
+                  {/* Creator Avatars Grid */}
+                  <div className="flex flex-wrap items-center gap-4">
+                    {subscribedCreators
+                      .slice(currentPage * creatorsPerPage, (currentPage + 1) * creatorsPerPage)
+                      .map((creator) => (
+                        <Link
+                          key={creator.id}
+                          href={`/fan/creators/${creator.id}`}
+                          className="group"
+                        >
+                          <div className="flex flex-col items-center gap-2 transition-all duration-200 hover:scale-105">
+                            <div className="relative">
+                              <Avatar className="h-16 w-16 ring-2 ring-purple-100 group-hover:ring-purple-400 transition-all">
+                                <AvatarImage
+                                  src={creator.avatar_url || ''}
+                                  alt={creator.display_name}
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white">
+                                  {creator.display_name?.[0]?.toUpperCase() || creator.username?.[0]?.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              {/* Online indicator (you can make this dynamic later) */}
+                              <div className="absolute bottom-0 right-0 h-4 w-4 bg-green-500 border-2 border-white rounded-full" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-700 max-w-20 truncate">
+                              {creator.display_name || creator.username}
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+
+                    {/* Explore More Button - always visible */}
+                    <Link href="/fan/explore" className="group">
+                      <div className="flex flex-col items-center gap-2 transition-all duration-200 hover:scale-105">
+                        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center ring-2 ring-purple-100 group-hover:ring-purple-400 transition-all">
+                          <Plus className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <span className="text-xs font-medium text-purple-600">
+                          Explore
+                        </span>
+                      </div>
+                    </Link>
                   </div>
-                  <p className="text-sm text-muted-foreground">Active</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
-                    <span className="text-2xl font-bold">${subscriptionStats.totalSpent}</span>
+
+                  {/* Quick Actions */}
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <Link href="/fan/subscriptions">
+                      <Button variant="outline" size="sm" className="text-xs">
+                        Manage Subscriptions
+                      </Button>
+                    </Link>
+                    {subscribedCreators.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {subscribedCreators.length === 1
+                          ? "Following 1 creator"
+                          : `Following ${subscribedCreators.length} creators`}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-sm text-muted-foreground">Total Spent</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Link href="/fan/subscriptions">
-                    <Button className="w-full" size="sm">
-                      Manage Subscriptions
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                </div>
+              ) : (
+                /* Empty State - No Subscriptions */
+                <Card className="border-dashed border-2 border-purple-200 bg-purple-50/50">
+                  <CardContent className="p-8 text-center">
+                    <div className="flex justify-center mb-4">
+                      <div className="h-20 w-20 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                        <Heart className="h-10 w-10 text-purple-600" />
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Start Following Creators</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Discover amazing Haitian creators and subscribe to get exclusive content
+                    </p>
+                    <Link href="/fan/explore">
+                      <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Explore Creators
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
         </div>
