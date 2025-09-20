@@ -59,7 +59,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/contexts/language-context"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { PaymentMethodSelector } from "@/components/payment/PaymentMethodSelector"
 import { CreatorSelectionCard } from "@/components/enhanced/creator-selection-card"
 import { VideoDetailsForm } from "@/components/enhanced/video-details-form"

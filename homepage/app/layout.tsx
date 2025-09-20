@@ -3,10 +3,11 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from "@/contexts/language-context"
-import { SupabaseAuthProvider } from "@/contexts/supabase-auth-context"
+import { SupabaseAuthProvider } from "@/contexts/supabase-auth-compat"
 import { StripeStatusProvider } from "@/contexts/stripe-status-context"
 import { Toaster } from "@/components/ui/toaster"
-import { ProfileRedirect } from "@/components/auth/profile-redirect"
+import { NotificationProvider } from "@/components/providers/notification-provider"
+import { getUser, getProfile } from "@/lib/auth/server"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,20 +18,25 @@ export const metadata: Metadata = {
     generator: 'v0.dev'
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Get initial auth state from server
+  const initialUser = await getUser()
+  const initialProfile = await getProfile()
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <LanguageProvider>
-          <SupabaseAuthProvider>
+          <SupabaseAuthProvider initialUser={initialUser} initialProfile={initialProfile}>
             <StripeStatusProvider>
-              <ProfileRedirect />
-              {children}
-              <Toaster />
+              <NotificationProvider>
+                {children}
+                <Toaster />
+              </NotificationProvider>
             </StripeStatusProvider>
           </SupabaseAuthProvider>
         </LanguageProvider>

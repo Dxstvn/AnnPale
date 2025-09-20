@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useLanguage } from '@/contexts/language-context'
 import { LandingHeader } from '@/components/layouts/landing-header'
@@ -11,11 +11,23 @@ import HeroSection from '@/components/homepage/hero-section'
 import FeaturedCreatorsCarousel from '@/components/homepage/featured-creators-carousel'
 import CategoryShowcase from '@/components/homepage/category-showcase'
 
-// Lazy load below-fold components
-const HowItWorks = lazy(() => import('@/components/homepage/how-it-works'))
-const Testimonials = lazy(() => import('@/components/homepage/testimonials'))
-const SocialProof = lazy(() => import('@/components/homepage/social-proof'))
-const CallToAction = lazy(() => import('@/components/homepage/call-to-action'))
+// Use dynamic imports with ssr: false for below-fold components to prevent hydration issues
+const HowItWorks = dynamic(() => import('@/components/homepage/how-it-works'), {
+  loading: () => <div className="animate-pulse h-64 rounded-lg bg-gray-200"></div>,
+  ssr: false
+})
+const Testimonials = dynamic(() => import('@/components/homepage/testimonials'), {
+  loading: () => <div className="animate-pulse h-64 rounded-lg bg-gray-200"></div>,
+  ssr: false
+})
+const SocialProof = dynamic(() => import('@/components/homepage/social-proof'), {
+  loading: () => <div className="animate-pulse h-64 rounded-lg bg-gray-200"></div>,
+  ssr: false
+})
+const CallToAction = dynamic(() => import('@/components/homepage/call-to-action'), {
+  loading: () => <div className="animate-pulse h-64 rounded-lg bg-gray-200"></div>,
+  ssr: false
+})
 
 // Loading fallback component
 const SectionLoader = () => (
@@ -81,27 +93,21 @@ export default function HomePage() {
           {/* How It Works Section - Lazy Loaded */}
           <section className="section-spacing px-4 py-16 md:px-8 md:py-24">
             <div className="container mx-auto">
-              <Suspense fallback={<SectionLoader />}>
-                <HowItWorks />
-              </Suspense>
+              <HowItWorks />
             </div>
           </section>
 
           {/* Social Proof Section - Lazy Loaded */}
           <section className="section-spacing bg-gray-50 px-4 py-16 md:px-8 md:py-24">
             <div className="container mx-auto">
-              <Suspense fallback={<SectionLoader />}>
-                <SocialProof />
-              </Suspense>
+              <SocialProof />
             </div>
           </section>
 
           {/* Testimonials Section - Lazy Loaded */}
           <section className="section-spacing px-4 py-16 md:px-8 md:py-24">
             <div className="container mx-auto">
-              <Suspense fallback={<SectionLoader />}>
-                <Testimonials />
-              </Suspense>
+              <Testimonials />
             </div>
           </section>
 
@@ -113,9 +119,7 @@ export default function HomePage() {
             />
             <div className="relative px-4 py-16 md:px-8 md:py-24">
               <div className="container mx-auto">
-                <Suspense fallback={<SectionLoader />}>
-                  <CallToAction />
-                </Suspense>
+                <CallToAction />
               </div>
             </div>
           </section>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,8 @@ import {
   DollarSign,
   Shield,
   HelpCircle,
-  Layout
+  Layout,
+  Home
 } from "lucide-react"
 
 export function UserMenu() {
@@ -49,25 +50,26 @@ export function UserMenu() {
   const menuItems = {
     customer: [
       {
-        label: "My Profile",
-        href: "/profile",
-        icon: User
+        label: "Home",
+        href: "/fan/home",
+        icon: Home
       },
       {
         label: "My Orders",
-        href: "/orders",
+        href: "/fan/orders",
         icon: Package
       },
       {
         label: "Settings",
-        href: "/settings",
+        href: "/fan/settings",
         icon: Settings
-      },
-      {
-        label: "Help & Support",
-        href: "/help",
-        icon: HelpCircle
       }
+      // Archived: Help & Support
+      // {
+      //   label: "Help & Support",
+      //   href: "/help",
+      //   icon: HelpCircle
+      // }
     ],
     creator: [
       {

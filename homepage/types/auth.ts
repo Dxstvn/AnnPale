@@ -21,6 +21,12 @@ export interface UserProfile {
   phone?: string
   location?: string
   language_preference?: 'en' | 'fr' | 'ht'
+  // Stripe integration fields
+  stripe_account_id?: string
+  stripe_charges_enabled?: boolean
+  stripe_payouts_enabled?: boolean
+  onboarding_completed_at?: string
+  price_per_video?: number
 }
 
 export interface AuthResponse {

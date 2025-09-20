@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
 import {
   Users,
   Star,
@@ -24,7 +22,6 @@ import {
   Globe,
   Music,
   Trophy,
-  Gift,
   Sparkles,
   DollarSign,
   Calendar,
@@ -38,11 +35,10 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/contexts/language-context"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { createClient } from "@/lib/supabase/client"
-import CreatorSubscriptionTiers from "@/components/creator/creator-subscription-tiers"
 import { InfiniteScrollFeed } from "@/components/creator/infinite-scroll-feed"
-import { VideoOrderModal } from "@/components/video/VideoOrderModal"
+import { CreatorServicesModal } from "@/components/creator/creator-services-modal"
 
 interface CreatorTier {
   id: string
@@ -63,6 +59,7 @@ interface CreatorProfile {
   bio: string
   avatar: string
   banner: string
+  coverImage?: string
   category: string
   rating: number
   responseTime: string
@@ -73,48 +70,54 @@ interface CreatorProfile {
   tiers: CreatorTier[]
 }
 
-interface CreatorContent {
-  id: string
-  type: "video" | "post" | "live"
-  title: string
-  description: string
-  thumbnail?: string
-  createdAt: string
-  tierRequired: string
-  likes: number
-  views: number
-  comments: number
-}
 
 export default function CreatorFeedPage() {
   const router = useRouter()
   const params = useParams()
   const { language } = useLanguage()
   const { user, isAuthenticated } = useSupabaseAuth()
-  const [activeTab, setActiveTab] = useState("posts")
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [currentTier, setCurrentTier] = useState<CreatorTier | null>(null)
   const [creator, setCreator] = useState<CreatorProfile | null>(null)
-  const [content, setContent] = useState<CreatorContent[]>([])
   const [loading, setLoading] = useState(true)
+  const [modalState, setModalState] = useState<{ isOpen: boolean, defaultTab: "video" | "subscription" }>({ isOpen: false, defaultTab: "video" })
+  const hasCheckedParam = useRef(false)
 
   useEffect(() => {
     loadCreatorProfile()
-    loadCreatorContent()
   }, [params.id])
+
+  // Check for openBooking or openSubscription query parameters after authentication
+  useEffect(() => {
+    if (creator && !hasCheckedParam.current && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const openBookingParam = urlParams.get('openBooking')
+      const openSubscriptionParam = urlParams.get('openSubscription')
+
+      if (openBookingParam === 'true') {
+        hasCheckedParam.current = true
+        setModalState({ isOpen: true, defaultTab: 'video' })
+        window.history.replaceState({}, '', window.location.pathname)
+      } else if (openSubscriptionParam === 'true') {
+        hasCheckedParam.current = true
+        setModalState({ isOpen: true, defaultTab: 'subscription' })
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    }
+  }, [creator])
 
   const loadCreatorProfile = async () => {
     try {
       const supabase = createClient()
-      
+
       // Map numeric IDs to actual creator UUIDs
       const creatorMappings: Record<string, string> = {
         '1': 'd963aa48-879d-461c-9df3-7dc557b545f9', // Wyclef Jean
         '2': '819421cf-9437-4d10-bb09-bca4e0c12cba', // Michael Brun
         '6': 'cbce25c9-04e0-45c7-b872-473fed4eeb1d'  // Rutshelle Guillaume
       }
-      
+
       const creatorId = creatorMappings[params.id as string] || params.id
       
       // Fetch creator profile
@@ -127,6 +130,7 @@ export default function CreatorFeedPage() {
           avatar_url,
           bio,
           category,
+          cover_image,
           public_figure_verified
         `)
         .eq('id', creatorId)
@@ -210,14 +214,15 @@ export default function CreatorFeedPage() {
         setLoading(false)
         return
       }
-      
+
       // Convert database data to CreatorProfile format
       const creatorProfile: CreatorProfile = {
         id: profileData.id,
         name: profileData.name,
         bio: profileData.bio || "Talented creator sharing amazing content",
         avatar: profileData.avatar_url || "/placeholder.svg",
-        banner: "/placeholder.svg",
+        banner: profileData.cover_image || "/placeholder.svg",
+        coverImage: profileData.cover_image || undefined,
         category: profileData.category || "Creator",
         rating: 4.9,
         responseTime: "24 hours",
@@ -227,7 +232,7 @@ export default function CreatorFeedPage() {
         isVerified: profileData.public_figure_verified || false,
         tiers: [] // Will be loaded by CreatorSubscriptionTiers component
       }
-      
+
       setCreator(creatorProfile)
       setLoading(false)
     } catch (err) {
@@ -236,47 +241,6 @@ export default function CreatorFeedPage() {
     }
   }
 
-  const loadCreatorContent = async () => {
-    // Mock content data
-    const mockContent: CreatorContent[] = [
-      {
-        id: "1",
-        type: "video",
-        title: "Recording 'Lanmou San Fwontyè' - Full Studio Session",
-        description: "Watch the complete recording process of my new single. See how we layer vocals, add instruments, and perfect the mix.",
-        thumbnail: "/placeholder.svg",
-        createdAt: "2 hours ago",
-        tierRequired: "studio-live",
-        likes: 342,
-        views: 1520,
-        comments: 45
-      },
-      {
-        id: "2",
-        type: "post",
-        title: "New Album Announcement! 🎉",
-        description: "I'm thrilled to announce my 5th studio album 'Rasin Mwen' coming this December! It features 12 tracks celebrating our beautiful culture.",
-        createdAt: "1 day ago",
-        tierRequired: "fanm-ak-gason",
-        likes: 892,
-        views: 3420,
-        comments: 156
-      },
-      {
-        id: "3",
-        type: "live",
-        title: "Live Performance from Port-au-Prince",
-        description: "Join me for a special live performance from my hometown. We'll be playing new songs and taking requests!",
-        createdAt: "3 days ago",
-        tierRequired: "prodikte-vip",
-        likes: 567,
-        views: 4580,
-        comments: 234
-      }
-    ]
-    
-    setContent(mockContent)
-  }
 
   const getIconComponent = (iconName: string) => {
     switch(iconName) {
@@ -287,12 +251,6 @@ export default function CreatorFeedPage() {
     }
   }
 
-  const canAccessContent = (tierRequired: string) => {
-    if (!currentTier) return false
-    const tierIndex = creator?.tiers.findIndex(t => t.slug === tierRequired) ?? -1
-    const currentTierIndex = creator?.tiers.findIndex(t => t.id === currentTier.id) ?? -1
-    return currentTierIndex >= tierIndex
-  }
 
   if (loading) {
     return (
@@ -310,7 +268,15 @@ export default function CreatorFeedPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50" data-testid="creator-profile">
       {/* Hero Banner with About Section */}
-      <div className="relative bg-gradient-to-r from-purple-600 to-pink-600">
+      <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 h-64 lg:h-80 overflow-hidden">
+        {/* Cover Image */}
+        {creator.coverImage && (
+          <img
+            src={creator.coverImage}
+            alt={`${creator.name} cover`}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-black/20" />
         
         <div className="relative max-w-7xl mx-auto px-4 lg:px-8 py-8 lg:py-12">
@@ -374,34 +340,23 @@ export default function CreatorFeedPage() {
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     {/* Video Order Button */}
-                    <VideoOrderModal
-                      creator={{
-                        id: creator.id,
-                        name: creator.name,
-                        avatar: creator.avatar,
-                        responseTime: creator.responseTime,
-                        rating: creator.rating,
-                        price: 50
-                      }}
-                      trigger={
-                        <Button 
-                          size="lg" 
-                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                          data-testid="request-video-button"
-                        >
-                          <Video className="h-5 w-5 mr-2" />
-                          Request Video Message
-                        </Button>
-                      }
-                    />
-                    
+                    <Button
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      data-testid="request-video-button"
+                      onClick={() => setModalState({ isOpen: true, defaultTab: 'video' })}
+                    >
+                      <Video className="h-5 w-5 mr-2" />
+                      Request Video Message
+                    </Button>
+
                     {/* Subscribe Button */}
                     {!isSubscribed && (
-                      <Button 
-                        size="lg" 
+                      <Button
+                        size="lg"
                         variant="outline"
                         className="w-full"
-                        onClick={() => setActiveTab("subscriptions")}
+                        onClick={() => setModalState({ isOpen: true, defaultTab: 'subscription' })}
                       >
                         <Users className="h-5 w-5 mr-2" />
                         View Subscription Tiers
@@ -456,142 +411,44 @@ export default function CreatorFeedPage() {
         )}
 
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full lg:w-auto grid-cols-3">
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-            <TabsTrigger value="videos">Videos</TabsTrigger>
-          </TabsList>
+        {/* Creator Feed */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">Creator Feed</h2>
+            <Badge variant="outline" className="text-gray-600">
+              <MessageSquare className="h-4 w-4 mr-1" />
+              Latest Updates
+            </Badge>
+          </div>
 
-          {/* Posts Tab - Infinite Scroll Feed */}
-          <TabsContent value="posts" className="space-y-6">
-            <InfiniteScrollFeed
-              creatorId={creator.id}
-              creatorName={creator.name}
-                creatorAvatar={creator.avatar}
-                userTier={currentTier?.slug || null}
-                userId={user?.id || null}
-                initialLimit={3}
-                loadMoreLimit={6}
-              />
-          </TabsContent>
-
-          {/* Subscriptions Tab */}
-          <TabsContent value="subscriptions" className="space-y-6">
-            <CreatorSubscriptionTiers 
-              creatorId={params.id as string}
-              creatorName={creator.name}
-              onSubscribe={(tierId, tierName, price) => {
-                console.log(`Subscribing to ${tierName} (${tierId}) for $${price}/month`)
-                // TODO: Implement actual subscription flow
-                // For now, redirect to a checkout page or open payment modal
-                router.push(`/checkout?tier=${tierId}&creator=${params.id}&price=${price}`)
-              }}
-            />
-          </TabsContent>
-
-          {/* Videos Tab */}
-          <TabsContent value="videos" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Video className="h-5 w-5" />
-                  Request a Personalized Video
-                </CardTitle>
-                <CardDescription>
-                  Get a custom video message from {creator.name} for any occasion
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Gift className="h-4 w-4" />
-                      Perfect For:
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-center gap-2">
-                        <Check className="h-3 w-3 text-green-600" />
-                        Birthday wishes
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="h-3 w-3 text-green-600" />
-                        Congratulations & celebrations
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="h-3 w-3 text-green-600" />
-                        Words of encouragement
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="h-3 w-3 text-green-600" />
-                        Holiday greetings
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="h-3 w-3 text-green-600" />
-                        Special announcements
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Info className="h-4 w-4" />
-                      What You Get:
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-center gap-2">
-                        <Star className="h-3 w-3 text-yellow-500" />
-                        30-90 second personalized video
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Star className="h-3 w-3 text-yellow-500" />
-                        HD quality recording
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Star className="h-3 w-3 text-yellow-500" />
-                        Delivered within {creator.responseTime}
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Star className="h-3 w-3 text-yellow-500" />
-                        Downloadable & shareable
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <Separator className="my-6" />
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Starting at</p>
-                    <p className="text-3xl font-bold text-purple-600">$50</p>
-                  </div>
-                  <VideoOrderModal
-                    creator={{
-                      id: creator.id,
-                      name: creator.name,
-                      avatar: creator.avatar,
-                      responseTime: creator.responseTime,
-                      rating: creator.rating,
-                      price: 50
-                    }}
-                    trigger={
-                      <Button 
-                        size="lg" 
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                      >
-                        <Video className="h-5 w-5 mr-2" />
-                        Order Video Message
-                      </Button>
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <InfiniteScrollFeed
+            creatorId={creator.id}
+            creatorName={creator.name}
+            creatorAvatar={creator.avatar}
+            userTier={currentTier?.slug || null}
+            userId={user?.id || null}
+            initialLimit={3}
+            loadMoreLimit={6}
+          />
+        </div>
       </div>
+
+      {/* Creator Services Modal */}
+      {creator && (
+        <CreatorServicesModal
+          creator={{
+            id: creator.id,
+            name: creator.name,
+            avatar: creator.avatar,
+            responseTime: creator.responseTime,
+            rating: creator.rating,
+            price: 50
+          }}
+          open={modalState.isOpen}
+          onOpenChange={(open) => setModalState({ ...modalState, isOpen: open })}
+          defaultTab={modalState.defaultTab}
+        />
+      )}
     </div>
   )
 }

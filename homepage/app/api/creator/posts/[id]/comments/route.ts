@@ -86,9 +86,10 @@ export async function GET(
       const parentIds = [...new Set(comments.map(c => c.parent_comment_id).filter(Boolean))]
 
       // Fetch user profiles
+      // Using select('*') to ensure resilience to database schema changes
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, display_name, username, avatar_url')
+        .select('*')
         .in('id', userIds)
 
       // Fetch parent comments if any

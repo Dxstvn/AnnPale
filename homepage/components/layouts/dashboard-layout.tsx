@@ -45,9 +45,7 @@ const creatorNavItems = [
   { href: "/creator/orders", label: "Orders", icon: Package, badge: "5" },
   { href: "/creator/earnings", label: "Earnings", icon: DollarSign },
   { href: "/creator/availability", label: "Availability", icon: Calendar },
-  { href: "/creator/messages", label: "Messages", icon: MessageSquare, badge: "12" },
   { href: "/creator/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/creator/reviews", label: "Reviews", icon: Star },
   { href: "/creator/settings", label: "Settings", icon: Settings },
 ]
 

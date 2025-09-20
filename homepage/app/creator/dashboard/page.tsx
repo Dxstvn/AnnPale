@@ -6,12 +6,14 @@ import { CreatorRealDashboard } from "@/components/creator/real-dashboard"
 import { OnboardingGate } from "@/components/creator/onboarding-gate"
 import { OnboardingBanner } from "@/components/creator/onboarding-banner"
 import { StripeOnboardingRedirect } from "@/components/creator/stripe-onboarding-redirect"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { useStripeStatus } from "@/contexts/stripe-status-context"
 import { toast } from "sonner"
 import { CheckCircle, Loader2 } from "lucide-react"
 
 export default function CreatorDashboard() {
-  const { status: stripeStatus, refreshStatus: refreshStripeStatus } = useStripeStatus()
+  const { user } = useSupabaseAuth()
+  const { refreshStatus: refreshStripeStatus } = useStripeStatus()
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isProcessingOnboarding, setIsProcessingOnboarding] = useState(false)
@@ -119,8 +121,11 @@ export default function CreatorDashboard() {
     )
   }
 
-  // Show onboarding flow for new creators
-  if (!stripeStatus.isLoading && !stripeStatus.hasAccount) {
+  // Show onboarding flow for new creators who haven't connected Stripe
+  // Check if user exists and hasn't completed Stripe onboarding
+  const needsOnboarding = user && (!user.stripe_account_id || !user.stripe_charges_enabled)
+
+  if (needsOnboarding) {
     return (
       <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
         <StripeOnboardingRedirect />

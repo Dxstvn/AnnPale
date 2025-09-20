@@ -1,6 +1,6 @@
 "use client"
 
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { useAdminStats } from "@/hooks/use-stats"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Button } from "@/components/ui/button"

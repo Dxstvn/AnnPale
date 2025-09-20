@@ -12,7 +12,7 @@ import {
   PendingRequest,
   TopVideo
 } from '@/lib/services/stats-service';
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context';
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat';
 import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 

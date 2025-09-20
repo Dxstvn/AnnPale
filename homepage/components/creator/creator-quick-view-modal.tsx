@@ -34,27 +34,46 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 
 interface CreatorQuickViewModalProps {
   creator: any
   isOpen: boolean
   onClose: () => void
+  onBookNow?: () => void
+  onSubscribe?: () => void
 }
 
-export default function CreatorQuickViewModal({ 
-  creator, 
-  isOpen, 
-  onClose 
+export default function CreatorQuickViewModal({
+  creator,
+  isOpen,
+  onClose,
+  onBookNow,
+  onSubscribe
 }: CreatorQuickViewModalProps) {
   const router = useRouter()
+  const { isAuthenticated } = useSupabaseAuth()
   const [isLiked, setIsLiked] = React.useState(false)
   const [imageLoaded, setImageLoaded] = React.useState(false)
 
   if (!creator) return null
 
   const handleBookNow = () => {
-    onClose()
-    router.push(`/book/${creator.id}`)
+    if (onBookNow) {
+      onBookNow()
+    } else {
+      // Fallback behavior if no callback provided
+      onClose()
+    }
+  }
+
+  const handleSubscribe = () => {
+    if (onSubscribe) {
+      onSubscribe()
+    } else {
+      // Fallback behavior if no callback provided
+      onClose()
+    }
   }
 
   const handleViewProfile = () => {
@@ -277,20 +296,21 @@ export default function CreatorQuickViewModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <div className="flex gap-3 justify-center pt-4">
             <Button
               onClick={handleBookNow}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white h-12 text-base font-semibold"
+              className="min-w-[180px] bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white h-12 text-base font-semibold"
             >
               <Sparkles className="h-5 w-5 mr-2" />
-              Book Now - ${creator.price}
+              Book Video - ${creator.price}
             </Button>
             <Button
-              onClick={handleViewProfile}
+              onClick={handleSubscribe}
               variant="outline"
-              className="flex-1 border-purple-600 text-purple-600 hover:bg-purple-50 h-12 text-base"
+              className="min-w-[180px] h-12 text-base font-semibold border-purple-600 text-purple-600 hover:bg-purple-50"
             >
-              View Full Profile
+              <Users className="h-5 w-5 mr-2" />
+              Subscribe
             </Button>
           </div>
 

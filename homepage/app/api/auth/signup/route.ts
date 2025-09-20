@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { z } from 'zod'
 
 // Password must have: min 6 chars, 1 lowercase, 1 uppercase, 1 number, 1 symbol
@@ -20,6 +20,7 @@ const signupSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const supabaseAdmin = createAdminClient()
     const body = await request.json()
     
     // Validate input

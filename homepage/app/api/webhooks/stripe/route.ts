@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { supabaseAdmin } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { OrderService, PaymentService, StatsService } from '@/lib/services'
 import NotificationServiceServer from '@/lib/services/notification-service-server'
 import { createClient } from '@supabase/supabase-js'

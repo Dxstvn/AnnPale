@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
 

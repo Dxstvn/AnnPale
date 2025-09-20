@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context';
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat';
 import { createClient } from '@/lib/supabase/client';
 
 // SWR configuration

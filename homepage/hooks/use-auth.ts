@@ -3,7 +3,7 @@
  * @module hooks/use-auth
  */
 
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { UserRole, hasMinimumRole, hasExactRole } from '@/types/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'

@@ -12,10 +12,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { 
-  Star, 
-  Clock, 
-  Globe, 
+import {
+  Star,
+  Clock,
+  Globe,
   CheckCircle,
   MessageSquare,
   DollarSign,
@@ -31,11 +31,15 @@ import {
   Share2,
   Calendar,
   Video,
-  ImageOff
+  ImageOff,
+  Sparkles
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
+import { VideoOrderModal } from "@/components/video/VideoOrderModal"
 
 export interface EnhancedCreator {
   id: string
@@ -197,7 +201,10 @@ export function EnhancedCreatorCard({
   const [isPlaying, setIsPlaying] = React.useState(false)
   const [isMuted, setIsMuted] = React.useState(true)
   const [hasError, setHasError] = React.useState(false)
+  const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
   const videoRef = React.useRef<HTMLVideoElement>(null)
+  const router = useRouter()
+  const { isAuthenticated } = useSupabaseAuth()
 
   // Auto-play video on hover
   React.useEffect(() => {
@@ -250,7 +257,18 @@ export function EnhancedCreatorCard({
   const handleQuickBook = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    onQuickBook?.(creator.id)
+
+    if (!isAuthenticated) {
+      // Redirect to signup with return URL for better conversion
+      // Properly encode the full destination URL including query parameters
+      const returnUrl = `/fan/creators/${creator.id}?openBooking=true`
+      router.push(`/signup?returnTo=${encodeURIComponent(returnUrl)}`)
+    } else {
+      // Open the booking modal for authenticated users
+      setIsBookingModalOpen(true)
+      // Still call the callback if provided
+      onQuickBook?.(creator.id)
+    }
   }
 
   const handleCompare = (e: React.MouseEvent) => {
@@ -351,7 +369,8 @@ export function EnhancedCreatorCard({
                     className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     onClick={handleQuickBook}
                   >
-                    Book Now
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Book Now - ${creator.price}
                   </Button>
                 </div>
               </div>
@@ -701,6 +720,20 @@ export function EnhancedCreatorCard({
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Video Order Modal */}
+      <VideoOrderModal
+        creator={{
+          id: creator.id,
+          name: creator.name,
+          avatar: creator.avatar,
+          responseTime: creator.responseTime,
+          rating: creator.rating,
+          price: creator.price
+        }}
+        open={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
+      />
     </TooltipProvider>
   )
 }

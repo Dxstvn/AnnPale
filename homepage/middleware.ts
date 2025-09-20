@@ -1,41 +1,126 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createMiddlewareClient } from '@/lib/supabase/middleware'
 
 // Define protected routes and their required roles
 const protectedRoutes = {
-  '/creator/dashboard': ['creator', 'admin'],
-  '/creator/analytics': ['creator', 'admin'],
-  '/creator/content': ['creator', 'admin'],
-  '/creator/earnings': ['creator', 'admin'],
-  '/creator/fans': ['creator', 'admin'],
-  '/creator/finances': ['creator', 'admin'],
-  '/creator/messages': ['creator', 'admin'],
-  '/creator/record': ['creator', 'admin'],
-  '/creator/requests': ['creator', 'admin'],
-  '/creator/reviews': ['creator', 'admin'],
-  '/creator/schedule': ['creator', 'admin'],
-  '/creator/settings': ['creator', 'admin'],
-  '/creator/streaming': ['creator', 'admin'],
-  '/creator/templates': ['creator', 'admin'],
-  '/creator/upload': ['creator', 'admin'],
+  '/creator': ['creator', 'admin'],
   '/admin': ['admin'],
   '/fan': ['fan', 'creator', 'admin'],
   '/profile': ['fan', 'creator', 'admin'],
   '/orders': ['fan', 'creator', 'admin'],
   '/settings': ['fan', 'creator', 'admin']
 }
-// Note: /creator/[id] profile pages are PUBLIC - fans need to view them to book creators
+
+// Routes that require authentication but no specific role
+const authRequiredRoutes = [
+  '/logout'
+]
+
+// Public routes that don't require authentication
+const publicRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/browse',
+  '/auth/callback',
+  '/auth/role-selection',
+  '/test-auth-flow'
+]
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-  
-  // Skip middleware for auth callback and role selection routes
-  if (path === '/auth/callback' || path === '/auth/role-selection') {
+  const { pathname } = request.nextUrl
+
+  // Skip middleware for static files and API routes
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.includes('.') ||
+    pathname.startsWith('/auth/callback')
+  ) {
     return NextResponse.next()
   }
-  
-  // Redirect livestreaming routes when feature is disabled
+
+  // Create response to modify
+  const response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  // Create Supabase client with middleware-specific handling
+  const supabase = createMiddlewareClient(request, response)
+
+  // CRITICAL: Refresh session and update cookies
+  // This ensures tokens are always fresh and properly stored
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  // Log for debugging
+  console.log(`[Middleware] Path: ${pathname}, User: ${user ? user.id : 'none'}, Error: ${error?.message || 'none'}`)
+
+  // Check if route requires authentication
+  const isProtectedRoute = Object.keys(protectedRoutes).some(route =>
+    pathname.startsWith(route)
+  )
+  const requiresAuth = isProtectedRoute || authRequiredRoutes.some(route => pathname.startsWith(route))
+  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
+
+  // If route requires auth and user is not authenticated
+  if (requiresAuth && !user) {
+    console.log(`[Middleware] Redirecting to login - no user for protected route: ${pathname}`)
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('from', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  // Check for authenticated users without profiles (handles ProfileRedirect functionality)
+  if (user && !isPublicRoute && pathname !== '/auth/role-selection') {
+    // Get user's profile to check if they need role selection
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, role')
+      .eq('id', user.id)
+      .single()
+
+    // If no profile exists, redirect to role selection
+    if (profileError?.code === 'PGRST116' || !profile) {
+      console.log(`[Middleware] User ${user.id} has no profile, redirecting to role selection`)
+      return NextResponse.redirect(new URL('/auth/role-selection', request.url))
+    }
+  }
+
+  // If user is authenticated and route has role requirements
+  if (user && isProtectedRoute) {
+    // Find the matching protected route
+    const matchedRoute = Object.keys(protectedRoutes).find(route =>
+      pathname.startsWith(route)
+    )
+
+    if (matchedRoute) {
+      // Get user's role from the database (we know profile exists from earlier check)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (profileError || !profile) {
+        console.error(`[Middleware] Error fetching profile for protected route: ${profileError?.message}`)
+        // This shouldn't happen since we checked above, but redirect to role selection as fallback
+        return NextResponse.redirect(new URL('/auth/role-selection', request.url))
+      }
+
+      const userRole = profile.role
+      const allowedRoles = protectedRoutes[matchedRoute as keyof typeof protectedRoutes]
+
+      if (!allowedRoles.includes(userRole)) {
+        console.log(`[Middleware] Role mismatch: User role ${userRole} not in ${allowedRoles}`)
+        return NextResponse.redirect(new URL('/unauthorized', request.url))
+      }
+    }
+  }
+
+  // Handle livestreaming feature flag
   if (process.env.NEXT_PUBLIC_ENABLE_LIVESTREAMING !== 'true') {
     const livestreamRedirects: Record<string, string> = {
       '/creator/streaming': '/creator/dashboard',
@@ -43,151 +128,27 @@ export async function middleware(request: NextRequest) {
       '/fan/livestreams': '/fan/dashboard',
       '/live': '/',
     }
-    
-    // Check if the current path starts with any of the livestream routes
+
     for (const [route, redirect] of Object.entries(livestreamRedirects)) {
-      if (path === route || path.startsWith(route + '/')) {
-        const redirectUrl = new URL(redirect, request.url)
-        return NextResponse.redirect(redirectUrl)
+      if (pathname === route || pathname.startsWith(route + '/')) {
+        return NextResponse.redirect(new URL(redirect, request.url))
       }
     }
   }
-  
-  // Development-only bypass for testing streaming features
-  if (process.env.NODE_ENV === 'development') {
-    const testPaths = [
-      '/test-login',
-      '/creator/streaming/test',
-      '/creator/streaming/quick-start',
-      '/creator/streaming/browser-stream',
-      '/fan/livestreams',
-      '/live/watch',
-      '/live/enhanced',
-      '/test-stream',
-      '/test-stream-simple'
-    ]
-    
-    // Allow test paths without authentication in development
-    if (testPaths.some(testPath => path.startsWith(testPath))) {
-      console.log(`[Middleware] Development bypass for test path: ${path}`)
-      return NextResponse.next()
-    }
-  }
-  
-  // Create a response object that we'll modify
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
 
-  // Create Supabase client with proper cookie handling
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          // Update both request and response cookies
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: any) {
-          // Remove from response cookies
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-        },
-      },
-    }
-  )
-
-  // Check if the path matches any protected route
-  const protectedRoute = Object.keys(protectedRoutes).find(route => 
-    path.startsWith(route)
-  )
-  
-  if (protectedRoute) {
-    // Get the user session from Supabase
-    const { data: { session }, error } = await supabase.auth.getSession()
-    
-    // Log for debugging
-    console.log(`[Middleware] Path: ${path}, Session exists: ${!!session}, Error: ${error?.message || 'none'}`)
-    
-    if (!session) {
-      // Redirect to login if not authenticated
-      const url = new URL('/login', request.url)
-      url.searchParams.set('from', path)
-      return NextResponse.redirect(url)
-    }
-    
-    // Verify the user is actually authenticated by calling getUser
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
-    if (userError || !user) {
-      console.log(`[Middleware] User verification failed: ${userError?.message || 'No user'}`)
-      // Session exists but user verification failed - clear session and redirect to login
-      const url = new URL('/login', request.url)
-      url.searchParams.set('from', path)
-      return NextResponse.redirect(url)
-    }
-    
-    // Get user profile to check role
-    // Note: Due to RLS recursion issue, we'll be more permissive here
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle()
-    
-    // Log the profile fetch result
-    console.log(`[Middleware] Profile fetch for ${user.id}: ${profile ? 'found' : 'not found'}, error: ${profileError?.message || 'none'}`)
-    
-    if (profileError && profileError.message.includes('infinite recursion')) {
-      // RLS issue - for now, allow access to fan routes for authenticated users
-      console.log(`[Middleware] RLS recursion error - allowing fan access for authenticated user`)
-      if (protectedRoute === '/admin' || protectedRoute === '/creator') {
-        // Still restrict admin/creator routes
-        return NextResponse.redirect(new URL('/unauthorized', request.url))
-      }
-      // Allow fan routes
-      return response
-    }
-    
-    if (profile) {
-      const userRole = profile.role
-      const allowedRoles = protectedRoutes[protectedRoute as keyof typeof protectedRoutes]
-      
-      if (!allowedRoles.includes(userRole)) {
-        // User doesn't have the required role
-        console.log(`[Middleware] Role mismatch: User role ${userRole} not in ${allowedRoles}`)
-        return NextResponse.redirect(new URL('/unauthorized', request.url))
-      }
-    } else {
-      // No profile found, but user is authenticated
-      // Default to fan access
-      console.log(`[Middleware] No profile found for user ${user.id}, defaulting to fan access`)
-      if (protectedRoute === '/admin' || protectedRoute === '/creator') {
-        return NextResponse.redirect(new URL('/unauthorized', request.url))
-      }
-    }
-  }
-  
   return response
 }
 
-// Configure which routes the middleware should run on
 export const config = {
   matcher: [
-    // Match all routes except static files and api routes
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ]
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     * - API routes
+     */
+    '/((?!_next/static|_next/image|favicon.ico|api|.*\\..*|auth/callback).*)',
+  ],
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase, supabaseAdmin } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { z } from 'zod'
 
 const updateProfileSchema = z.object({
@@ -14,6 +15,7 @@ const updateProfileSchema = z.object({
 // GET /api/auth/profile - Get current user profile
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createClient()
     // Try to get token from Authorization header first (Bearer token)
     const authHeader = request.headers.get('authorization')
     let token = authHeader?.replace('Bearer ', '')
@@ -69,6 +71,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/auth/profile - Update current user profile
 export async function PUT(request: NextRequest) {
   try {
+    const supabase = await createClient()
     // Try to get token from Authorization header first (Bearer token)
     const authHeader = request.headers.get('authorization')
     let token = authHeader?.replace('Bearer ', '')

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"

@@ -23,12 +23,21 @@ function Avatar({
 
 function AvatarImage({
   className,
+  objectFit = "cover",
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+}: React.ComponentProps<typeof AvatarPrimitive.Image> & {
+  objectFit?: "cover" | "contain" | "fill" | "scale-down" | "none"
+}) {
+  const objectFitClass = objectFit === "cover" ? "object-cover" :
+                        objectFit === "contain" ? "object-contain" :
+                        objectFit === "fill" ? "object-fill" :
+                        objectFit === "scale-down" ? "object-scale-down" :
+                        "object-none"
+
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
-      className={cn("aspect-square size-full", className)}
+      className={cn("aspect-square size-full", objectFitClass, className)}
       {...props}
     />
   )

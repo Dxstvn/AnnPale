@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useCallback, useState } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,176 +12,86 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { 
-  Bell, 
-  CheckCircle, 
-  AlertCircle, 
-  DollarSign, 
+import {
+  Bell,
+  CheckCircle,
+  AlertCircle,
+  DollarSign,
   Video,
   Star,
   MessageSquare,
   Clock,
   Check,
-  X
+  X,
+  Wifi,
+  WifiOff
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { toast } from '@/hooks/use-toast'
-
-interface Notification {
-  id: string
-  type: 'order_new' | 'order_accepted' | 'order_completed' | 'payment_received' | 'review_received' | 'message'
-  title: string
-  message: string
-  read: boolean
-  created_at: string
-  metadata?: {
-    orderId?: string
-    amount?: number
-    rating?: number
-    creatorName?: string
-    fanName?: string
-  }
-}
+import { useNotificationStore, type Notification } from '@/stores/notification-store'
+import { useNotificationStream } from '@/hooks/use-notification-stream'
+import { cn } from '@/lib/utils'
 
 export function NotificationCenter() {
   const { user } = useSupabaseAuth()
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
+  const { isConnected, isPolling } = useNotificationStream()
   const [isOpen, setIsOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  
-  const supabase = createClient()
 
-  useEffect(() => {
-    if (!user) return
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    clearAll
+  } = useNotificationStore()
 
-    fetchNotifications()
-    setupRealtimeSubscription()
+  // Handle marking as read via API
+  const handleMarkAsRead = useCallback(async (notificationId: string) => {
+    markAsRead(notificationId)
 
-    return () => {
-      supabase.removeAllChannels()
-    }
-  }, [user])
-
-  const fetchNotifications = async () => {
-    if (!user) return
-    
-    setLoading(true)
+    // Update on server
     try {
-      // For now, create mock notifications since the table doesn't exist yet
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          type: 'order_new',
-          title: 'New Order Received!',
-          message: 'You have a new video request for a Birthday message',
-          read: false,
-          created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-          metadata: { orderId: 'order-1', fanName: 'Sarah Johnson' }
-        },
-        {
-          id: '2',
-          type: 'payment_received',
-          title: 'Payment Received',
-          message: 'You earned $70 from a completed video',
-          read: false,
-          created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          metadata: { amount: 70 }
-        },
-        {
-          id: '3',
-          type: 'review_received',
-          title: 'New Review',
-          message: 'A fan left you a 5-star review!',
-          read: true,
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-          metadata: { rating: 5, fanName: 'Michael Brown' }
-        },
-        {
-          id: '4',
-          type: 'order_completed',
-          title: 'Order Completed',
-          message: 'Your video has been delivered successfully',
-          read: true,
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-          metadata: { orderId: 'order-2' }
-        }
-      ]
-      
-      setNotifications(mockNotifications)
-      setUnreadCount(mockNotifications.filter(n => !n.read).length)
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const setupRealtimeSubscription = () => {
-    if (!user) return
-
-    const channel = supabase
-      .channel(`notifications-${user.id}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'orders',
-        filter: `creator_id=eq.${user.id}`
-      }, (payload) => {
-        // Create a new notification for new order
-        const newNotification: Notification = {
-          id: `notif-${Date.now()}`,
-          type: 'order_new',
-          title: 'New Order!',
-          message: `New video request for ${payload.new.occasion || 'a special occasion'}`,
-          read: false,
-          created_at: new Date().toISOString(),
-          metadata: {
-            orderId: payload.new.id,
-            amount: payload.new.creator_earnings
-          }
-        }
-        
-        setNotifications(prev => [newNotification, ...prev])
-        setUnreadCount(prev => prev + 1)
-        
-        // Show toast notification
-        toast({
-          title: newNotification.title,
-          description: newNotification.message,
-          action: {
-            label: 'View',
-            onClick: () => window.location.href = '/creator/dashboard'
-          }
-        })
-        
-        // Play notification sound
-        playNotificationSound()
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationIds: [notificationId] })
       })
-      .subscribe()
-  }
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error)
+    }
+  }, [markAsRead])
 
-  const markAsRead = async (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(n =>
-        n.id === notificationId ? { ...n, read: true } : n
-      )
-    )
-    setUnreadCount(prev => Math.max(0, prev - 1))
-  }
+  // Handle marking all as read
+  const handleMarkAllAsRead = useCallback(async () => {
+    markAllAsRead()
 
-  const markAllAsRead = async () => {
-    setNotifications(prev =>
-      prev.map(n => ({ ...n, read: true }))
-    )
-    setUnreadCount(0)
-  }
+    // Update on server
+    try {
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markAll: true })
+      })
+    } catch (error) {
+      console.error('Failed to mark all as read:', error)
+    }
+  }, [markAllAsRead])
 
-  const clearAll = () => {
-    setNotifications([])
-    setUnreadCount(0)
-  }
+  // Handle clearing all notifications
+  const handleClearAll = useCallback(async () => {
+    clearAll()
+
+    // Delete on server
+    try {
+      await fetch('/api/notifications?all=true', {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.error('Failed to clear notifications:', error)
+    }
+  }, [clearAll])
 
   const playNotificationSound = () => {
     try {
@@ -192,7 +101,7 @@ export function NotificationCenter() {
     } catch {}
   }
 
-  const getNotificationIcon = (type: Notification['type']) => {
+  const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'order_new':
         return <AlertCircle className="h-4 w-4 text-blue-500" />
@@ -200,36 +109,70 @@ export function NotificationCenter() {
         return <CheckCircle className="h-4 w-4 text-green-500" />
       case 'order_completed':
         return <Video className="h-4 w-4 text-purple-500" />
+      case 'order_cancelled':
+        return <X className="h-4 w-4 text-red-500" />
       case 'payment_received':
+      case 'payment_succeeded':
         return <DollarSign className="h-4 w-4 text-green-500" />
+      case 'payment_failed':
+        return <AlertCircle className="h-4 w-4 text-red-500" />
       case 'review_received':
         return <Star className="h-4 w-4 text-yellow-500" />
-      case 'message':
+      case 'message_received':
         return <MessageSquare className="h-4 w-4 text-gray-500" />
+      case 'system_announcement':
+      case 'system':
+        return <Bell className="h-4 w-4 text-indigo-500" />
       default:
         return <Bell className="h-4 w-4 text-gray-500" />
     }
   }
 
-  const getNotificationColor = (type: Notification['type']) => {
+  const getNotificationColor = (type: string, isRead: boolean) => {
+    if (isRead) {
+      return 'bg-gray-50 hover:bg-gray-100'
+    }
+
     switch (type) {
       case 'order_new':
         return 'bg-blue-50 hover:bg-blue-100'
       case 'payment_received':
+      case 'payment_succeeded':
         return 'bg-green-50 hover:bg-green-100'
       case 'review_received':
         return 'bg-yellow-50 hover:bg-yellow-100'
+      case 'order_cancelled':
+      case 'payment_failed':
+        return 'bg-red-50 hover:bg-red-100'
+      case 'system_announcement':
+        return 'bg-indigo-50 hover:bg-indigo-100'
       default:
         return 'bg-white hover:bg-gray-50'
+    }
+  }
+
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.is_read) {
+      handleMarkAsRead(notification.id)
+    }
+
+    // Navigate based on notification type and data
+    const data = notification.data as any
+    if (data?.order_id) {
+      window.location.href = `/creator/orders/${data.order_id}`
+    } else if (data?.review_id) {
+      window.location.href = `/creator/reviews`
+    } else if (data?.payment_id) {
+      window.location.href = `/creator/earnings`
     }
   }
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="relative"
           aria-label={`${unreadCount} unread notifications`}
         >
@@ -244,17 +187,35 @@ export function NotificationCenter() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      
+
       <DropdownMenuContent className="w-96" align="end">
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span className="text-lg font-semibold">Notifications</span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold">Notifications</span>
+            {isConnected ? (
+              <Badge variant="outline" className="text-xs">
+                <Wifi className="h-3 w-3 mr-1 text-green-500" />
+                Live
+              </Badge>
+            ) : isPolling ? (
+              <Badge variant="outline" className="text-xs">
+                <Clock className="h-3 w-3 mr-1 text-yellow-500" />
+                Polling
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-xs">
+                <WifiOff className="h-3 w-3 mr-1 text-red-500" />
+                Offline
+              </Badge>
+            )}
+          </div>
           {notifications.length > 0 && (
             <div className="flex gap-2">
               {unreadCount > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={markAllAsRead}
+                  onClick={handleMarkAllAsRead}
                   className="h-auto p-1 text-xs"
                 >
                   <Check className="h-3 w-3 mr-1" />
@@ -264,7 +225,7 @@ export function NotificationCenter() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearAll}
+                onClick={handleClearAll}
                 className="h-auto p-1 text-xs"
               >
                 <X className="h-3 w-3 mr-1" />
@@ -273,15 +234,11 @@ export function NotificationCenter() {
             </div>
           )}
         </DropdownMenuLabel>
-        
+
         <DropdownMenuSeparator />
-        
+
         <ScrollArea className="h-[400px]">
-          {loading ? (
-            <div className="p-4 text-center text-sm text-gray-500">
-              Loading notifications...
-            </div>
-          ) : notifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <div className="p-8 text-center">
               <Bell className="h-12 w-12 text-gray-300 mx-auto mb-3" />
               <p className="text-sm text-gray-500">No notifications yet</p>
@@ -294,20 +251,12 @@ export function NotificationCenter() {
               {notifications.map((notification) => (
                 <DropdownMenuItem
                   key={notification.id}
-                  className={`
-                    p-3 cursor-pointer transition-colors
-                    ${notification.read ? 'opacity-70' : ''}
-                    ${getNotificationColor(notification.type)}
-                  `}
-                  onClick={() => {
-                    if (!notification.read) {
-                      markAsRead(notification.id)
-                    }
-                    // Handle navigation based on notification type
-                    if (notification.metadata?.orderId) {
-                      window.location.href = `/creator/orders/${notification.metadata.orderId}`
-                    }
-                  }}
+                  className={cn(
+                    "p-3 cursor-pointer transition-colors",
+                    notification.is_read && "opacity-70",
+                    getNotificationColor(notification.type, !!notification.is_read)
+                  )}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex gap-3 w-full">
                     <div className="flex-shrink-0 mt-1">
@@ -316,9 +265,9 @@ export function NotificationCenter() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-start justify-between">
                         <p className="text-sm font-medium">
-                          {notification.title}
+                          {notification.data?.title || notification.title || notification.type}
                         </p>
-                        {!notification.read && (
+                        {!notification.is_read && (
                           <Badge variant="default" className="ml-2 px-1.5 py-0 text-xs">
                             New
                           </Badge>
@@ -331,23 +280,28 @@ export function NotificationCenter() {
                         <Clock className="h-3 w-3" />
                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                       </div>
-                      
-                      {/* Metadata badges */}
-                      {notification.metadata && (
+
+                      {/* Data badges */}
+                      {notification.data && (
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {notification.metadata.amount && (
+                          {(notification.data as any).amount && (
                             <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                              ${notification.metadata.amount}
+                              ${(notification.data as any).amount}
                             </Badge>
                           )}
-                          {notification.metadata.rating && (
+                          {(notification.data as any).rating && (
                             <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                              {notification.metadata.rating} ⭐
+                              {(notification.data as any).rating} ⭐
                             </Badge>
                           )}
-                          {notification.metadata.fanName && (
+                          {(notification.data as any).fan_name && (
                             <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                              {notification.metadata.fanName}
+                              {(notification.data as any).fan_name}
+                            </Badge>
+                          )}
+                          {(notification.data as any).creator_name && (
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                              {(notification.data as any).creator_name}
                             </Badge>
                           )}
                         </div>
@@ -359,12 +313,17 @@ export function NotificationCenter() {
             </div>
           )}
         </ScrollArea>
-        
-        {notifications.length > 0 && (
+
+        {notifications.length > 5 && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="justify-center py-2">
-              <Button variant="ghost" size="sm" className="w-full">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full"
+                onClick={() => window.location.href = '/notifications'}
+              >
                 View all notifications
               </Button>
             </DropdownMenuItem>

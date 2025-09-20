@@ -11,8 +11,7 @@ import {
   ArrowRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
-import { useStripeStatus } from "@/contexts/stripe-status-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 
 interface OnboardingBannerProps {
   className?: string
@@ -27,12 +26,11 @@ export function OnboardingBanner({
 }: OnboardingBannerProps) {
   const router = useRouter()
   const { user } = useSupabaseAuth()
-  const { status: stripeStatus } = useStripeStatus()
   const [isDismissed, setIsDismissed] = useState(false)
 
-  // Determine visibility based on Stripe status
-  const needsOnboarding = !stripeStatus.chargesEnabled || !stripeStatus.payoutsEnabled
-  const isVisible = user?.role === 'creator' && needsOnboarding && !isDismissed && !stripeStatus.isLoading
+  // Determine visibility based on user's Stripe status from profile
+  const needsOnboarding = user && (!user.stripe_charges_enabled || !user.stripe_payouts_enabled)
+  const isVisible = user?.role === 'creator' && needsOnboarding && !isDismissed
 
   const handleSetupPayments = () => {
     router.push('/creator/settings?tab=payments')
@@ -40,7 +38,6 @@ export function OnboardingBanner({
 
   const handleDismiss = () => {
     setIsDismissed(true)
-    setIsVisible(false)
     // Store dismissal in localStorage for this session
     if (typeof window !== 'undefined') {
       localStorage.setItem('onboarding-banner-dismissed', 'true')

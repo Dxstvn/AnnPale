@@ -249,17 +249,15 @@ export function SubscriptionTierManager() {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      </div>
     )
   }
 
   return (
     <>
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border border-purple-100 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Subscription Tiers</CardTitle>
@@ -296,7 +294,7 @@ export function SubscriptionTierManager() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {tiers.map((tier, index) => (
-                <Card key={tier.id} className="relative">
+                <Card key={tier.id} className="relative bg-white border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-200">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">

@@ -35,7 +35,7 @@ import { PerformanceOverview } from "@/components/creator/dashboard/PerformanceO
 import { ManagementTools } from "@/components/creator/dashboard/ManagementTools"
 import { InsightsGrowth } from "@/components/creator/dashboard/InsightsGrowth"
 import { useLanguage } from "@/contexts/language-context"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { useCreatorStats } from "@/hooks/use-stats"
 
 // Comprehensive mock data structure

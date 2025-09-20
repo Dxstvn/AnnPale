@@ -302,6 +302,7 @@ export type Database = {
           recipient_name: string | null
           price: number
           status: string
+          viewed_at: string | null
           created_at: string
           updated_at: string
         }
@@ -315,6 +316,7 @@ export type Database = {
           recipient_name?: string | null
           price: number
           status?: string
+          viewed_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -328,6 +330,7 @@ export type Database = {
           recipient_name?: string | null
           price?: number
           status?: string
+          viewed_at?: string | null
           created_at?: string
           updated_at?: string
         }

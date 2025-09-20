@@ -11,10 +11,11 @@ import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function LoginPage() {
+  const [returnTo, setReturnTo] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,32 +28,45 @@ export default function LoginPage() {
   const { toast } = useToast()
   const router = useRouter()
 
-  // Check for OAuth errors in URL params
+  // Check for OAuth errors and returnTo in URL params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const error = params.get('error')
-    
+    const returnToParam = params.get('returnTo')
+
+    if (returnToParam) {
+      setReturnTo(returnToParam)
+    }
+
     if (error) {
       toast({
         title: "Authentication Error",
         description: decodeURIComponent(error),
         variant: "destructive",
       })
-      // Clean up the URL
-      window.history.replaceState({}, document.title, '/login')
+      // Clean up the URL but preserve returnTo
+      const cleanUrl = returnToParam ? `/login?returnTo=${encodeURIComponent(returnToParam)}` : '/login'
+      window.history.replaceState({}, document.title, cleanUrl)
     }
   }, [toast])
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      const redirectPath = 
-        user.role === 'admin' ? '/admin/dashboard' :
-        user.role === 'creator' ? '/creator/dashboard' :
-        '/fan/home'
-      router.push(redirectPath)
+      // Use returnTo if present (decode it first), otherwise role-based redirect
+      if (returnTo) {
+        // Decode the URL in case it contains encoded query parameters
+        const decodedUrl = decodeURIComponent(returnTo)
+        router.push(decodedUrl)
+      } else {
+        const redirectPath =
+          user.role === 'admin' ? '/admin/dashboard' :
+          user.role === 'creator' ? '/creator/dashboard' :
+          '/fan/home'
+        router.push(redirectPath)
+      }
     }
-  }, [isAuthenticated, user, router])
+  }, [isAuthenticated, user, router, returnTo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,6 +87,11 @@ export default function LoginPage() {
           description: "You have successfully logged in.",
           variant: "success"
         })
+        // Redirect to returnTo if present (decode it first)
+        if (returnTo) {
+          const decodedUrl = decodeURIComponent(returnTo)
+          router.push(decodedUrl)
+        }
       }
     } catch (error) {
       toast({
@@ -88,7 +107,7 @@ export default function LoginPage() {
   const handleOAuthLogin = async (provider: 'google' | 'twitter') => {
     setOauthLoading(provider)
     try {
-      await loginWithProvider(provider)
+      await loginWithProvider(provider, { returnTo })
     } catch (error) {
       toast({
         title: "Login failed",
@@ -120,7 +139,7 @@ export default function LoginPage() {
             <div className="flex items-center space-x-4">
               <span className="text-gray-600">Don't have an account?</span>
               <Button asChild>
-                <Link href="/signup">Sign up</Link>
+                <Link href={returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}>Sign up</Link>
               </Button>
             </div>
           </div>

@@ -30,7 +30,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { VideoPlayerModal } from '@/components/video/video-player'
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow, format } from 'date-fns'
 import { cn } from '@/lib/utils'

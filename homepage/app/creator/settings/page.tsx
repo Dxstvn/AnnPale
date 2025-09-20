@@ -13,17 +13,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import {
-  Package,
-  Calendar,
   User,
   Users,
-  DollarSign,
   Save,
   AlertCircle,
-  Info,
   Plus,
-  Trash2,
-  GripVertical,
   Eye,
   EyeOff,
   Upload,
@@ -31,35 +25,11 @@ import {
   Loader2
 } from "lucide-react"
 import CreatorHeroSection from "@/components/creator/settings/hero-section"
-import PackageTierEditor from "@/components/creator/settings/package-tier-editor"
-import AddonEditor from "@/components/creator/settings/addon-editor"
-import AvailabilityCalendar from "@/components/creator/settings/availability-calendar"
 import PreviewPanel from "@/components/creator/settings/preview-panel"
 import { SubscriptionTierManager } from "@/components/creator/subscription-tier-manager"
-import { StripeOnboarding } from "@/components/creator/stripe-onboarding"
 import { useLanguage } from "@/contexts/language-context"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { createClient } from "@/lib/supabase/client"
-
-interface PackageTier {
-  id: string
-  enabled: boolean
-  name: string
-  description: string
-  price: number
-  deliveryDays: number
-  videoDuration: string
-  revisions: number
-  features: string[]
-}
-
-interface Addon {
-  id: string
-  enabled: boolean
-  name: string
-  description: string
-  price: number
-}
 
 export default function CreatorSettingsPage() {
   const { language } = useLanguage()
@@ -68,16 +38,15 @@ export default function CreatorSettingsPage() {
   const searchParams = useSearchParams()
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false)
   const [showPreview, setShowPreview] = React.useState(false)
+  const coverImageInputRef = React.useRef<HTMLInputElement>(null)
+  const profileImageInputRef = React.useRef<HTMLInputElement>(null)
+  const [uploadingCover, setUploadingCover] = React.useState(false)
+  const [uploadingProfile, setUploadingProfile] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState(() => {
     const tabParam = searchParams.get('tab')
-    return tabParam || "packages"
+    return tabParam || "profile"
   })
   const [loading, setLoading] = React.useState(true)
-  const [stripeStatus, setStripeStatus] = React.useState({
-    isOnboarded: false,
-    chargesEnabled: false,
-    payoutsEnabled: false
-  })
   
   // Dynamic creator data state
   const [creatorData, setCreatorData] = React.useState({
@@ -102,7 +71,6 @@ export default function CreatorSettingsPage() {
   // Load creator data on mount
   React.useEffect(() => {
     loadCreatorData()
-    checkStripeStatus()
   }, [user])
   
   const loadCreatorData = async () => {
@@ -165,119 +133,6 @@ export default function CreatorSettingsPage() {
     }
   }
   
-  const checkStripeStatus = async () => {
-    try {
-      const response = await fetch('/api/stripe/connect/status')
-      if (response.ok) {
-        const status = await response.json()
-        setStripeStatus({
-          isOnboarded: status.onboardingComplete,
-          chargesEnabled: status.chargesEnabled,
-          payoutsEnabled: status.payoutsEnabled
-        })
-      }
-    } catch (error) {
-      console.error('Error checking Stripe status:', error)
-    }
-  }
-
-
-  // Package tiers state
-  const [packageTiers, setPackageTiers] = React.useState<PackageTier[]>([
-    {
-      id: "basic",
-      enabled: true,
-      name: "Basic",
-      description: "Perfect for simple personal messages",
-      price: 150,
-      deliveryDays: 7,
-      videoDuration: "30-60",
-      revisions: 1,
-      features: [
-        "Personalized message",
-        "Digital download",
-        "Email delivery"
-      ]
-    },
-    {
-      id: "premium",
-      enabled: true,
-      name: "Premium",
-      description: "Most popular choice with extra features",
-      price: 225,
-      deliveryDays: 3,
-      videoDuration: "60-90",
-      revisions: 2,
-      features: [
-        "Extended personalized message",
-        "HD quality video",
-        "Custom background",
-        "Special shoutout",
-        "Priority delivery"
-      ]
-    },
-    {
-      id: "vip",
-      enabled: true,
-      name: "VIP Experience",
-      description: "Ultimate personalized experience",
-      price: 375,
-      deliveryDays: 1,
-      videoDuration: "90-120",
-      revisions: -1, // Unlimited
-      features: [
-        "Extended personalized message",
-        "4K quality video",
-        "Custom script review",
-        "Behind-the-scenes content",
-        "Personal thank you note",
-        "Express delivery",
-        "Priority support"
-      ]
-    }
-  ])
-
-  // Add-ons state
-  const [addons, setAddons] = React.useState<Addon[]>([
-    {
-      id: "rush",
-      enabled: true,
-      name: "Rush Delivery",
-      description: "Get your video in 24 hours",
-      price: 25
-    },
-    {
-      id: "extra-length",
-      enabled: true,
-      name: "Extra Length",
-      description: "Add 30 more seconds",
-      price: 15
-    },
-    {
-      id: "4k",
-      enabled: true,
-      name: "4K Ultra HD",
-      description: "Highest quality video",
-      price: 10
-    },
-    {
-      id: "gift",
-      enabled: true,
-      name: "Gift Wrapping",
-      description: "Special gift presentation",
-      price: 5
-    }
-  ])
-
-  // Availability state
-  const [availability, setAvailability] = React.useState({
-    weeklyLimit: 50,
-    responseTime: "24hr",
-    vacationMode: false,
-    blackoutDates: [],
-    businessDays: ["mon", "tue", "wed", "thu", "fri"],
-    businessHours: { start: "09:00", end: "18:00" }
-  })
 
   // Profile state - will be populated from database
   const [profile, setProfile] = React.useState({
@@ -304,6 +159,69 @@ export default function CreatorSettingsPage() {
       }))
     }
   }, [creatorData, loading])
+
+  const handleImageUpload = async (file: File, type: 'cover' | 'profile') => {
+    if (!user) return
+
+    const isUploadingCover = type === 'cover'
+    if (isUploadingCover) {
+      setUploadingCover(true)
+    } else {
+      setUploadingProfile(true)
+    }
+
+    try {
+      const supabase = createClient()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${type}-${Date.now()}.${fileExt}`
+      const filePath = `${user.id}/${type}-images/${fileName}`
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath)
+
+      // Update profile in database
+      const updateField = type === 'cover' ? 'cover_image' : 'avatar_url'
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ [updateField]: publicUrl })
+        .eq('id', user.id)
+
+      if (updateError) throw updateError
+
+      // Update local state
+      setCreatorData(prev => ({
+        ...prev,
+        [type === 'cover' ? 'coverImage' : 'image']: publicUrl
+      }))
+
+      toast({
+        title: "Image uploaded",
+        description: `Your ${type} image has been updated successfully.`,
+      })
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast({
+        title: "Upload failed",
+        description: `Failed to upload ${type} image. Please try again.`,
+        variant: "destructive"
+      })
+    } finally {
+      if (isUploadingCover) {
+        setUploadingCover(false)
+      } else {
+        setUploadingProfile(false)
+      }
+    }
+  }
 
   const handleSaveChanges = () => {
     // Simulate API call
@@ -347,11 +265,33 @@ export default function CreatorSettingsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      {/* Hidden file inputs for images that can be triggered from hero */}
+      <input
+        ref={coverImageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) handleImageUpload(file, 'cover')
+        }}
+      />
+      <input
+        ref={profileImageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) handleImageUpload(file, 'profile')
+        }}
+      />
+
       {/* Hero Section */}
       <CreatorHeroSection
         {...creatorData}
-        onEditProfile={() => setActiveTab("profile")}
-        onEditCover={() => setActiveTab("profile")}
+        onEditProfile={() => profileImageInputRef.current?.click()}
+        onEditCover={() => coverImageInputRef.current?.click()}
       />
 
       {/* Main Content */}
@@ -389,144 +329,16 @@ export default function CreatorSettingsPage() {
           {/* Settings Panel */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-6 w-full mb-6">
-                <TabsTrigger value="payments" className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  <span className="hidden sm:inline">Payments</span>
-                </TabsTrigger>
-                <TabsTrigger value="packages" className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  <span className="hidden sm:inline">Packages</span>
-                </TabsTrigger>
-                <TabsTrigger value="subscription-tiers" className="flex items-center gap-2" data-testid="subscription-tiers-tab">
-                  <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">Tiers</span>
-                </TabsTrigger>
-                <TabsTrigger value="availability" className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span className="hidden sm:inline">Availability</span>
-                </TabsTrigger>
+              <TabsList className="grid grid-cols-2 w-full mb-6">
                 <TabsTrigger value="profile" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Profile</span>
                 </TabsTrigger>
-                <TabsTrigger value="pricing" className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="hidden sm:inline">Pricing</span>
+                <TabsTrigger value="subscription-tiers" className="flex items-center gap-2" data-testid="subscription-tiers-tab">
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Subscription Tiers</span>
                 </TabsTrigger>
               </TabsList>
-
-              {/* Payment Setup Tab */}
-              <TabsContent value="payments" className="space-y-6">
-                <StripeOnboarding
-                  creatorId={user?.id || ''}
-                  creatorName={creatorData.name}
-                  isOnboarded={stripeStatus.isOnboarded}
-                  chargesEnabled={stripeStatus.chargesEnabled}
-                  payoutsEnabled={stripeStatus.payoutsEnabled}
-                />
-              </TabsContent>
-
-              {/* Subscription Tiers Tab */}
-              <TabsContent value="subscription-tiers" className="space-y-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <SubscriptionTierManager />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Packages Tab */}
-              <TabsContent value="packages" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Booking Packages</CardTitle>
-                    <CardDescription>
-                      Configure your video message packages and pricing
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Package Tiers */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Package Tiers</h3>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Tier
-                        </Button>
-                      </div>
-                      
-                      {packageTiers.map((tier) => (
-                        <PackageTierEditor
-                          key={tier.id}
-                          tier={tier}
-                          onChange={(updatedTier) => {
-                            setPackageTiers(prev => 
-                              prev.map(t => t.id === tier.id ? updatedTier : t)
-                            )
-                            setHasUnsavedChanges(true)
-                          }}
-                          onDelete={() => {
-                            setPackageTiers(prev => prev.filter(t => t.id !== tier.id))
-                            setHasUnsavedChanges(true)
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    <Separator />
-
-                    {/* Add-ons */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Add-on Options</h3>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Option
-                        </Button>
-                      </div>
-                      
-                      {addons.map((addon) => (
-                        <AddonEditor
-                          key={addon.id}
-                          addon={addon}
-                          onChange={(updatedAddon) => {
-                            setAddons(prev => 
-                              prev.map(a => a.id === addon.id ? updatedAddon : a)
-                            )
-                            setHasUnsavedChanges(true)
-                          }}
-                          onDelete={() => {
-                            setAddons(prev => prev.filter(a => a.id !== addon.id))
-                            setHasUnsavedChanges(true)
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Availability Tab */}
-              <TabsContent value="availability" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Availability Settings</CardTitle>
-                    <CardDescription>
-                      Manage your booking availability and schedule
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <AvailabilityCalendar
-                      availability={availability}
-                      onChange={(updated) => {
-                        setAvailability(updated)
-                        setHasUnsavedChanges(true)
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
               {/* Profile Tab */}
               <TabsContent value="profile" className="space-y-6">
@@ -682,18 +494,56 @@ export default function CreatorSettingsPage() {
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Profile Photo</Label>
-                          <div className="relative border-2 border-dashed border-purple-300 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 cursor-pointer group">
-                            <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600 transition-colors" />
-                            <p className="text-sm text-gray-700 font-medium">Click to upload</p>
+                          <div
+                            onClick={() => profileImageInputRef.current?.click()}
+                            className="relative border-2 border-dashed border-purple-300 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 cursor-pointer group"
+                          >
+                            {uploadingProfile ? (
+                              <Loader2 className="h-8 w-8 mx-auto mb-2 text-purple-600 animate-spin" />
+                            ) : (
+                              <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600 transition-colors" />
+                            )}
+                            <p className="text-sm text-gray-700 font-medium">
+                              {uploadingProfile ? "Uploading..." : "Click to upload"}
+                            </p>
                             <p className="text-xs text-gray-500">JPG, PNG up to 5MB</p>
+                            <input
+                              ref={profileImageInputRef}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) handleImageUpload(file, 'profile')
+                              }}
+                            />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <Label>Cover Image</Label>
-                          <div className="relative border-2 border-dashed border-purple-300 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 cursor-pointer group">
-                            <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600 transition-colors" />
-                            <p className="text-sm text-gray-700 font-medium">Click to upload</p>
+                          <div
+                            onClick={() => coverImageInputRef.current?.click()}
+                            className="relative border-2 border-dashed border-purple-300 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 cursor-pointer group"
+                          >
+                            {uploadingCover ? (
+                              <Loader2 className="h-8 w-8 mx-auto mb-2 text-purple-600 animate-spin" />
+                            ) : (
+                              <Upload className="h-8 w-8 mx-auto mb-2 text-purple-400 group-hover:text-purple-600 transition-colors" />
+                            )}
+                            <p className="text-sm text-gray-700 font-medium">
+                              {uploadingCover ? "Uploading..." : "Click to upload"}
+                            </p>
                             <p className="text-xs text-gray-500">JPG, PNG up to 10MB</p>
+                            <input
+                              ref={coverImageInputRef}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) handleImageUpload(file, 'cover')
+                              }}
+                            />
                           </div>
                         </div>
                       </div>
@@ -702,125 +552,9 @@ export default function CreatorSettingsPage() {
                 </Card>
               </TabsContent>
 
-              {/* Pricing Tab */}
-              <TabsContent value="pricing" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pricing & Payments</CardTitle>
-                    <CardDescription>
-                      Manage your earnings and payment settings
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Earnings Overview */}
-                    <div className="grid sm:grid-cols-3 gap-4">
-                      <Card>
-                        <CardContent className="p-4">
-                          <p className="text-sm text-gray-600">Total Earned</p>
-                          <p className="text-2xl font-bold text-purple-600">{creatorData.stats.totalEarned}</p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4">
-                          <p className="text-sm text-gray-600">This Month</p>
-                          <p className="text-2xl font-bold text-green-600">$12,450</p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4">
-                          <p className="text-sm text-gray-600">Pending</p>
-                          <p className="text-2xl font-bold text-amber-600">$1,850</p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <Separator />
-
-                    {/* Platform Fees */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Platform Fees</h3>
-                      <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Platform Commission</span>
-                          <span className="font-medium">20%</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Payment Processing</span>
-                          <span className="font-medium">2.9% + $0.30</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between">
-                          <span className="font-medium">Your Earnings</span>
-                          <span className="font-bold text-green-600">~77%</span>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        <Info className="h-4 w-4 inline mr-1" />
-                        Fees are automatically deducted from each transaction
-                      </p>
-                    </div>
-
-                    <Separator />
-
-                    {/* Payout Settings */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Payout Settings</h3>
-                      <div className="space-y-2">
-                        <Label>Payout Method</Label>
-                        <select className="w-full p-2 border rounded-lg">
-                          <option>Direct Deposit (Bank Transfer)</option>
-                          <option>PayPal</option>
-                          <option>Stripe</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Payout Schedule</Label>
-                        <select className="w-full p-2 border rounded-lg">
-                          <option>Weekly</option>
-                          <option>Bi-weekly</option>
-                          <option>Monthly</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Minimum Payout Amount</Label>
-                        <Input type="number" defaultValue="100" min="50" step="10" />
-                        <p className="text-sm text-gray-500">
-                          Earnings below this amount will roll over to the next payout
-                        </p>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Promotional Tools */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Promotional Tools</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">Limited-Time Discount</p>
-                            <p className="text-sm text-gray-600">Offer a temporary discount to boost bookings</p>
-                          </div>
-                          <Switch />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">Bundle Deals</p>
-                            <p className="text-sm text-gray-600">Offer discounts for multiple video bookings</p>
-                          </div>
-                          <Switch />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">Referral Program</p>
-                            <p className="text-sm text-gray-600">Earn when you refer other creators</p>
-                          </div>
-                          <Switch />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* Subscription Tiers Tab */}
+              <TabsContent value="subscription-tiers" className="space-y-6">
+                <SubscriptionTierManager />
               </TabsContent>
             </Tabs>
           </div>
@@ -847,9 +581,16 @@ export default function CreatorSettingsPage() {
                 {showPreview && (
                   <CardContent>
                     <PreviewPanel
-                      packageTiers={packageTiers.filter(t => t.enabled)}
-                      addons={addons.filter(a => a.enabled)}
-                      availability={availability}
+                      packageTiers={[]}
+                      addons={[]}
+                      availability={{
+                        weeklyLimit: 50,
+                        responseTime: "24hr",
+                        vacationMode: false,
+                        blackoutDates: [],
+                        businessDays: ["mon", "tue", "wed", "thu", "fri"],
+                        businessHours: { start: "09:00", end: "18:00" }
+                      }}
                     />
                   </CardContent>
                 )}

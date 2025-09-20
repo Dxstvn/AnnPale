@@ -30,11 +30,13 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  ExternalLink
+  Sparkles
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
+import { VideoOrderModal } from "@/components/video/VideoOrderModal"
 import type { EnhancedCreator } from "./enhanced-creator-card"
 
 interface QuickViewModalProps {
@@ -68,7 +70,10 @@ export function QuickViewModal({
 }: QuickViewModalProps) {
   const [activeTab, setActiveTab] = React.useState("overview")
   const [videoPlaying, setVideoPlaying] = React.useState(false)
+  const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
   const videoRef = React.useRef<HTMLVideoElement>(null)
+  const router = useRouter()
+  const { isAuthenticated } = useSupabaseAuth()
 
   // Reset tab when creator changes
   React.useEffect(() => {
@@ -86,6 +91,19 @@ export function QuickViewModal({
         videoRef.current.play()
       }
       setVideoPlaying(!videoPlaying)
+    }
+  }
+
+  const handleBookNow = () => {
+    if (!isAuthenticated) {
+      // Redirect to signup with return URL for better conversion
+      // Properly encode the full destination URL including query parameters
+      const returnUrl = `/fan/creators/${creator?.id}?openBooking=true`
+      router.push(`/signup?returnTo=${encodeURIComponent(returnUrl)}`)
+    } else {
+      // Open the booking modal for authenticated users
+      setIsBookingModalOpen(true)
+      onBook?.(creator?.id || '')
     }
   }
 
@@ -398,22 +416,30 @@ export function QuickViewModal({
 
         {/* Footer Actions */}
         <div className="p-6 border-t bg-gray-50 dark:bg-gray-800">
-          <div className="flex items-center justify-between">
-            <Link href={`/creator/${creator.id}`}>
-              <Button variant="outline">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View Full Profile
-              </Button>
-            </Link>
+          <div className="flex items-center justify-end">
             <Button
-              onClick={() => onBook?.(creator.id)}
+              onClick={handleBookNow}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
-              <Calendar className="h-4 w-4 mr-2" />
+              <Sparkles className="h-4 w-4 mr-2" />
               Book Now - ${creator.price}
             </Button>
           </div>
         </div>
+
+        {/* Video Order Modal */}
+        <VideoOrderModal
+          creator={{
+            id: creator.id,
+            name: creator.name,
+            avatar: creator.avatar || creator.coverImage,
+            responseTime: creator.responseTime,
+            rating: creator.rating,
+            price: creator.price
+          }}
+          open={isBookingModalOpen}
+          onOpenChange={setIsBookingModalOpen}
+        />
       </DialogContent>
     </Dialog>
   )

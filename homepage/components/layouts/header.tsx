@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useLanguage } from "@/contexts/language-context"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/navigation/user-menu"
 import {
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { Globe, Menu, X, Home, Search, HelpCircle, Users, User, Settings, LogOut, LayoutDashboard, Sparkles } from "lucide-react"
+import { Globe, Menu, X, Home, Search, HelpCircle, Users, User, Settings, LogOut, LayoutDashboard, Sparkles, Package } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -260,17 +260,27 @@ export function Header() {
                         </Link>
                       )}
                       <Link
-                        href="/profile"
+                        href="/fan/home"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block"
                       >
                         <Button variant="ghost" className="w-full justify-start hover:bg-purple-50 hover:text-purple-600">
-                          <User className="h-4 w-4 mr-3" />
-                          My Profile
+                          <Home className="h-4 w-4 mr-3" />
+                          Home
                         </Button>
                       </Link>
                       <Link
-                        href="/settings"
+                        href="/fan/orders"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block"
+                      >
+                        <Button variant="ghost" className="w-full justify-start hover:bg-purple-50 hover:text-purple-600">
+                          <Package className="h-4 w-4 mr-3" />
+                          My Orders
+                        </Button>
+                      </Link>
+                      <Link
+                        href="/fan/settings"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block"
                       >

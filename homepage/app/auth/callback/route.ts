@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
+import { isValidRedirectUrl, ensureAbsoluteUrl } from '@/lib/utils/site-url'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -19,11 +20,10 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    
+
     try {
-      console.log('Exchanging OAuth code for session...')
       const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
-      
+
       if (sessionError) {
         console.error('Session exchange error:', sessionError)
         throw sessionError
@@ -32,8 +32,6 @@ export async function GET(request: NextRequest) {
       if (!session?.user) {
         throw new Error('No user session created')
       }
-
-      console.log('OAuth session created for user:', session.user.email)
 
       // Check if profile exists
       const { data: profile, error: profileError } = await supabase
@@ -46,11 +44,14 @@ export async function GET(request: NextRequest) {
         console.error('Profile check error:', profileError)
       }
 
-      // Determine redirect URL based on profile
-      let redirectTo = '/auth/role-selection' // Default for new users
+      // Determine redirect URL based on profile and next parameter
+      let redirectTo = '/fan/home' // Default redirect
 
-      if (profile) {
-        // Existing user - redirect based on role
+      // Check for next parameter and validate it
+      if (next && next !== '/' && isValidRedirectUrl(next)) {
+        redirectTo = next
+      } else if (profile) {
+        // Existing user - redirect based on role if no valid next param
         if (profile.role === 'admin') {
           redirectTo = '/admin/dashboard'
         } else if (profile.role === 'creator') {
@@ -59,6 +60,23 @@ export async function GET(request: NextRequest) {
           redirectTo = '/fan/home'
         }
       } else {
+        // New user - check localStorage for returnTo as fallback
+        const storedReturnTo = typeof window !== 'undefined' ?
+          localStorage.getItem('oauth_return_to') : null
+
+        if (storedReturnTo && isValidRedirectUrl(storedReturnTo)) {
+          redirectTo = storedReturnTo
+          // Clean up localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('oauth_return_to')
+          }
+        } else {
+          // No valid redirect, go to role selection for new users
+          redirectTo = '/auth/role-selection'
+        }
+      }
+
+      if (!profile) {
         // New user - create profile with OAuth data
         const fullName = session.user.user_metadata?.full_name ||
                         session.user.user_metadata?.name ||
@@ -95,8 +113,9 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // Redirect to the appropriate page
-      return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+      // Ensure the redirect URL is absolute and redirect
+      const absoluteRedirectUrl = ensureAbsoluteUrl(redirectTo)
+      return NextResponse.redirect(new URL(absoluteRedirectUrl))
     } catch (error) {
       console.error('OAuth callback error:', error)
       return NextResponse.redirect(

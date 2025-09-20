@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useCreatorNotifications } from '@/hooks/use-creator-notifications'
-import { NotificationBadge, NotificationPanel } from '@/components/creator/video-request-notification'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -56,7 +54,6 @@ export default function CreatorRequestsPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [processingRequest, setProcessingRequest] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
-  const [showNotifications, setShowNotifications] = useState(false)
   const supabase = createClient()
 
   // Read tab from URL parameters on mount
@@ -68,20 +65,16 @@ export default function CreatorRequestsPage() {
     }
   }, [])
   
-  // Set up real-time notifications
-  const { newRequests, unreadCount, markAsRead, isConnected } = useCreatorNotifications({
-    creatorId: currentUser?.id || '',
-    onNewRequest: (newRequest) => {
-      // Refresh the requests list when new request arrives
+  // Auto-refresh requests periodically
+  useEffect(() => {
+    if (!currentUser?.id) return
+
+    const interval = setInterval(() => {
       fetchRequests()
-      toast({
-        title: "New Video Request! 🎬",
-        description: `${newRequest.fan?.display_name || newRequest.fan?.name || 'Someone'} requested a ${newRequest.occasion} video`,
-      })
-    },
-    playSound: true,
-    showToast: false, // We're handling toast ourselves
-  })
+    }, 30000) // Refresh every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [currentUser?.id])
 
   useEffect(() => {
     checkUser()
@@ -259,39 +252,19 @@ export default function CreatorRequestsPage() {
           <p className="text-muted-foreground">Manage and respond to video requests from your fans</p>
         </div>
         <div className="flex items-center gap-4">
-          {isConnected && (
-            <Badge variant="outline" className="text-green-600 border-green-600">
-              <div className="w-2 h-2 bg-green-600 rounded-full mr-2 animate-pulse" />
-              Live Updates
-            </Badge>
-          )}
-          <div className="relative">
-            <NotificationBadge 
-              count={unreadCount} 
-              onClick={() => setShowNotifications(!showNotifications)}
-            />
-            {showNotifications && (
-              <div className="absolute top-12 right-0 w-96 bg-white rounded-lg shadow-xl border z-50">
-                <NotificationPanel
-                  requests={newRequests}
-                  onView={(id) => {
-                    markAsRead([id])
-                    setShowNotifications(false)
-                  }}
-                  onAccept={async (id) => {
-                    await handleAcceptRequest(id)
-                    markAsRead([id])
-                  }}
-                  onReject={async (id) => {
-                    await handleRejectRequest(id)
-                    markAsRead([id])
-                  }}
-                  onDismiss={(id) => markAsRead([id])}
-                  onClearAll={() => markAsRead()}
-                />
-              </div>
+          <Button
+            onClick={() => fetchRequests()}
+            variant="outline"
+            size="sm"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Clock className="w-4 h-4 mr-2" />
             )}
-          </div>
+            Refresh
+          </Button>
         </div>
       </div>
 

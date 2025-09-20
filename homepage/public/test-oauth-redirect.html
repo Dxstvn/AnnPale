@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OAuth Redirect Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #9333EA;
+      padding-bottom: 10px;
+    }
+    button {
+      background: linear-gradient(135deg, #9333EA 0%, #EC4899 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+    .test-case {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9f9f9;
+      border-left: 3px solid #9333EA;
+      border-radius: 5px;
+    }
+    .log {
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    .status.success {
+      background: #4CAF50;
+      color: white;
+    }
+    .status.error {
+      background: #f44336;
+      color: white;
+    }
+    .status.pending {
+      background: #FF9800;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 OAuth Redirect Test Suite</h1>
+
+    <div class="test-case">
+      <h2>Test 1: Simulate OAuth Return with Code</h2>
+      <p>This simulates Supabase redirecting back to the site with an OAuth code.</p>
+      <button onclick="simulateOAuthRedirect()">
+        Simulate OAuth Redirect to Root
+      </button>
+      <button onclick="simulateOAuthRedirectWithNext()">
+        Simulate OAuth Redirect with Next Param
+      </button>
+    </div>
+
+    <div class="test-case">
+      <h2>Test 2: Set Return URL & Redirect</h2>
+      <p>Set a return URL in localStorage then simulate OAuth redirect.</p>
+      <input type="text" id="returnUrl" value="/fan/creators/5" style="width: 300px; padding: 8px;">
+      <button onclick="setAndRedirect()">
+        Set Return URL & Redirect
+      </button>
+    </div>
+
+    <div class="test-case">
+      <h2>Test 3: Direct Callback Test</h2>
+      <p>Test going directly to the callback route with a code.</p>
+      <button onclick="directCallbackTest()">
+        Test Direct Callback
+      </button>
+    </div>
+
+    <div class="test-case">
+      <h2>Test 4: Check Current State</h2>
+      <button onclick="checkState()">
+        Check localStorage & Session
+      </button>
+      <button onclick="clearState()">
+        Clear All State
+      </button>
+    </div>
+
+    <div id="log" class="log">
+      Test logs will appear here...
+    </div>
+  </div>
+
+  <script>
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+      logDiv.innerHTML += `\n[${timestamp}] ${icon} ${message}`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+      console.log(`[OAuth Test] ${message}`);
+    }
+
+    function generateMockCode() {
+      return 'test-' + Math.random().toString(36).substring(2, 15) + '-' + Date.now();
+    }
+
+    function simulateOAuthRedirect() {
+      const code = generateMockCode();
+      log(`Simulating OAuth redirect to root with code: ${code}`);
+
+      // Store return URL first
+      localStorage.setItem('oauth_return_to', '/fan/creators/5');
+      log('Set oauth_return_to in localStorage: /fan/creators/5');
+
+      // Redirect to root with code (simulating Supabase behavior)
+      const redirectUrl = `http://localhost:3000/?code=${code}`;
+      log(`Redirecting to: ${redirectUrl}`, 'success');
+
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 1000);
+    }
+
+    function simulateOAuthRedirectWithNext() {
+      const code = generateMockCode();
+      log(`Simulating OAuth redirect with next parameter`);
+
+      // This simulates if our middleware/handler works with next param
+      const redirectUrl = `http://localhost:3000/?code=${code}&next=/fan/creators/5`;
+      log(`Redirecting to: ${redirectUrl}`, 'success');
+
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 1000);
+    }
+
+    function setAndRedirect() {
+      const returnUrl = document.getElementById('returnUrl').value;
+      const code = generateMockCode();
+
+      log(`Setting return URL: ${returnUrl}`);
+      localStorage.setItem('oauth_return_to', returnUrl);
+
+      log(`Simulating OAuth redirect with code: ${code}`);
+      const redirectUrl = `http://localhost:3000/?code=${code}`;
+
+      log(`Will redirect to: ${redirectUrl}`, 'success');
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 1000);
+    }
+
+    function directCallbackTest() {
+      const code = generateMockCode();
+      const callbackUrl = `http://localhost:3000/auth/callback?code=${code}&next=/fan/creators/5`;
+
+      log(`Testing direct callback route`);
+      log(`Redirecting to: ${callbackUrl}`, 'success');
+
+      setTimeout(() => {
+        window.location.href = callbackUrl;
+      }, 1000);
+    }
+
+    function checkState() {
+      log('Checking current state...', 'info');
+
+      // Check localStorage
+      const returnTo = localStorage.getItem('oauth_return_to');
+      if (returnTo) {
+        log(`Found oauth_return_to: ${returnTo}`, 'success');
+      } else {
+        log('No oauth_return_to in localStorage', 'error');
+      }
+
+      // Check for Supabase session cookies
+      const cookies = document.cookie;
+      if (cookies.includes('sb-')) {
+        log('Found Supabase session cookies', 'success');
+      } else {
+        log('No Supabase session cookies found', 'error');
+      }
+
+      // Check current URL
+      log(`Current URL: ${window.location.href}`);
+
+      // Check for code in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code) {
+        log(`OAuth code in URL: ${code}`, 'success');
+      } else {
+        log('No OAuth code in URL');
+      }
+    }
+
+    function clearState() {
+      log('Clearing all OAuth state...', 'info');
+
+      // Clear localStorage
+      localStorage.removeItem('oauth_return_to');
+      log('Cleared oauth_return_to from localStorage');
+
+      // Note: Can't clear httpOnly cookies from JavaScript
+      log('Note: Supabase session cookies (httpOnly) cannot be cleared from JavaScript');
+
+      log('State cleared!', 'success');
+    }
+
+    // Check state on page load
+    window.addEventListener('load', () => {
+      log('OAuth Test Page Loaded');
+
+      // Check if we have a code in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code) {
+        log(`⚠️ OAuth code detected in URL! This page should not have OAuth codes.`, 'error');
+        log(`The OAuth redirect handler should have caught this.`, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ShieldOff, ArrowLeft, Home } from 'lucide-react'
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { getDashboardPath } from '@/types/auth'
 
 export default function UnauthorizedPage() {

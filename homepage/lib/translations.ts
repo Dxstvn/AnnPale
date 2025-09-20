@@ -40,14 +40,14 @@ export const translations = {
 
   // Hero Section
   heroTitle: {
-    en: "Get personalized videos from your favorite Haitian creators",
-    fr: "Obtenez des vidéos personnalisées de vos créateurs haïtiens préférés",
-    ht: "Jwenn videyo pèsonalize nan men kreyatè Ayisyen ou pi renmen yo",
+    en: "Connect with your favorite Haitian creators",
+    fr: "Connectez-vous avec vos créateurs haïtiens préférés",
+    ht: "Konekte ak kreyatè Ayisyen ou pi renmen yo",
   },
   heroSubtitle: {
-    en: "Book custom video messages for birthdays, celebrations, or just to make someone smile",
-    fr: "Réservez des messages vidéo personnalisés pour les anniversaires, les célébrations, ou juste pour faire sourire quelqu'un",
-    ht: "Kòmande mesaj videyo kustom pou fèt nesans, selebrasyon, oswa jis pou fè yon moun souri",
+    en: "Build lasting connections through personalized videos and exclusive content",
+    fr: "Créez des liens durables grâce à des vidéos personnalisées et du contenu exclusif",
+    ht: "Bati relasyon solid ak videyo pèsonalize ak kontni eksklizif",
   },
 
   // Featured Creators
@@ -345,6 +345,26 @@ export const translations = {
     en: "Creator not found",
     fr: "Créateur non trouvé",
     ht: "Kreyatè pa jwenn",
+  },
+  requestVideo: {
+    en: "Request Video",
+    fr: "Demander une vidéo",
+    ht: "Mande videyo",
+  },
+  subscribe: {
+    en: "Subscribe",
+    fr: "S'abonner",
+    ht: "Abòne",
+  },
+  signUpToContinue: {
+    en: "Sign up to Continue",
+    fr: "Inscrivez-vous pour continuer",
+    ht: "Enskri pou kontinye",
+  },
+  signUpToSubscribe: {
+    en: "Sign up to Subscribe",
+    fr: "Inscrivez-vous pour vous abonner",
+    ht: "Enskri pou abòne",
   },
 }
 

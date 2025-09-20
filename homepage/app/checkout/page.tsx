@@ -82,6 +82,7 @@ function CheckoutContent() {
   // Get params from URL (safely handle null searchParams)
   const type = searchParams?.get('type') || null
   const tier = searchParams?.get('tier') || null
+  const tierName = searchParams?.get('name') || null
   const creatorId = searchParams?.get('creator') || null
   const price = searchParams?.get('price') || null
   const requestId = searchParams?.get('requestId') || null
@@ -93,13 +94,13 @@ function CheckoutContent() {
     isVideoCheckout ? 'video' : isSubscriptionCheckout ? 'subscription' : 'video'
   )
   
-  // Get creator data from fetched video request or use fallback for subscriptions
-  const creatorData = isVideoCheckout && creatorInfo ? {
-    name: creatorInfo.display_name || creatorInfo.username || 'Creator',
+  // Get creator data from fetched info or use fallback
+  const creatorData = creatorInfo ? {
+    name: creatorInfo.display_name || 'Creator',
     image: creatorInfo.avatar_url || '/images/default-creator.png',
     verified: true
   } : {
-    name: 'Creator',
+    name: 'Loading...',
     image: '/images/default-creator.png',
     verified: false
   }
@@ -150,7 +151,35 @@ function CheckoutContent() {
     
     fetchVideoRequestData()
   }, [isVideoCheckout, requestId])
-  
+
+  // Fetch creator data for subscription checkout from profiles table
+  useEffect(() => {
+    const fetchCreatorData = async () => {
+      if (isSubscriptionCheckout && creatorId) {
+        try {
+          const supabase = createClient()
+
+          // Fetch from profiles table where creator data is stored
+          const { data: creator, error } = await supabase
+            .from('profiles')
+            .select('id, display_name, avatar_url, bio')
+            .eq('id', creatorId)
+            .single()
+
+          if (creator && !error) {
+            setCreatorInfo(creator)
+          } else if (error) {
+            console.error('Error fetching creator data from profiles:', error)
+          }
+        } catch (error) {
+          console.error('Error fetching creator data:', error)
+        }
+      }
+    }
+
+    fetchCreatorData()
+  }, [isSubscriptionCheckout, creatorId])
+
   // Calculate rush fee and total
   const rushFee = 25
   const basePrice = videoRequestData?.price || 50
@@ -197,7 +226,8 @@ function CheckoutContent() {
   // Subscription order data
   const subscriptionOrderData = {
     creator: creatorData,
-    tier: tier || 'Unknown Tier',
+    tier: tierName || 'Subscription',
+    tierId: tier, // Keep tier ID for backend processing
     price: parseFloat(price || '0'),
     billingCycle: 'monthly',
     nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
@@ -237,11 +267,11 @@ function CheckoutContent() {
             </Link>
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">
-            {checkoutType === 'subscription' ? 'Subscribe to Creator' : 'Complete Your Order'}
+            {checkoutType === 'subscription' ? `Subscribe to ${creatorData.name}` : 'Complete Your Order'}
           </h1>
           <p className="text-gray-600 mt-2">
-            {checkoutType === 'subscription' 
-              ? 'Start your monthly subscription' 
+            {checkoutType === 'subscription'
+              ? `Start your ${subscriptionOrderData.tier} subscription`
               : 'Secure checkout powered by Stripe'}
           </p>
         </div>
@@ -269,7 +299,7 @@ function CheckoutContent() {
                     {checkoutType === 'subscription' ? (
                       <>
                         <p className="text-gray-600" data-testid="checkout-tier-name">
-                          {subscriptionOrderData.tier} Subscription
+                          {subscriptionOrderData.tier}
                         </p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <div className="flex items-center gap-1">

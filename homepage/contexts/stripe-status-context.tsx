@@ -1,67 +1,48 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react"
-import { useSupabaseAuth } from "./supabase-auth-context"
-
-interface StripeStatus {
-  hasAccount: boolean
-  accountId?: string
-  chargesEnabled: boolean
-  payoutsEnabled: boolean
-  onboardingComplete: boolean
-  isLoading: boolean
-  error?: string
-  lastChecked?: Date
-}
+import { createContext, useContext, useCallback, ReactNode } from "react"
+import { useSupabaseAuth } from "./supabase-auth-compat"
 
 interface StripeStatusContextType {
-  status: StripeStatus
+  /**
+   * @deprecated Use user.stripe_charges_enabled and user.stripe_payouts_enabled from useSupabaseAuth instead
+   */
+  status: {
+    hasAccount: boolean
+    accountId?: string
+    chargesEnabled: boolean
+    payoutsEnabled: boolean
+    onboardingComplete: boolean
+    isLoading: boolean
+    error?: string
+    lastChecked?: Date
+  }
   refreshStatus: () => Promise<void>
 }
 
 const StripeStatusContext = createContext<StripeStatusContextType | undefined>(undefined)
 
-// Cache duration in milliseconds (1 minute)
-const CACHE_DURATION = 60000
-
 export function StripeStatusProvider({ children }: { children: ReactNode }) {
-  const { user } = useSupabaseAuth()
-  const [status, setStatus] = useState<StripeStatus>({
-    hasAccount: false,
-    chargesEnabled: false,
-    payoutsEnabled: false,
-    onboardingComplete: false,
-    isLoading: true,
-    lastChecked: undefined
-  })
+  const { user, updateProfile } = useSupabaseAuth()
 
-  const fetchStripeStatus = useCallback(async () => {
-    // Check if user exists and is a creator
-    if (!user || user.role !== 'creator') {
-      setStatus({
-        hasAccount: false,
-        chargesEnabled: false,
-        payoutsEnabled: false,
-        onboardingComplete: false,
-        isLoading: false
-      })
-      return
-    }
+  // Create a status object from user profile data for backward compatibility
+  const status = {
+    hasAccount: !!user?.stripe_account_id,
+    accountId: user?.stripe_account_id,
+    chargesEnabled: user?.stripe_charges_enabled || false,
+    payoutsEnabled: user?.stripe_payouts_enabled || false,
+    onboardingComplete: !!user?.onboarding_completed_at,
+    isLoading: false, // Profile is already loaded via auth context
+    error: undefined,
+    lastChecked: new Date()
+  }
 
-    console.log('Fetching Stripe status for creator...')
-    setStatus(prev => ({ ...prev, isLoading: true, error: undefined }))
-
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      setStatus(prev => ({
-        ...prev,
-        isLoading: false,
-        error: 'Request timed out. Please refresh the page.',
-        lastChecked: new Date()
-      }))
-    }, 10000) // 10 second timeout
+  const refreshStatus = useCallback(async () => {
+    // Refresh profile to get latest Stripe status
+    if (!user) return
 
     try {
+      // Call the API to update Stripe status in the profile
       const response = await fetch('/api/stripe/connect/status', {
         method: 'GET',
         headers: {
@@ -69,47 +50,21 @@ export function StripeStatusProvider({ children }: { children: ReactNode }) {
         },
       })
 
-      clearTimeout(timeoutId)
+      if (response.ok) {
+        const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch Stripe status')
+        // Update the user profile with the latest Stripe status
+        await updateProfile({
+          stripe_account_id: data.accountId,
+          stripe_charges_enabled: data.chargesEnabled || false,
+          stripe_payouts_enabled: data.payoutsEnabled || false,
+          onboarding_completed_at: data.onboardingComplete ? new Date().toISOString() : undefined
+        })
       }
-
-      const data = await response.json()
-
-      setStatus({
-        hasAccount: data.hasAccount || false,
-        accountId: data.accountId,
-        chargesEnabled: data.chargesEnabled || false,
-        payoutsEnabled: data.payoutsEnabled || false,
-        onboardingComplete: data.onboardingComplete || false,
-        isLoading: false,
-        lastChecked: new Date()
-      })
     } catch (error) {
-      clearTimeout(timeoutId)
-      console.error('Error fetching Stripe status:', error)
-      setStatus(prev => ({
-        ...prev,
-        isLoading: false,
-        error: 'Failed to load payment status',
-        lastChecked: new Date()
-      }))
+      console.error('Error refreshing Stripe status:', error)
     }
-  }, [user])
-
-  const refreshStatus = useCallback(async () => {
-    // Force refresh by clearing last checked
-    setStatus(prev => ({ ...prev, lastChecked: undefined }))
-    await fetchStripeStatus()
-  }, [fetchStripeStatus])
-
-  // Fetch status when user changes or component mounts
-  useEffect(() => {
-    if (user?.role === 'creator') {
-      fetchStripeStatus()
-    }
-  }, [user, fetchStripeStatus])
+  }, [user, updateProfile])
 
   return (
     <StripeStatusContext.Provider value={{ status, refreshStatus }}>

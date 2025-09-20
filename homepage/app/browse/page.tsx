@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/language-context'
 import { getTranslation } from '@/lib/translations'
+import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/layouts/header'
 import {
   Search,
@@ -47,6 +48,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import CreatorQuickViewModal from '@/components/creator/creator-quick-view-modal'
+import { CreatorServicesModal } from '@/components/creator/creator-services-modal'
 
 // Simple Pagination Component
 const SimplePagination = ({
@@ -132,142 +134,24 @@ const SimplePagination = ({
   )
 }
 
-// Mock creator data (would come from API)
-const allCreators = [
-  {
-    id: 1,
-    name: 'Wyclef Jean',
-    category: 'musician',
-    price: 150,
-    rating: 4.9,
-    reviews: 1247,
-    image: '/images/wyclef-jean.png',
-    responseTime: '24hr',
-    verified: true,
-    languages: ['English', 'French', 'Haitian Creole'],
-    videoCount: 523,
-    bio: "Grammy-winning musician, producer, and humanitarian. Former member of the Fugees and solo artist with hits like 'Hips Don't Lie' and 'Gone Till November'. Proud Haitian-American artist bringing joy through personalized messages.",
-  },
-  {
-    id: 2,
-    name: 'Ti Jo Zenny',
-    category: 'comedian',
-    price: 85,
-    rating: 4.8,
-    reviews: 456,
-    image: '/images/ti-jo-zenny.jpg',
-    responseTime: '2 days',
-    verified: true,
-    languages: ['Haitian Creole', 'French'],
-    videoCount: 189,
-    bio: 'Beloved Haitian comedian bringing laughter to the diaspora for over 20 years. Known for hilarious observations about Haitian culture and family life. Making your special occasions unforgettable with personalized comedy messages.',
-  },
-  {
-    id: 4,
-    name: 'Richard Cave',
-    category: 'actor',
-    price: 120,
-    rating: 4.9,
-    reviews: 678,
-    image: '/images/richard-cave.jpg',
-    responseTime: '3 days',
-    verified: true,
-    languages: ['French', 'Haitian Creole'],
-    videoCount: 342,
-    bio: 'Award-winning Haitian actor and theater director. Star of numerous films and stage productions. Passionate about promoting Haitian culture through the arts and connecting with fans worldwide.',
-  },
-  {
-    id: 5,
-    name: 'Michael Brun',
-    category: 'djProducer',
-    price: 200,
-    rating: 4.8,
-    reviews: 892,
-    image: '/images/michael-brun.jpg',
-    responseTime: '2 days',
-    verified: true,
-    languages: ['English', 'French'],
-    videoCount: 421,
-  },
-  {
-    id: 6,
-    name: 'Rutshelle Guillaume',
-    category: 'singer',
-    price: 85,
-    rating: 4.9,
-    reviews: 634,
-    image: '/images/rutshelle-guillaume.jpg',
-    responseTime: '1 day',
-    verified: true,
-    languages: ['Haitian Creole', 'French'],
-    videoCount: 278,
-  },
-  {
-    id: 7,
-    name: 'Kenny',
-    category: 'singer',
-    price: 95,
-    rating: 4.6,
-    reviews: 423,
-    image: '/images/kenny.jpg',
-    responseTime: '2 days',
-    verified: true,
-    languages: ['Haitian Creole'],
-    videoCount: 156,
-  },
-  {
-    id: 8,
-    name: 'Carel Pedre',
-    category: 'radioHost',
-    price: 110,
-    rating: 4.8,
-    reviews: 567,
-    image: '/images/carel-pedre.jpg',
-    responseTime: '1 day',
-    verified: true,
-    languages: ['Haitian Creole', 'French', 'English'],
-    videoCount: 298,
-  },
-  {
-    id: 9,
-    name: 'DJ K9',
-    category: 'dj',
-    price: 65,
-    rating: 4.7,
-    reviews: 234,
-    image: '/images/dj-k9.jpg',
-    responseTime: '24hr',
-    verified: true,
-    languages: ['Haitian Creole'],
-    videoCount: 134,
-  },
-  {
-    id: 10,
-    name: 'DJ Bullet',
-    category: 'dj',
-    price: 70,
-    rating: 4.6,
-    reviews: 189,
-    image: '/images/dj-bullet.jpg',
-    responseTime: '1 day',
-    verified: true,
-    languages: ['Haitian Creole', 'English'],
-    videoCount: 112,
-  },
-  {
-    id: 11,
-    name: 'J Perry',
-    category: 'singer',
-    price: 90,
-    rating: 4.8,
-    reviews: 345,
-    image: '/images/jonathan-perry.jpg',
-    responseTime: '2 days',
-    verified: true,
-    languages: ['Haitian Creole', 'French'],
-    videoCount: 187,
-  },
-]
+// Type for creator data
+interface Creator {
+  id: string
+  name: string
+  category: string
+  price: number
+  rating: number
+  reviews: number
+  image: string
+  responseTime: string
+  verified: boolean
+  languages: string[]
+  videoCount: number
+  bio?: string
+}
+
+// Initial empty array - will be populated from Supabase
+const initialCreators: Creator[] = []
 
 const categories = [
   { value: 'all', label: 'All Categories' },
@@ -293,8 +177,10 @@ export default function BrowsePage() {
   const searchParams = useSearchParams()
 
   // State management
-  const [creators, setCreators] = useState(allCreators)
-  const [filteredCreators, setFilteredCreators] = useState(allCreators)
+  const [creators, setCreators] = useState<Creator[]>([])
+  const [filteredCreators, setFilteredCreators] = useState<Creator[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'compact'>('grid')
   const [sortBy, setSortBy] = useState('popular')
   const [currentPage, setCurrentPage] = useState(1)
@@ -306,10 +192,64 @@ export default function BrowsePage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   // Modal state
-  const [selectedCreator, setSelectedCreator] = useState<(typeof allCreators)[0] | null>(null)
+  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [servicesModalState, setServicesModalState] = useState<{
+    isOpen: boolean,
+    defaultTab: "video" | "subscription"
+  }>({ isOpen: false, defaultTab: "video" })
 
   const creatorsPerPage = 12
+
+  // Fetch creators from Supabase
+  useEffect(() => {
+    const fetchCreators = async () => {
+      try {
+        setLoading(true)
+        const supabase = createClient()
+
+        // Fetch creators from profiles table where role = 'creator'
+        // Using select('*') to ensure resilience to database schema changes
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'creator')
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.error('Error fetching creators:', error)
+          setError('Failed to load creators')
+          return
+        }
+
+        // Map database fields to expected format
+        const mappedCreators: Creator[] = (data || []).map(profile => ({
+          id: profile.id,
+          name: profile.display_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Creator',
+          category: profile.category || 'artist',
+          price: profile.price_per_video || 100,
+          rating: profile.average_rating || 4.5,
+          reviews: profile.total_reviews || 0,
+          image: profile.avatar_url || '/images/default-avatar.png',
+          responseTime: profile.response_time_hours ? `${profile.response_time_hours} hours` : '24hr',
+          verified: profile.verified || false,
+          languages: profile.languages || ['English'],
+          videoCount: profile.total_videos || 0,
+          bio: profile.bio || ''
+        }))
+
+        setCreators(mappedCreators)
+        setFilteredCreators(mappedCreators)
+      } catch (err) {
+        console.error('Unexpected error:', err)
+        setError('An unexpected error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCreators()
+  }, [])
 
   // Initialize search from URL params
   useEffect(() => {
@@ -373,7 +313,8 @@ export default function BrowsePage() {
         filtered.sort((a, b) => b.rating - a.rating)
         break
       case 'newest':
-        filtered.sort((a, b) => b.id - a.id)
+        // For UUIDs, we can't sort by ID numerically
+        // Instead, keep the original order (newest first from database)
         break
       default: // popular
         filtered.sort((a, b) => b.reviews - a.reviews)
@@ -415,7 +356,7 @@ export default function BrowsePage() {
     onlyVerified
 
   // Creator Card Component with Phase 0 Design Principles
-  const CreatorCard = ({ creator }: { creator: (typeof allCreators)[0] }) => {
+  const CreatorCard = ({ creator }: { creator: Creator }) => {
     const getCategoryIcon = (category: string) => {
       switch (category) {
         case 'musician':
@@ -773,8 +714,36 @@ export default function BrowsePage() {
             )}
           </div>
 
-          {/* Creator Grid with Phase 0 spacing (24px gutters on desktop, 16px on mobile) */}
-          {currentCreators.length > 0 ? (
+          {/* Loading state */}
+          {loading ? (
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <Skeleton className="aspect-[4/3]" />
+                  <div className="space-y-3 p-4">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <Card className="col-span-full">
+              <CardContent className="py-16 text-center">
+                <div className="mb-4 text-6xl">⚠️</div>
+                <h3 className="mb-2 text-2xl font-bold text-gray-900">Error loading creators</h3>
+                <p className="mb-6 text-gray-600">{error}</p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                >
+                  Try again
+                </Button>
+              </CardContent>
+            </Card>
+          ) : currentCreators.length > 0 ? (
             <div
               className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : ''} ${viewMode === 'list' ? 'mx-auto max-w-4xl grid-cols-1' : ''} ${viewMode === 'compact' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : ''} `}
             >
@@ -819,7 +788,32 @@ export default function BrowsePage() {
             setIsModalOpen(false)
             setSelectedCreator(null)
           }}
+          onBookNow={() => {
+            setServicesModalState({ isOpen: true, defaultTab: 'video' })
+            setIsModalOpen(false)
+          }}
+          onSubscribe={() => {
+            setServicesModalState({ isOpen: true, defaultTab: 'subscription' })
+            setIsModalOpen(false)
+          }}
         />
+
+        {/* Creator Services Modal */}
+        {selectedCreator && (
+          <CreatorServicesModal
+            creator={{
+              id: selectedCreator.id,
+              name: selectedCreator.name,
+              avatar: selectedCreator.image || '',
+              responseTime: selectedCreator.responseTime,
+              rating: selectedCreator.rating,
+              price: selectedCreator.price
+            }}
+            open={servicesModalState.isOpen}
+            onOpenChange={(open) => setServicesModalState({ ...servicesModalState, isOpen: open })}
+            defaultTab={servicesModalState.defaultTab}
+          />
+        )}
       </div>
     </div>
   )

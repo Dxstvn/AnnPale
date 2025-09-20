@@ -678,16 +678,15 @@ export function InfiniteScrollFeed({
 
   return (
     <div className="space-y-4">
-      {/* Feed header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">Content Feed</h2>
-        {!userTier && posts.some(p => !p.has_access) && (
+      {/* Subscribe badge if not subscribed */}
+      {!userTier && posts.some(p => !p.has_access) && (
+        <div className="flex justify-end mb-6">
           <Badge variant="outline" className="text-xs">
             <Lock className="h-3 w-3 mr-1" />
             Subscribe for full access
           </Badge>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Posts */}
       <div className="flex flex-col items-center gap-4">

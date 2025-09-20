@@ -16,7 +16,7 @@ import {
   Globe
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useStripeStatus } from "@/contexts/stripe-status-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 
 // Stripe Connect supported countries
 const SUPPORTED_COUNTRIES = [
@@ -97,7 +97,7 @@ export function OnboardingGate({
   className
 }: OnboardingGateProps) {
   const router = useRouter()
-  const { status: stripeStatus } = useStripeStatus()
+  const { user, isLoading } = useSupabaseAuth()
   const [selectedCountry, setSelectedCountry] = useState<string>('')
   const [isInitiating, setIsInitiating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -146,7 +146,7 @@ export function OnboardingGate({
   }
 
   // If loading, show loading state
-  if (stripeStatus.isLoading) {
+  if (isLoading || !user) {
     return (
       <div className={cn("flex items-center justify-center p-8", className)}>
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -155,7 +155,7 @@ export function OnboardingGate({
   }
 
   // If fully onboarded, show children
-  if (stripeStatus.chargesEnabled && stripeStatus.payoutsEnabled) {
+  if (user.stripe_charges_enabled && user.stripe_payouts_enabled) {
     return <>{children}</>
   }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { RealContentFeed } from "@/components/feed/real-content-feed"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Heart, ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 interface SubscribedCreator {
   id: string
@@ -20,11 +19,10 @@ interface SubscribedCreator {
 }
 
 export default function FanHomePage() {
-  const { user, isLoading, isAuthenticated } = useSupabaseAuth()
+  const { user, isLoading, isAuthenticated, supabase } = useSupabaseAuth()
   const [userSubscriptions, setUserSubscriptions] = useState<{ creator_id: string; tier_id: string }[]>([])
   const [subscribedCreators, setSubscribedCreators] = useState<SubscribedCreator[]>([])
   const [currentPage, setCurrentPage] = useState(0)
-  const supabase = createClientComponentClient()
 
   // Pagination settings
   const creatorsPerPage = 8 // Show 8 creators at a time on desktop
@@ -45,9 +43,10 @@ export default function FanHomePage() {
           // Load creator profiles for subscriptions
           if (subs.length > 0) {
             const creatorIds = [...new Set(subs.map((sub: any) => sub.creator_id))]
+            // Using select('*') to ensure resilience to database schema changes
             const { data: creators } = await supabase
               .from('profiles')
-              .select('id, username, display_name, avatar_url, category')
+              .select('*')
               .in('id', creatorIds)
               .eq('role', 'creator')
 
@@ -193,20 +192,15 @@ export default function FanHomePage() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <Link href="/fan/subscriptions">
-                      <Button variant="outline" size="sm" className="text-xs">
-                        Manage Subscriptions
-                      </Button>
-                    </Link>
-                    {subscribedCreators.length > 0 && (
+                  {subscribedCreators.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-end">
                       <p className="text-xs text-muted-foreground">
                         {subscribedCreators.length === 1
                           ? "Following 1 creator"
                           : `Following ${subscribedCreators.length} creators`}
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 /* Empty State - No Subscriptions */

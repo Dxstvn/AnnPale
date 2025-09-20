@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 

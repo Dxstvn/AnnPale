@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { 
@@ -33,10 +33,7 @@ import {
   Bell
 } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
-import { useCreatorNotifications } from "@/hooks/use-creator-notifications"
-import { NotificationBadge, NotificationPanel } from "@/components/creator/video-request-notification"
-import { useToast } from "@/hooks/use-toast"
-import { notificationService } from "@/lib/services/notification-service"
+import { useNotificationPolling } from "@/hooks/use-notification-polling"
 
 interface CreatorLayoutProps {
   children: ReactNode
@@ -46,13 +43,7 @@ const navigation = [
   { name: "Dashboard", href: "/creator/dashboard", icon: Home, helpKey: "dashboard_help" },
   { name: "Requests", href: "/creator/requests", icon: Bell, helpKey: "requests_help", badge: "newRequests" },
   { name: "Revenue", href: "/creator/analytics/revenue", icon: DollarSign, helpKey: "revenue_help" },
-  { name: "Audience", href: "/creator/analytics/audience", icon: Users, helpKey: "audience_help" },
   { name: "Content", href: "/creator/content", icon: Video, helpKey: "content_help" },
-  { name: "Templates", href: "/creator/templates", icon: FileText, helpKey: "templates_help" },
-  { name: "Schedule", href: "/creator/schedule", icon: Calendar, helpKey: "schedule_help" },
-  { name: "Messages", href: "/creator/messages", icon: MessageSquare, helpKey: "messages_help" },
-  { name: "Reviews", href: "/creator/reviews", icon: Star, helpKey: "reviews_help" },
-  { name: "Fans", href: "/creator/fans", icon: Heart, helpKey: "fans_help" },
   { name: "Settings", href: "/creator/settings", icon: Settings, helpKey: "settings_help" },
 ]
 
@@ -120,28 +111,22 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
   const router = useRouter()
   const { language } = useLanguage()
   const { logout, user } = useSupabaseAuth()
-  const { toast } = useToast()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
-  
-  // Set up real-time notifications
-  const { newRequests, unreadCount, markAsRead, isConnected } = useCreatorNotifications({
+
+  // Set up polling for notifications
+  const { unreadCount, markAsViewed } = useNotificationPolling({
     creatorId: user?.id || '',
-    onNewRequest: async (newRequest) => {
-      // Show browser notification
-      await notificationService.showVideoRequestNotification(newRequest)
-    },
-    playSound: true,
-    showToast: true,
+    pollInterval: 30000, // Poll every 30 seconds
+    enabled: !!user?.id
   })
-  
-  // Request notification permission on mount
+
+  // Mark requests as viewed when navigating to requests page
   useEffect(() => {
-    if (user) {
-      notificationService.requestPermission()
+    if (pathname === '/creator/requests' && unreadCount > 0) {
+      markAsViewed()
     }
-  }, [user])
+  }, [pathname, unreadCount, markAsViewed])
 
   const getHelpText = (helpKey: string) => {
     return helpTooltips[helpKey]?.[language] || helpTooltips[helpKey]?.en || ""
@@ -199,38 +184,6 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
                 )}
                 
                 <div className="flex items-center gap-2">
-                  {/* Notification Badge */}
-                  <div className="relative">
-                    <NotificationBadge 
-                      count={unreadCount} 
-                      onClick={() => setShowNotifications(!showNotifications)}
-                    />
-                    
-                    {/* Notification Panel Dropdown */}
-                    {showNotifications && !isSidebarCollapsed && (
-                      <div className="absolute top-12 right-0 w-96 bg-white rounded-lg shadow-xl border z-50">
-                        <NotificationPanel
-                          requests={newRequests}
-                          onView={(id) => {
-                            markAsRead([id])
-                            setShowNotifications(false)
-                            router.push(`/creator/requests?highlight=${id}`)
-                          }}
-                          onAccept={async (id) => {
-                            markAsRead([id])
-                            router.push(`/creator/requests?highlight=${id}`)
-                          }}
-                          onReject={async (id) => {
-                            markAsRead([id])
-                            router.push(`/creator/requests?highlight=${id}`)
-                          }}
-                          onDismiss={(id) => markAsRead([id])}
-                          onClearAll={() => markAsRead()}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  
                   {/* Desktop Collapse Button */}
                   <Button
                     variant="ghost"
@@ -246,14 +199,6 @@ export default function CreatorLayout({ children }: CreatorLayoutProps) {
                   </Button>
                 </div>
               </div>
-              
-              {/* Connection Status */}
-              {isConnected && !isSidebarCollapsed && (
-                <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
-                  <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
-                  <span>Live Updates Active</span>
-                </div>
-              )}
             </div>
 
             {/* Navigation */}

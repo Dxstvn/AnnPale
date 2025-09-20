@@ -60,10 +60,11 @@ export default function CreatorHeroSection({
           src={coverImage}
           alt={`${name} cover`}
           fill
-          className="object-cover opacity-50"
+          className="object-cover"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+      {/* Subtle overlay only at bottom for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

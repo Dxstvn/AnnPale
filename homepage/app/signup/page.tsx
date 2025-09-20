@@ -13,9 +13,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Star, Users, Video, DollarSign, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useSupabaseAuth } from "@/contexts/supabase-auth-context"
+import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { useToast } from "@/components/ui/use-toast"
 
 // Password validation helper
@@ -29,6 +29,7 @@ const validatePassword = (password: string): string | null => {
 }
 
 export default function SignUpPage() {
+  const [returnTo, setReturnTo] = useState<string | null>(null)
   const [customerForm, setCustomerForm] = useState({
     firstName: "",
     lastName: "",
@@ -55,6 +56,17 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("customer")
+
+  // Extract returnTo parameter from URL on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const returnToParam = urlParams.get('returnTo')
+      if (returnToParam) {
+        setReturnTo(returnToParam)
+      }
+    }
+  }, [])
   
   const { signup, loginWithProvider } = useSupabaseAuth()
   const { toast } = useToast()
@@ -115,7 +127,14 @@ export default function SignUpPage() {
           description: "Your account has been created successfully.",
           variant: "success"
         })
-        router.push('/fan/dashboard')
+        // Redirect to returnTo URL if present, otherwise to fan home
+        if (returnTo) {
+          // Decode the URL in case it contains encoded query parameters
+          const decodedUrl = decodeURIComponent(returnTo)
+          router.push(decodedUrl)
+        } else {
+          router.push('/fan/home')
+        }
       }
     } catch (error) {
       console.error('Signup error:', error)
@@ -204,7 +223,12 @@ export default function SignUpPage() {
           description: "Your creator application has been submitted for review.",
           variant: "success"
         })
-        router.push('/creator/dashboard')
+        // Redirect to returnTo URL if present, otherwise to dashboard
+        if (returnTo) {
+          router.push(returnTo)
+        } else {
+          router.push('/creator/dashboard')
+        }
       }
     } catch (error) {
       console.error('Signup error:', error)
@@ -221,9 +245,9 @@ export default function SignUpPage() {
   const handleOAuthSignup = async (provider: 'google' | 'twitter') => {
     setOauthLoading(provider)
     try {
-      // Pass the role based on which tab is active
+      // Pass the role based on which tab is active and include returnTo
       const role = activeTab === 'creator' ? 'creator' : 'fan'
-      await loginWithProvider(provider, { role })
+      await loginWithProvider(provider, { role, returnTo })
     } catch (error) {
       toast({
         title: "Signup failed",
@@ -315,7 +339,7 @@ export default function SignUpPage() {
             <div className="flex items-center space-x-4">
               <span className="text-gray-600">Already have an account?</span>
               <Button variant="ghost" asChild>
-                <Link href="/login">Log in</Link>
+                <Link href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>Log in</Link>
               </Button>
             </div>
           </div>

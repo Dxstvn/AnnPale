@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useSupabaseAuth } from '@/contexts/supabase-auth-context'
+import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 

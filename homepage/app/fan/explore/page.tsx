@@ -83,19 +83,10 @@ export default function FanExplorePage() {
       
       // Fetch all creators (regardless of Stripe onboarding status)
       // This allows discovery of all creators, even those still setting up payments
+      // Using select('*') to ensure resilience to database schema changes
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          name,
-          email,
-          avatar_url,
-          bio,
-          created_at,
-          category,
-          stripe_charges_enabled,
-          stripe_payouts_enabled
-        `)
+        .select('*')
         .eq('role', 'creator')
         .order('name')
 
