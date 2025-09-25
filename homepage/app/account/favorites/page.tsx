@@ -7,10 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Heart, Search, Bell, BellOff, Star, Video, DollarSign } from "lucide-react"
 import Link from "next/link"
-import { useLanguage } from "@/contexts/language-context"
 
 export default function FavoritesPage() {
-  const { t } = useLanguage()
   const [notifications, setNotifications] = useState<{ [key: string]: boolean }>({
     "1": true,
     "2": false,

@@ -2,7 +2,6 @@
 
 import { Suspense, lazy } from "react"
 import dynamic from "next/dynamic"
-import { useLanguage } from "@/contexts/language-context"
 
 // Eagerly load above-fold components
 import HeroSection from "@/components/homepage/hero-section"
@@ -23,7 +22,6 @@ const SectionLoader = () => (
 )
 
 export default function HomePage() {
-  const { language } = useLanguage()
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@/lib/supabase/middleware'
+import createIntlMiddleware from 'next-intl/middleware'
+import { locales, defaultLocale, getLocaleFromCountry } from './i18n.config'
 
 // Define protected routes and their required roles
 const protectedRoutes = {
@@ -28,6 +30,17 @@ const publicRoutes = [
   '/test-auth-flow'
 ]
 
+// Simple locale detection - URL based only
+// Removing cookies and geolocation for simplicity
+
+// Create the intl middleware with enhanced configuration
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'always', // Always show locale in URL
+  localeDetection: true // Enable detection from cookies and headers
+})
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -40,6 +53,19 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.next()
   }
+
+  // Extract the locale from the pathname (if present)
+  const pathnameHasLocale = locales.some(
+    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  )
+
+  // Get the pathname without locale for route checking
+  const pathnameWithoutLocale = pathnameHasLocale
+    ? pathname.split('/').slice(2).join('/') || '/'
+    : pathname
+
+  // Let the intl middleware handle the root path redirect
+  // We don't need to manually redirect here as it causes conflicts
 
   // Create response to modify
   const response = NextResponse.next({
@@ -56,14 +82,14 @@ export async function middleware(request: NextRequest) {
   const { data: { user }, error } = await supabase.auth.getUser()
 
   // Log for debugging
-  console.log(`[Middleware] Path: ${pathname}, User: ${user ? user.id : 'none'}, Error: ${error?.message || 'none'}`)
+  console.log(`[Middleware] Path: ${pathname}, PathWithoutLocale: ${pathnameWithoutLocale}, User: ${user ? user.id : 'none'}, Error: ${error?.message || 'none'}`)
 
-  // Check if route requires authentication
+  // Check if route requires authentication (using path without locale)
   const isProtectedRoute = Object.keys(protectedRoutes).some(route =>
-    pathname.startsWith(route)
+    pathnameWithoutLocale.startsWith(route)
   )
-  const requiresAuth = isProtectedRoute || authRequiredRoutes.some(route => pathname.startsWith(route))
-  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
+  const requiresAuth = isProtectedRoute || authRequiredRoutes.some(route => pathnameWithoutLocale.startsWith(route))
+  const isPublicRoute = publicRoutes.some(route => pathnameWithoutLocale === route || pathnameWithoutLocale.startsWith(route + '/'))
 
   // If route requires auth and user is not authenticated
   if (requiresAuth && !user) {
@@ -74,7 +100,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check for authenticated users without profiles (handles ProfileRedirect functionality)
-  if (user && !isPublicRoute && pathname !== '/auth/role-selection') {
+  if (user && !isPublicRoute && pathnameWithoutLocale !== '/auth/role-selection') {
     // Get user's profile to check if they need role selection
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -91,16 +117,16 @@ export async function middleware(request: NextRequest) {
 
   // If user is authenticated and route has role requirements
   if (user && isProtectedRoute) {
-    // Find the matching protected route
+    // Find the matching protected route (using path without locale)
     const matchedRoute = Object.keys(protectedRoutes).find(route =>
-      pathname.startsWith(route)
+      pathnameWithoutLocale.startsWith(route)
     )
 
     if (matchedRoute) {
-      // Get user's role from the database (we know profile exists from earlier check)
+      // Get user's role AND is_creator flag from the database (we know profile exists from earlier check)
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, is_creator')
         .eq('id', user.id)
         .single()
 
@@ -113,8 +139,12 @@ export async function middleware(request: NextRequest) {
       const userRole = profile.role
       const allowedRoles = protectedRoutes[matchedRoute as keyof typeof protectedRoutes]
 
-      if (!allowedRoles.includes(userRole)) {
-        console.log(`[Middleware] Role mismatch: User role ${userRole} not in ${allowedRoles}`)
+      // Check if user has access based on role OR dual-role status
+      const hasAccess = allowedRoles.includes(userRole) ||
+        (matchedRoute.startsWith('/creator') && profile.is_creator === true)
+
+      if (!hasAccess) {
+        console.log(`[Middleware] Access denied: User role ${userRole}, is_creator: ${profile.is_creator}, required roles: ${allowedRoles}`)
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     }
@@ -130,13 +160,14 @@ export async function middleware(request: NextRequest) {
     }
 
     for (const [route, redirect] of Object.entries(livestreamRedirects)) {
-      if (pathname === route || pathname.startsWith(route + '/')) {
+      if (pathnameWithoutLocale === route || pathnameWithoutLocale.startsWith(route + '/')) {
         return NextResponse.redirect(new URL(redirect, request.url))
       }
     }
   }
 
-  return response
+  // Apply internationalization to the response
+  return intlMiddleware(request)
 }
 
 export const config = {

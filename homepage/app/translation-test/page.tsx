@@ -1,10 +1,8 @@
 "use client"
 
-import { useLanguage } from "@/contexts/language-context"
 import { getTranslation } from "@/lib/translations"
 
 export default function TranslationTestPage() {
-  const { language, setLanguage } = useLanguage()
 
   return (
     <div className="min-h-screen bg-white p-8">

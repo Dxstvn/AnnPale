@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { LanguageProvider } from "@/contexts/language-context"
 import { SupabaseAuthProvider } from "@/contexts/supabase-auth-compat"
 import { StripeStatusProvider } from "@/contexts/stripe-status-context"
 import { Toaster } from "@/components/ui/toaster"
@@ -28,18 +27,22 @@ export default async function RootLayout({
   const initialProfile = await getProfile()
 
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <LanguageProvider>
-          <SupabaseAuthProvider initialUser={initialUser} initialProfile={initialProfile}>
-            <StripeStatusProvider>
-              <NotificationProvider>
-                {children}
-                <Toaster />
-              </NotificationProvider>
-            </StripeStatusProvider>
-          </SupabaseAuthProvider>
-        </LanguageProvider>
+    <html suppressHydrationWarning>
+      <head>
+        <link rel="alternate" hrefLang="en" href="/en" />
+        <link rel="alternate" hrefLang="fr" href="/fr" />
+        <link rel="alternate" hrefLang="ht" href="/ht" />
+        <link rel="alternate" hrefLang="x-default" href="/en" />
+      </head>
+      <body className={inter.className} suppressHydrationWarning>
+        <SupabaseAuthProvider initialUser={initialUser} initialProfile={initialProfile}>
+          <StripeStatusProvider>
+            <NotificationProvider>
+              {children}
+              <Toaster />
+            </NotificationProvider>
+          </StripeStatusProvider>
+        </SupabaseAuthProvider>
       </body>
     </html>
   )

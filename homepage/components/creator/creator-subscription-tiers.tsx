@@ -453,13 +453,14 @@ export default function CreatorSubscriptionTiers({
         </div>
       ) : displayMode === 'grid' ? (
         /* Grid layout for non-modal contexts */
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4" data-testid="subscription-tiers-grid">
           {tiers.map((tier, index) => (
             <motion.div
               key={tier.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
+              data-testid={`subscription-tier-card-${index}`}
             >
               <Card className="relative h-full hover:shadow-xl transition-shadow" padding="none">
                 {index === 1 && tiers.length > 1 && (

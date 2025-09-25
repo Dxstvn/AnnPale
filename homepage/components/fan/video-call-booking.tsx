@@ -38,7 +38,7 @@ import {
   Heart
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useLanguage } from "@/contexts/language-context"
+import { useTranslations } from "next-intl"
 
 interface VideoCallBookingProps {
   creator: {
@@ -59,7 +59,7 @@ interface VideoCallBookingProps {
 }
 
 export function VideoCallBooking({ creator, onBookingComplete }: VideoCallBookingProps) {
-  const { language } = useLanguage()
+  const t = useTranslations('fan')
   const [selectedDuration, setSelectedDuration] = useState("5")
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [selectedTime, setSelectedTime] = useState<string>("")

@@ -1,0 +1,89 @@
+{
+  "dashboard": {
+    "title": "Tablo Kreyatè",
+    "welcome": "Byenveni ankò",
+    "overview": "Apèsi",
+    "videoRequests": "Demann Videyo",
+    "earnings": "Kòb ou fè",
+    "analytics": "Analitik",
+    "settings": "Paramèt",
+    "pendingRequests": "Demann k ap tann",
+    "completedVideos": "Videyo ki fini",
+    "totalEarnings": "Total kòb ou fè",
+    "thisMonth": "Mwa sa a",
+    "viewAll": "Gade tout"
+  },
+  "requests": {
+    "title": "Demann Videyo",
+    "pending": "K ap tann",
+    "inProgress": "Ap fèt",
+    "completed": "Fini",
+    "declined": "Refize",
+    "dueDate": "Dat limit",
+    "requestFrom": "Demann nan men",
+    "occasion": "Okazyon",
+    "instructions": "Enstriksyon",
+    "price": "Pri",
+    "accept": "Aksepte",
+    "decline": "Refize",
+    "uploadVideo": "Mete videyo a",
+    "sendVideo": "Voye videyo a",
+    "noRequests": "Pa gen demann videyo kounye a"
+  },
+  "profile": {
+    "title": "Pwofil Kreyatè",
+    "bio": "Biyografi",
+    "videoPrice": "Pri videyo",
+    "responseTime": "Tan pou reponn",
+    "categories": "Kategori",
+    "languages": "Lang ou pale",
+    "availability": "Disponibilite",
+    "socialLinks": "Lyen sosyal",
+    "updateProfile": "Mete pwofil ajou",
+    "profileUpdated": "Pwofil mete ajou avèk siksè"
+  },
+  "earnings": {
+    "title": "Kòb ou fè",
+    "available": "Balans ki disponib",
+    "pending": "K ap tann",
+    "totalEarned": "Total ou fè",
+    "withdraw": "Retire kòb",
+    "payoutHistory": "Istwa peman",
+    "earningsChart": "Kòb ou fè pandan tan",
+    "topEarningVideos": "Videyo ki fè plis kòb"
+  },
+  "onboarding": {
+    "title": "Konplete Pwofil Kreyatè ou",
+    "step1": "Enfòmasyon debaz",
+    "step2": "Fikse pri ou",
+    "step3": "Konfigire peman",
+    "step4": "Verifikasyon",
+    "continue": "Kontinye",
+    "back": "Retounen",
+    "finish": "Fini konfigirasyon"
+  },
+  "navigation": {
+    "dashboard": "Tablo jesyon",
+    "requests": "Demann yo",
+    "revenue": "Kòb nou fè",
+    "content": "Kontni",
+    "settings": "Paramèt yo"
+  },
+  "help": {
+    "dashboard": "Gade pèfòmans jeneral ou ak mezi enpòtan yo",
+    "requests": "Jere ak reponn a demann videyo",
+    "revenue": "Swiv kòb ou fè ak analiz finansye",
+    "content": "Jere videyo ou ak bibliyotèk kontni",
+    "settings": "Konfigire kont ou ak preferans"
+  },
+  "stats": {
+    "todaysEarnings": "Kòb jodi a",
+    "pendingRequests": "Demann k ap tann",
+    "responseRate": "To reponn"
+  },
+  "actions": {
+    "switching": "K ap chanje...",
+    "switchToFanPortal": "Chanje pou Portal Fan",
+    "switchToFanDescription": "Jwenn akè nan fonksyon fan ou yo epi explò kreyatè yo"
+  }
+}

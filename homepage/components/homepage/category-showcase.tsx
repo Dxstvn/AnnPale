@@ -18,8 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations/index"
+import { useTranslations } from "next-intl"
 
 interface Category {
   id: string
@@ -110,22 +109,25 @@ const baseCategoryData = [
 ]
 
 // Create translated categories
-function createTranslatedCategories(language: any): Category[] {
+function createTranslatedCategories(t: any): Category[] {
   return baseCategoryData.map(category => ({
     ...category,
-    name: getTranslation(`home.categories.${category.id}`, language),
-    description: getTranslation(`home.categories.${category.id}Desc`, language)
+    name: t(category.id),
+    description: t(`${category.id}Desc`) || t(category.id)
   }))
 }
 
 // Single Category Card
-function CategoryCard({ 
-  category, 
-  showDescription = true 
-}: { 
+function CategoryCard({
+  category,
+  showDescription = true
+}: {
   category: Category
-  showDescription?: boolean 
+  showDescription?: boolean
 }) {
+  const t = useTranslations('common.categories')
+  const tCreators = useTranslations('common.creators')
+
   return (
     <Link href={`/category/${category.id}`}>
       <motion.div
@@ -146,7 +148,7 @@ function CategoryCard({
           <h3 className="font-semibold text-lg mb-1 text-gray-900 group-hover:text-purple-600 transition-colors">
             {category.name}
           </h3>
-          
+
           {showDescription && (
             <p className="text-sm text-gray-600 mb-3">
               {category.description}
@@ -155,7 +157,7 @@ function CategoryCard({
 
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-white text-gray-700 border-gray-200">
-              {category.count} creators
+              {category.count} {t('creatorsCount')}
             </span>
             <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
           </div>
@@ -170,7 +172,7 @@ function CategoryCard({
                   className="w-8 h-8 rounded-full object-cover"
                 />
                 <p className="text-xs text-gray-600">
-                  feat. {category.featured.name}
+                  {tCreators('featuredPrefix')} {category.featured.name}
                 </p>
               </div>
             </div>
@@ -210,10 +212,10 @@ export function CategoryShowcase({
   showDescription = true,
   className
 }: CategoryShowcaseProps) {
-  const { language } = useLanguage()
-  
+  const t = useTranslations('common.categories')
+
   // Use translated categories if none provided
-  const displayCategories = categories || createTranslatedCategories(language)
+  const displayCategories = categories || createTranslatedCategories(t)
   const container = {
     hidden: { opacity: 0 },
     show: {

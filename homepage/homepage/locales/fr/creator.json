@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "Tableau de bord créateur",
+    "welcome": "Bon retour, {{name}} !",
+    "overview": "Aperçu",
+    "requests": "Demandes de vidéo",
+    "earnings": "Gains",
+    "analytics": "Analyses",
+    "settings": "Paramètres"
+  },
+  "profile": {
+    "title": "Profil créateur",
+    "displayName": "Nom d'affichage",
+    "bio": "Biographie",
+    "category": "Catégorie",
+    "pricing": "Prix de la vidéo",
+    "deliveryTime": "Délai de livraison",
+    "languages": "Langues",
+    "saveProfile": "Enregistrer le profil",
+    "profilePicture": "Photo de profil",
+    "coverImage": "Image de couverture"
+  },
+  "requests": {
+    "title": "Demandes de vidéo",
+    "pending": "En attente",
+    "inProgress": "En cours",
+    "completed": "Terminé",
+    "noRequests": "Aucune demande pour le moment",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "deliver": "Livrer la vidéo",
+    "requestDetails": "Détails de la demande"
+  },
+  "analytics": {
+    "title": "Analyses",
+    "totalEarnings": "Gains totaux",
+    "videosCompleted": "Vidéos terminées",
+    "averageRating": "Note moyenne",
+    "responseTime": "Temps de réponse",
+    "thisMonth": "Ce mois",
+    "lastMonth": "Le mois dernier"
+  },
+  "categories": {
+    "music": "Musique",
+    "comedy": "Comédie",
+    "entertainment": "Divertissement",
+    "sports": "Sports",
+    "education": "Éducation",
+    "lifestyle": "Style de vie",
+    "business": "Affaires",
+    "other": "Autre"
+  }
+}

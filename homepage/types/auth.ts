@@ -21,6 +21,10 @@ export interface UserProfile {
   phone?: string
   location?: string
   language_preference?: 'en' | 'fr' | 'ht'
+  // Dual role fields
+  is_creator?: boolean
+  creator_activated_at?: string
+  current_mode?: 'fan' | 'creator'
   // Stripe integration fields
   stripe_account_id?: string
   stripe_charges_enabled?: boolean

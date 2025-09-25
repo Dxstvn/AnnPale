@@ -1,0 +1,60 @@
+{
+  "browse": {
+    "title": "Gade kreyatè yo",
+    "searchPlaceholder": "Chèche kreyatè yo...",
+    "filters": "Filtè yo",
+    "category": "Kategori",
+    "priceRange": "Ran pri",
+    "deliveryTime": "Tan livrezon",
+    "rating": "Nòt",
+    "language": "Lang",
+    "clearFilters": "Efase filtè yo",
+    "noResults": "Pa gen kreyatè yo jwenn",
+    "loadMore": "Chaje plis"
+  },
+  "creator": {
+    "profile": "Pwofil kreyatè a",
+    "about": "Konsènan",
+    "reviews": "Kòmantè yo",
+    "requestVideo": "Mande yon videyo",
+    "price": "Pri",
+    "deliveryTime": "Tan livrezon",
+    "rating": "Nòt",
+    "languages": "Lang yo",
+    "responseTime": "Tan reponn"
+  },
+  "booking": {
+    "title": "Mande yon videyo",
+    "occasion": "Ki okazyon an ye?",
+    "recipient": "Pou ki moun li ye?",
+    "instructions": "Enstriksyon espesyal yo",
+    "occasionPlaceholder": "Fèt, anivèsè, felisitasyon...",
+    "recipientPlaceholder": "Di nou sou moun k ap resevwa a",
+    "instructionsPlaceholder": "Demann espesyal oswa detay yo...",
+    "deliveryDate": "Dat livrezon",
+    "urgent": "Livrezon rapid",
+    "total": "Total",
+    "submitRequest": "Soumèt demann nan"
+  },
+  "orders": {
+    "title": "Kòmand mwen yo",
+    "pending": "Y ap tann",
+    "inProgress": "Y ap fèt",
+    "completed": "Fini",
+    "cancelled": "Anile",
+    "noOrders": "Pa gen kòmand pou kounye a",
+    "orderDetails": "Detay kòmand nan",
+    "downloadVideo": "Telechaje videyo a",
+    "shareVideo": "Pataje videyo a",
+    "leaveReview": "Kite yon kòmantè"
+  },
+  "subscriptions": {
+    "title": "Abònman mwen yo",
+    "active": "Aktif",
+    "expired": "Ekspiré",
+    "noSubscriptions": "Pa gen abònman pou kounye a",
+    "renewSubscription": "Renouvèle",
+    "cancelSubscription": "Anile",
+    "subscriptionDetails": "Detay abònman an"
+  }
+}

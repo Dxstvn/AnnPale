@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { ensureFreshSession } from '@/lib/auth/session-manager'
 
 interface UseNotificationPollingOptions {
   creatorId: string
@@ -24,6 +25,15 @@ export function useNotificationPolling({
     if (!creatorId) return
 
     try {
+      // Ensure session is fresh before database query
+      const sessionValid = await ensureFreshSession(supabase)
+      if (!sessionValid) {
+        console.warn('[Polling] Session expired, skipping fetch')
+        setUnreadCount(0)
+        setIsLoading(false)
+        return
+      }
+
       // Query for unviewed video requests
       const { count, error } = await supabase
         .from('video_requests')
@@ -35,12 +45,25 @@ export function useNotificationPolling({
       if (!error && count !== null) {
         setUnreadCount(count)
       } else if (error) {
-        // Handle any database errors gracefully
-        console.error('Error fetching unread video requests:', error)
+        // Handle auth errors differently from other errors
+        if (error.message?.includes('JWT') || error.message?.includes('token')) {
+          console.warn('[Polling] Auth error, session may have expired')
+        } else {
+          console.error('Error fetching unread video requests:', error)
+        }
         setUnreadCount(0)
       }
-    } catch (err) {
-      console.error('Error in fetchUnreadCount:', err)
+    } catch (err: any) {
+      // Handle different error types gracefully
+      if (err?.message?.includes('Failed to fetch') || err?.message?.includes('NetworkError')) {
+        // Network errors are expected when offline
+        console.warn('[Polling] Network error - unable to fetch')
+      } else if (err?.message?.includes('JWT') || err?.message?.includes('token')) {
+        // Auth errors
+        console.warn('[Polling] Authentication error')
+      } else {
+        console.error('Error in fetchUnreadCount:', err)
+      }
       setUnreadCount(0)
     } finally {
       setIsLoading(false)
@@ -52,6 +75,13 @@ export function useNotificationPolling({
     if (!creatorId) return
 
     try {
+      // Ensure session is fresh before database update
+      const sessionValid = await ensureFreshSession(supabase)
+      if (!sessionValid) {
+        console.warn('[Polling] Session expired, cannot mark as viewed')
+        return
+      }
+
       const { error } = await supabase
         .from('video_requests')
         .update({ viewed_at: new Date().toISOString() })
@@ -60,13 +90,21 @@ export function useNotificationPolling({
         .filter('viewed_at', 'is', null)
 
       if (error) {
-        console.error('Error marking video requests as viewed:', error)
+        if (error.message?.includes('JWT') || error.message?.includes('token')) {
+          console.warn('[Polling] Auth error marking as viewed')
+        } else {
+          console.error('Error marking video requests as viewed:', error)
+        }
       } else {
         // Reset count after marking as viewed
         setUnreadCount(0)
       }
-    } catch (err) {
-      console.error('Error in markAsViewed:', err)
+    } catch (err: any) {
+      if (err?.message?.includes('JWT') || err?.message?.includes('token')) {
+        console.warn('[Polling] Auth error in markAsViewed')
+      } else {
+        console.error('Error in markAsViewed:', err)
+      }
     }
   }, [creatorId, supabase])
 

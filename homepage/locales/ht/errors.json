@@ -1,0 +1,52 @@
+{
+  "validation": {
+    "required": "Chan sa a obligatwa",
+    "email": "Tanpri antre yon adrès imèl ki valab",
+    "minLength": "Dwe gen omwen {{min}} karaktè",
+    "maxLength": "Pa dwe depase {{max}} karaktè",
+    "passwordMatch": "Modpas yo pa menm",
+    "invalidFormat": "Fòma envalid",
+    "numberOnly": "Tanpri antre chif sèlman",
+    "invalidDate": "Tanpri antre yon dat ki valab",
+    "futureDate": "Dat la dwe nan lavni",
+    "pastDate": "Dat la dwe nan pase"
+  },
+  "auth": {
+    "invalidCredentials": "Imèl oswa modpas envalid",
+    "accountExists": "Gen yon kont ki deja ekziste ak imèl sa a",
+    "accountNotFound": "Pa jwenn okenn kont ak imèl sa a",
+    "sessionExpired": "Sesyon ou an ekspire. Tanpri konekte ankò",
+    "unauthorized": "Ou pa otorize pou aksede paj sa a",
+    "emailNotVerified": "Tanpri verifye adrès imèl ou",
+    "tooManyAttempts": "Twòp tantativ. Tanpri eseye ankò pita"
+  },
+  "payment": {
+    "cardDeclined": "Kat ou an te refize",
+    "insufficientFunds": "Lajan pa ase",
+    "invalidCard": "Enfòmasyon kat envalid",
+    "paymentFailed": "Peman an echwe. Tanpri eseye ankò",
+    "stripeError": "Erè nan pwosesis peman an",
+    "refundFailed": "Ranbousman an pa t ka fèt"
+  },
+  "upload": {
+    "fileTooLarge": "Gwosè fichye a depase limit maksimòm",
+    "invalidFileType": "Tip fichye envalid",
+    "uploadFailed": "Telechajman echwe. Tanpri eseye ankò",
+    "videoTooLong": "Videyo a depase dire maksimòm",
+    "videoTooShort": "Videyo a twò kout"
+  },
+  "network": {
+    "offline": "Ou sanble pa gen koneksyon",
+    "slowConnection": "Koneksyon lan",
+    "requestTimeout": "Demann lan ekspire",
+    "serverError": "Erè sèvè. Tanpri eseye ankò pita",
+    "connectionLost": "Koneksyon pèdi. Ap rekonekte..."
+  },
+  "general": {
+    "somethingWentWrong": "Gen yon bagay ki mal pase",
+    "tryAgain": "Tanpri eseye ankò",
+    "notFound": "Paj pa jwenn",
+    "accessDenied": "Aksè refize",
+    "maintenance": "Sit la anba antretyen"
+  }
+}

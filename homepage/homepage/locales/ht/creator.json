@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "Tablo jesyon kreyatè a",
+    "welcome": "Bon retou, {{name}}!",
+    "overview": "Apèsi",
+    "requests": "Demann videyo yo",
+    "earnings": "Benefis yo",
+    "analytics": "Analis yo",
+    "settings": "Paramèt yo"
+  },
+  "profile": {
+    "title": "Pwofil kreyatè a",
+    "displayName": "Non yo montre",
+    "bio": "Pwofil pèsonèl",
+    "category": "Kategori",
+    "pricing": "Pri videyo a",
+    "deliveryTime": "Tan livrezon",
+    "languages": "Lang yo",
+    "saveProfile": "Anrejistre pwofil la",
+    "profilePicture": "Foto pwofil",
+    "coverImage": "Imaj kouvèti a"
+  },
+  "requests": {
+    "title": "Demann videyo yo",
+    "pending": "Y ap tann",
+    "inProgress": "Y ap fèt",
+    "completed": "Fini",
+    "noRequests": "Pa gen demann pou kounye a",
+    "accept": "Aksepte",
+    "decline": "Refize",
+    "deliver": "Livre videyo a",
+    "requestDetails": "Detay demann nan"
+  },
+  "analytics": {
+    "title": "Analis yo",
+    "totalEarnings": "Total benefis yo",
+    "videosCompleted": "Videyo yo ki fini",
+    "averageRating": "Nòt mwayèn",
+    "responseTime": "Tan reponn",
+    "thisMonth": "Mwa sa a",
+    "lastMonth": "Mwa pase a"
+  },
+  "categories": {
+    "music": "Mizik",
+    "comedy": "Komedi",
+    "entertainment": "Divetismann",
+    "sports": "Espò",
+    "education": "Edikasyon",
+    "lifestyle": "Fason viv",
+    "business": "Biznis",
+    "other": "Lòt bagay"
+  }
+}

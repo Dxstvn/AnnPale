@@ -159,41 +159,92 @@ export function SubscriptionManagement() {
     }
   }
 
+  const handleUpdatePaymentMethod = async (subscription: Subscription) => {
+    try {
+      const response = await fetch('/api/stripe/subscriptions/payment-method', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: subscription.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to open payment settings')
+      }
+
+      if (data.url) {
+        // Redirect to Stripe Customer Portal
+        window.location.href = data.url
+      } else {
+        throw new Error('No payment portal URL received')
+      }
+    } catch (error) {
+      console.error('Error opening payment settings:', error)
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to open payment settings',
+        variant: 'destructive',
+      })
+    }
+  }
+
   const handleSubscriptionAction = async () => {
     if (!actionDialog.subscription || !actionDialog.type) return
 
     setProcessing(true)
     try {
-      const response = await fetch('/api/subscriptions/list', {
-        method: 'PATCH',
+      // Use the Stripe subscription management endpoint
+      const response = await fetch('/api/stripe/subscriptions/manage', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          subscriptionId: actionDialog.subscription.id,
-          action: actionDialog.type,
+          subscriptionOrderId: actionDialog.subscription.id,
+          action: actionDialog.type, // 'pause', 'resume', or 'cancel'
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to update subscription')
+        throw new Error(data.error || 'Failed to update subscription')
+      }
+
+      // Show appropriate success message
+      let message = ''
+      switch (actionDialog.type) {
+        case 'pause':
+          message = 'Subscription paused successfully. You will not be billed until you resume.'
+          break
+        case 'resume':
+          message = 'Subscription resumed successfully. Billing will continue normally.'
+          break
+        case 'cancel':
+          message = `Subscription cancelled. You'll have access until ${actionDialog.subscription.current_period_end ? formatDate(actionDialog.subscription.current_period_end) : 'the end of your billing period'}.`
+          break
       }
 
       toast({
         title: 'Success',
-        description: `Subscription ${actionDialog.type}d successfully`,
+        description: message,
       })
 
       // Reload subscriptions
       loadSubscriptions()
-      
+
       // Close dialog
       setActionDialog({ open: false, type: null, subscription: null })
     } catch (error) {
       console.error('Error updating subscription:', error)
       toast({
         title: 'Error',
-        description: 'Failed to update subscription',
+        description: error instanceof Error ? error.message : 'Failed to update subscription',
         variant: 'destructive',
       })
     } finally {
@@ -266,6 +317,7 @@ export function SubscriptionManagement() {
             <div
               key={subscription.id}
               className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+              data-testid="subscription-item"
             >
               <div className="flex items-center gap-4">
                 <Avatar className="h-12 w-12">
@@ -277,7 +329,9 @@ export function SubscriptionManagement() {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{subscription.creator.display_name}</p>
-                    {getStatusBadge(subscription.status)}
+                    <span data-testid={`subscription-status-${subscription.status}`}>
+                      {getStatusBadge(subscription.status)}
+                    </span>
                   </div>
                   <p className="text-sm text-gray-500">
                     {subscription.tier?.tier_name || 'Subscription'} • {formatCurrency(subscription.tier?.price || subscription.total_amount)}/{subscription.billing_period === 'yearly' ? 'year' : 'month'}
@@ -307,7 +361,7 @@ export function SubscriptionManagement() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" data-testid="subscription-actions-menu">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -320,6 +374,7 @@ export function SubscriptionManagement() {
                             type: 'pause',
                             subscription
                           })}
+                          data-testid="pause-subscription-btn"
                         >
                           <Pause className="h-4 w-4 mr-2" />
                           Pause Subscription
@@ -335,6 +390,7 @@ export function SubscriptionManagement() {
                             type: 'resume',
                             subscription
                           })}
+                          data-testid="resume-subscription-btn"
                         >
                           <Play className="h-4 w-4 mr-2" />
                           Resume Subscription
@@ -350,12 +406,16 @@ export function SubscriptionManagement() {
                           type: 'cancel',
                           subscription
                         })}
+                        data-testid="cancel-subscription-btn"
                       >
                         <XCircle className="h-4 w-4 mr-2" />
                         Cancel Subscription
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleUpdatePaymentMethod(subscription)}
+                      data-testid="update-payment-btn"
+                    >
                       <CreditCard className="h-4 w-4 mr-2" />
                       Update Payment Method
                     </DropdownMenuItem>
@@ -407,6 +467,7 @@ export function SubscriptionManagement() {
               variant="outline"
               onClick={() => setActionDialog({ open: false, type: null, subscription: null })}
               disabled={processing}
+              data-testid="dialog-cancel-btn"
             >
               Cancel
             </Button>
@@ -414,6 +475,7 @@ export function SubscriptionManagement() {
               variant={actionDialog.type === 'cancel' ? 'destructive' : 'default'}
               onClick={handleSubscriptionAction}
               disabled={processing}
+              data-testid="dialog-confirm-btn"
             >
               {processing ? (
                 <>

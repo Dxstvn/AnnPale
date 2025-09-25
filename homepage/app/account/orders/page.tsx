@@ -26,7 +26,6 @@ import {
   RefreshCw
 } from "lucide-react"
 import { format } from "date-fns"
-import { useLanguage } from "@/contexts/language-context"
 
 interface Order {
   id: string
@@ -80,7 +79,6 @@ const statusConfig = {
 
 export default function OrdersPage() {
   const router = useRouter()
-  const { language } = useLanguage()
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [searchQuery, setSearchQuery] = useState("")

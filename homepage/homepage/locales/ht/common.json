@@ -1,0 +1,54 @@
+{
+  "navigation": {
+    "home": "Lakay",
+    "browse": "Gade",
+    "howItWorks": "Ki jan li fonksyone",
+    "forCreators": "Pou kreyatè yo",
+    "signIn": "Konekte",
+    "joinNow": "Rantre kounye a",
+    "logout": "Dekonekte",
+    "dashboard": "Tablo jesyon an",
+    "settings": "Paramèt yo",
+    "profile": "Pwofil"
+  },
+  "hero": {
+    "badge": "Nouvo: Difizyon nan direktè disponib kounye a!",
+    "title": "Konekte ak kreyatè ayisyen yo ou renmen yo",
+    "subtitle": "Bati koneksyon ki dire ak videyo pèsonalize ak kontni eksklizif",
+    "searchPlaceholder": "Chèche kreyatè yo...",
+    "searchButton": "Chèche"
+  },
+  "stats": {
+    "activeCreators": "Kreyatè yo ki aktif",
+    "videosDelivered": "Videyo yo ki livre",
+    "happyCustomers": "Klyan yo ki kontan",
+    "countries": "Peyi yo"
+  },
+  "buttons": {
+    "getStarted": "Kòmanse",
+    "learnMore": "Aprann plis",
+    "viewAll": "Gade yo tout",
+    "cancel": "Anile",
+    "save": "Anrejistre",
+    "edit": "Modifye",
+    "delete": "Efase",
+    "confirm": "Konfime",
+    "back": "Retounen",
+    "next": "Pwochen",
+    "submit": "Soumèt",
+    "close": "Fèmen"
+  },
+  "status": {
+    "loading": "Y ap chaje...",
+    "error": "Erè",
+    "success": "Siksè",
+    "pending": "Y ap tann",
+    "completed": "Fini",
+    "cancelled": "Anile"
+  },
+  "languages": {
+    "english": "Anglè",
+    "french": "Fransè",
+    "creole": "Kreyòl Ayisyen"
+  }
+}

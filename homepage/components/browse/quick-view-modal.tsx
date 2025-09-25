@@ -37,6 +37,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { VideoOrderModal } from "@/components/video/VideoOrderModal"
+import { VideoPlayerModal } from "./video-player-modal"
 import type { EnhancedCreator } from "./enhanced-creator-card"
 
 interface QuickViewModalProps {
@@ -69,29 +70,45 @@ export function QuickViewModal({
   isFavorited = false
 }: QuickViewModalProps) {
   const [activeTab, setActiveTab] = React.useState("overview")
-  const [videoPlaying, setVideoPlaying] = React.useState(false)
   const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
-  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [previewVideos, setPreviewVideos] = React.useState<any[]>([])
+  const [loadingVideos, setLoadingVideos] = React.useState(false)
+  const [selectedVideo, setSelectedVideo] = React.useState<any>(null)
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = React.useState(false)
   const router = useRouter()
   const { isAuthenticated } = useSupabaseAuth()
 
-  // Reset tab when creator changes
+  // Reset tab and fetch preview videos when creator changes
   React.useEffect(() => {
     setActiveTab("overview")
-    setVideoPlaying(false)
+    if (creator?.id) {
+      fetchPreviewVideos(creator.id)
+    }
   }, [creator?.id])
+
+  const fetchPreviewVideos = async (creatorId: string) => {
+    setLoadingVideos(true)
+    try {
+      const response = await fetch(`/api/public/creator-previews/${creatorId}`)
+      if (response.ok) {
+        const videos = await response.json()
+        setPreviewVideos(videos)
+      } else {
+        setPreviewVideos([])
+      }
+    } catch (error) {
+      console.error('Failed to fetch preview videos:', error)
+      setPreviewVideos([])
+    } finally {
+      setLoadingVideos(false)
+    }
+  }
 
   if (!creator) return null
 
-  const handleVideoToggle = () => {
-    if (videoRef.current) {
-      if (videoPlaying) {
-        videoRef.current.pause()
-      } else {
-        videoRef.current.play()
-      }
-      setVideoPlaying(!videoPlaying)
-    }
+  const handleVideoPlay = (video: any) => {
+    setSelectedVideo(video)
+    setIsVideoPlayerOpen(true)
   }
 
   const handleBookNow = () => {
@@ -107,7 +124,7 @@ export function QuickViewModal({
     }
   }
 
-  // Mock data for demonstration
+  // Mock data for reviews
   const mockReviews = [
     {
       id: "1",
@@ -130,12 +147,6 @@ export function QuickViewModal({
       date: "2 weeks ago",
       text: "Good service, delivered on time."
     }
-  ]
-
-  const mockVideos = [
-    { id: "1", thumbnail: creator.coverImage, title: "Birthday Wishes", views: 1234 },
-    { id: "2", thumbnail: creator.avatar, title: "Anniversary Message", views: 987 },
-    { id: "3", thumbnail: creator.coverImage, title: "Congratulations", views: 654 }
   ]
 
   return (
@@ -340,25 +351,67 @@ export function QuickViewModal({
 
             {/* Videos Tab */}
             <TabsContent value="videos" className="px-6 pb-6">
-              <div className="grid grid-cols-3 gap-4">
-                {mockVideos.map((video) => (
-                  <div key={video.id} className="space-y-2">
-                    <div className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden group cursor-pointer">
-                      <img
-                        src={video.thumbnail}
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                        <Play className="h-8 w-8 text-white" />
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Play className="h-5 w-5 text-purple-600" />
+                  Sample Videos
+                </h3>
+
+                {loadingVideos ? (
+                  <div className="grid grid-cols-3 gap-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                       </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium truncate">{video.title}</p>
-                      <p className="text-xs text-gray-500">{video.views} views</p>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                ) : previewVideos.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-4">
+                    {previewVideos.map((video) => (
+                      <div key={video.id} className="space-y-2">
+                        <div
+                          className="relative aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden group cursor-pointer"
+                          onClick={() => handleVideoPlay(video)}
+                        >
+                          {video.thumbnail_url ? (
+                            <img
+                              src={video.thumbnail_url}
+                              alt={video.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900" />
+                          )}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                              <Play className="h-6 w-6 text-purple-600 ml-1" />
+                            </div>
+                          </div>
+                          {video.duration && (
+                            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                              {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium truncate">{video.title}</p>
+                          {video.occasion && (
+                            <p className="text-xs text-gray-500">{video.occasion}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Video className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-500">No preview videos available yet</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {creator.name} hasn't added any sample videos
+                    </p>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
@@ -439,6 +492,16 @@ export function QuickViewModal({
           }}
           open={isBookingModalOpen}
           onOpenChange={setIsBookingModalOpen}
+        />
+
+        {/* Video Player Modal */}
+        <VideoPlayerModal
+          isOpen={isVideoPlayerOpen}
+          onClose={() => {
+            setIsVideoPlayerOpen(false)
+            setSelectedVideo(null)
+          }}
+          video={selectedVideo}
         />
       </DialogContent>
     </Dialog>

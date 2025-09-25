@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -46,35 +47,35 @@ interface FilterSidebarProps {
 }
 
 const categories = [
-  { id: "musician", label: "Musicians", count: 45, emoji: "🎵" },
-  { id: "singer", label: "Singers", count: 38, emoji: "🎤" },
-  { id: "comedian", label: "Comedians", count: 22, emoji: "😂" },
-  { id: "actor", label: "Actors", count: 18, emoji: "🎭" },
-  { id: "dj", label: "DJs", count: 24, emoji: "🎧" },
-  { id: "radio-host", label: "Radio Hosts", count: 12, emoji: "📻" },
-  { id: "influencer", label: "Influencers", count: 31, emoji: "📱" },
-  { id: "athlete", label: "Athletes", count: 15, emoji: "🏆" },
+  { id: "musician", labelKey: "musicians", count: 45, emoji: "🎵" },
+  { id: "singer", labelKey: "singers", count: 38, emoji: "🎤" },
+  { id: "comedian", labelKey: "comedians", count: 22, emoji: "😂" },
+  { id: "actor", labelKey: "actors", count: 18, emoji: "🎭" },
+  { id: "dj", labelKey: "dj", count: 24, emoji: "🎧" },
+  { id: "radio-host", labelKey: "radioHost", count: 12, emoji: "📻" },
+  { id: "influencer", labelKey: "influencers", count: 31, emoji: "📱" },
+  { id: "athlete", labelKey: "athletes", count: 15, emoji: "🏆" },
 ]
 
 const responseTimes = [
-  { id: "24hr", label: "24 hours", icon: "⚡" },
-  { id: "2days", label: "2 days", icon: "🚀" },
-  { id: "3days", label: "3 days", icon: "📅" },
-  { id: "1week", label: "1 week", icon: "📆" },
+  { id: "24hr", labelKey: "24hr", icon: "⚡" },
+  { id: "2days", labelKey: "2days", icon: "🚀" },
+  { id: "3days", labelKey: "3days", icon: "📅" },
+  { id: "1week", labelKey: "1week", icon: "📆" },
 ]
 
 const languages = [
-  { id: "english", label: "English", flag: "🇺🇸" },
-  { id: "french", label: "French", flag: "🇫🇷" },
-  { id: "kreyol", label: "Kreyòl", flag: "🇭🇹" },
-  { id: "spanish", label: "Spanish", flag: "🇪🇸" },
+  { id: "english", labelKey: "english", flag: "🇺🇸" },
+  { id: "french", labelKey: "french", flag: "🇫🇷" },
+  { id: "kreyol", labelKey: "creole", flag: "🇭🇹" },
+  { id: "spanish", labelKey: "spanish", flag: "🇪🇸" },
 ]
 
 const availabilityOptions = [
-  { id: "all", label: "All Creators" },
-  { id: "available", label: "Available Now" },
-  { id: "this-week", label: "This Week" },
-  { id: "this-month", label: "This Month" },
+  { id: "all", labelKey: "allCreators" },
+  { id: "available", labelKey: "availableNow" },
+  { id: "this-week", labelKey: "thisWeek" },
+  { id: "this-month", labelKey: "thisMonth" },
 ]
 
 export function FilterSidebar({
@@ -86,6 +87,11 @@ export function FilterSidebar({
   isMobile = false,
   onClose
 }: FilterSidebarProps) {
+  const tFilters = useTranslations('common.filters')
+  const tCategories = useTranslations('common.categories')
+  const tLanguages = useTranslations('common.languages')
+  const tAvailability = useTranslations('common.availability')
+  const tResponseTime = useTranslations('common.responseTimeOptions')
   const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>({
     categories: true,
     price: true,
@@ -149,7 +155,7 @@ export function FilterSidebar({
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
-            <h2 className="text-lg font-semibold">Filters</h2>
+            <h2 className="text-lg font-semibold">{tFilters('title')}</h2>
             {activeFiltersCount > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {activeFiltersCount}
@@ -171,7 +177,7 @@ export function FilterSidebar({
       {!isMobile && (
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Filters</h2>
+            <h2 className="text-lg font-semibold">{tFilters('title')}</h2>
             {activeFiltersCount > 0 && (
               <Button
                 variant="ghost"
@@ -180,13 +186,13 @@ export function FilterSidebar({
                 className="h-8 text-sm"
               >
                 <RotateCcw className="h-3 w-3 mr-1" />
-                Reset
+                {tFilters('reset')}
               </Button>
             )}
           </div>
           {totalResults > 0 && (
             <p className="text-sm text-gray-600">
-              {totalResults} creators found
+              {totalResults} {tFilters('creatorsFound')}
             </p>
           )}
         </div>
@@ -203,7 +209,7 @@ export function FilterSidebar({
               onClick={() => toggleSection("categories")}
               className="flex items-center justify-between w-full text-left mb-3"
             >
-              <h3 className="font-medium">Categories</h3>
+              <h3 className="font-medium">{tFilters('category')}</h3>
               {expandedSections.categories ? (
                 <ChevronUp className="h-4 w-4 text-gray-500" />
               ) : (
@@ -230,7 +236,7 @@ export function FilterSidebar({
                       />
                       <span className="text-sm flex-1">
                         <span className="mr-1">{category.emoji}</span>
-                        {category.label}
+                        {tCategories(category.labelKey)}
                       </span>
                       <span className="text-xs text-gray-500">
                         ({category.count})
@@ -252,7 +258,7 @@ export function FilterSidebar({
             >
               <h3 className="font-medium flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
-                Price Range
+                {tFilters('priceRange')}
               </h3>
               {expandedSections.price ? (
                 <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -302,7 +308,7 @@ export function FilterSidebar({
             >
               <h3 className="font-medium flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Response Time
+                {tFilters('responseTime')}
               </h3>
               {expandedSections.response ? (
                 <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -330,7 +336,7 @@ export function FilterSidebar({
                       />
                       <span className="text-sm flex-1">
                         <span className="mr-1">{time.icon}</span>
-                        {time.label}
+                        {tResponseTime(time.labelKey)}
                       </span>
                     </label>
                   ))}
@@ -349,7 +355,7 @@ export function FilterSidebar({
             >
               <h3 className="font-medium flex items-center gap-2">
                 <Globe className="h-4 w-4" />
-                Languages
+                {tFilters('languages')}
               </h3>
               {expandedSections.languages ? (
                 <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -377,7 +383,7 @@ export function FilterSidebar({
                       />
                       <span className="text-sm flex-1">
                         <span className="mr-1">{language.flag}</span>
-                        {language.label}
+                        {tLanguages(language.labelKey)}
                       </span>
                     </label>
                   ))}
@@ -396,7 +402,7 @@ export function FilterSidebar({
             >
               <h3 className="font-medium flex items-center gap-2">
                 <Star className="h-4 w-4" />
-                Minimum Rating
+                {tFilters('minimumRating')}
               </h3>
               {expandedSections.rating ? (
                 <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -425,11 +431,11 @@ export function FilterSidebar({
                         <RadioGroupItem value={rating.toString()} />
                         <span className="text-sm flex-1">
                           {rating === 0 ? (
-                            "Any rating"
+                            tFilters('anyRating')
                           ) : (
                             <div className="flex items-center gap-1">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span>{rating}+ stars</span>
+                              <span>{rating}{tFilters('starsPlus')}</span>
                             </div>
                           )}
                         </span>
@@ -451,7 +457,7 @@ export function FilterSidebar({
             >
               <h3 className="font-medium flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Availability
+                {tFilters('availability')}
               </h3>
               {expandedSections.availability ? (
                 <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -478,7 +484,7 @@ export function FilterSidebar({
                         className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition"
                       >
                         <RadioGroupItem value={option.id} />
-                        <span className="text-sm">{option.label}</span>
+                        <span className="text-sm">{tAvailability(option.labelKey)}</span>
                       </label>
                     ))}
                   </RadioGroup>
@@ -492,7 +498,7 @@ export function FilterSidebar({
           {/* Verified Only */}
           <div className="flex items-center justify-between p-2">
             <Label htmlFor="verified" className="text-sm font-medium cursor-pointer">
-              Verified Creators Only
+              {tFilters('verifiedCreatorsOnly')}
             </Label>
             <Switch
               id="verified"
@@ -512,13 +518,13 @@ export function FilterSidebar({
               className="flex-1"
               onClick={onReset}
             >
-              Reset
+              {tFilters('reset')}
             </Button>
             <Button
               className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               onClick={onClose}
             >
-              Show {totalResults} Results
+              {tFilters('showResults').replace('{count}', totalResults.toString())}
             </Button>
           </div>
         </div>

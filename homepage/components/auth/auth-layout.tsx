@@ -3,8 +3,7 @@
 import { ReactNode } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { Shield, Users, Star, CheckCircle, Globe, Sparkles } from "lucide-react"
 
@@ -15,7 +14,8 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ children, className, variant = "login" }: AuthLayoutProps) {
-  const { language } = useLanguage()
+  const t = useTranslations('auth')
+  const tNav = useTranslations('nav')
   
   // Trust signals data
   const trustSignals = [
@@ -28,19 +28,19 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
   // Testimonials
   const testimonials = [
     {
-      quote: "auth.testimonials.quote1",
+      quote: "testimonials.quote1",
       author: "Marie J.",
-      role: "auth.testimonials.role1"
+      role: "testimonials.role1"
     },
     {
-      quote: "auth.testimonials.quote2", 
+      quote: "testimonials.quote2",
       author: "Pierre L.",
-      role: "auth.testimonials.role2"
+      role: "testimonials.role2"
     },
     {
-      quote: "auth.testimonials.quote3",
-      author: "Sophia M.", 
-      role: "auth.testimonials.role3"
+      quote: "testimonials.quote3",
+      author: "Sophia M.",
+      role: "testimonials.role3"
     }
   ]
 
@@ -78,7 +78,7 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
                 <Users className="h-4 w-4" />
-                <span>{getTranslation("auth.socialProof", language, "Join 10,000+ happy users")}</span>
+                <span>{t('socialProof')}</span>
               </div>
             </motion.div>
 
@@ -102,7 +102,7 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
               {trustSignals.slice(0, 2).map((signal, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
                   <signal.icon className={cn("h-4 w-4", signal.color)} />
-                  <span>{getTranslation(`auth.trust.${signal.key}`, language)}</span>
+                  <span>{t(`trust.${signal.key}`)}</span>
                 </div>
               ))}
             </motion.div>
@@ -113,15 +113,15 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
         <footer className="p-6 lg:p-8">
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
             <Link href="/terms" className="hover:text-purple-600 transition">
-              {getTranslation("nav.terms", language)}
+              {tNav('terms')}
             </Link>
             <span className="text-gray-400">•</span>
             <Link href="/privacy" className="hover:text-purple-600 transition">
-              {getTranslation("nav.privacy", language)}
+              {tNav('privacy')}
             </Link>
             <span className="text-gray-400">•</span>
             <Link href="/help" className="hover:text-purple-600 transition">
-              {getTranslation("nav.help", language)}
+              {tNav('help')}
             </Link>
           </div>
         </footer>
@@ -191,7 +191,7 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
             transition={{ delay: 0.6 }}
             className="text-3xl lg:text-4xl font-bold text-center mb-6"
           >
-            {getTranslation(`auth.${variant}.hero.title`, language)}
+            {t(`${variant}.hero.title`)}
           </motion.h2>
 
           <motion.p
@@ -200,7 +200,7 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
             transition={{ delay: 0.7 }}
             className="text-lg text-center mb-12 max-w-md opacity-90"
           >
-            {getTranslation(`auth.${variant}.hero.subtitle`, language)}
+            {t(`${variant}.hero.subtitle`)}
           </motion.p>
 
           {/* Features */}
@@ -216,7 +216,7 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
                   <CheckCircle className="h-5 w-5" />
                 </div>
                 <span className="text-lg">
-                  {getTranslation(`auth.${variant}.features.${feature}`, language)}
+                  {t(`${variant}.features.${feature}`)}
                 </span>
               </div>
             ))}
@@ -235,14 +235,14 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
               ))}
             </div>
             <blockquote className="text-lg mb-3 italic">
-              "{getTranslation(currentTestimonial.quote, language)}"
+              "{t(currentTestimonial.quote)}"
             </blockquote>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-white/20" />
               <div>
                 <div className="font-semibold">{currentTestimonial.author}</div>
                 <div className="text-sm opacity-80">
-                  {getTranslation(currentTestimonial.role, language)}
+                  {t(currentTestimonial.role)}
                 </div>
               </div>
             </div>
@@ -256,7 +256,7 @@ export function AuthLayout({ children, className, variant = "login" }: AuthLayou
             className="mt-12 flex items-center gap-2 text-sm opacity-80"
           >
             <Shield className="h-4 w-4" />
-            <span>{getTranslation("auth.security.badge", language)}</span>
+            <span>{t('security.badge')}</span>
           </motion.div>
         </div>
 

@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useLanguage } from "@/contexts/language-context"
+import { useTranslations, useLocale } from "next-intl"
+import { usePathname, useRouter } from "next/navigation"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/navigation/user-menu"
@@ -13,8 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Globe, Menu, X, Home, Search, HelpCircle, Users, User, Settings, LogOut, LayoutDashboard, Sparkles, Package } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { LocalizedLink } from "@/components/navigation/localized-link"
 
 type Language = "en" | "fr" | "ht"
 
@@ -25,18 +25,46 @@ const languages: { code: Language; name: string; flag: string }[] = [
 ]
 
 export function LandingHeader() {
-  const { language, setLanguage } = useLanguage()
+  const t = useTranslations('common.navigation')
+  const tCommon = useTranslations('common.buttons')
+  const locale = useLocale()
   const { isAuthenticated, user, isLoading, logout } = useSupabaseAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const currentLanguage = languages.find((l) => l.code === language) || languages[0]
+  const currentLanguage = languages.find((l) => l.code === locale) || languages[0]
+
+  // Function to switch locale
+  const switchLocale = (newLocale: Language) => {
+    // Set locale preference cookie before navigation
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`
+
+    const segments = pathname.split('/').filter(Boolean)
+
+    // Check if first segment is a locale
+    const isLocaleInPath = segments.length > 0 && ['en', 'fr', 'ht'].includes(segments[0])
+
+    let newPath: string
+    if (isLocaleInPath) {
+      // Replace existing locale
+      segments[0] = newLocale
+      newPath = `/${segments.join('/')}`
+    } else {
+      // Add locale to path
+      newPath = `/${newLocale}${pathname === '/' ? '' : pathname}`
+    }
+
+    // Force a hard navigation to ensure locale is properly updated
+    // This is necessary because Next.js needs to re-render with the new locale context
+    window.location.pathname = newPath
+  }
 
   const navLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/browse", label: "Browse", icon: Search },
-    { href: "/how-it-works", label: "How It Works", icon: HelpCircle },
-    { href: "/for-creators", label: "For Creators", icon: Users },
+    { href: "/", label: t('home'), icon: Home },
+    { href: "/browse", label: t('browse'), icon: Search },
+    { href: "/how-it-works", label: t('howItWorks'), icon: HelpCircle },
+    { href: "/for-creators", label: t('forCreators'), icon: Users },
   ]
 
   return (
@@ -45,7 +73,7 @@ export function LandingHeader() {
       
       <div className="container mx-auto flex h-20 items-center justify-between px-4 relative">
         {/* Logo with Icon */}
-        <Link href="/" className="flex items-center space-x-3 group">
+        <LocalizedLink href="/" className="flex items-center space-x-3 group">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
             <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
@@ -55,12 +83,12 @@ export function LandingHeader() {
           <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Ann Pale
           </span>
-        </Link>
+        </LocalizedLink>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
-            <Link
+            <LocalizedLink
               key={link.href}
               href={link.href}
               className="relative text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors group"
@@ -71,7 +99,7 @@ export function LandingHeader() {
               <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 transform origin-left transition-transform ${
                 pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
               }`} />
-            </Link>
+            </LocalizedLink>
           ))}
         </nav>
 
@@ -92,14 +120,14 @@ export function LandingHeader() {
               {languages.map((lang) => (
                 <DropdownMenuItem
                   key={lang.code}
-                  onClick={() => setLanguage(lang.code)}
+                  onClick={() => switchLocale(lang.code)}
                   className={`cursor-pointer hover:bg-purple-50 transition-all ${
-                    language === lang.code ? "bg-gradient-to-r from-purple-50 to-pink-50" : ""
+                    locale === lang.code ? "bg-gradient-to-r from-purple-50 to-pink-50" : ""
                   }`}
                 >
                   <span className="mr-2">{lang.flag}</span>
                   <span>{lang.name}</span>
-                  {language === lang.code && (
+                  {locale === lang.code && (
                     <span className="ml-auto text-purple-600">✓</span>
                   )}
                 </DropdownMenuItem>
@@ -111,39 +139,39 @@ export function LandingHeader() {
           {isLoading ? (
             // Show Sign In/Join Now buttons while loading
             <>
-              <Link href="/login">
-                <Button 
+              <LocalizedLink href="/login">
+                <Button
                   variant="outline"
                   className="border-purple-200 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 hover:shadow-md hover:translate-y-[-2px] transition-all"
                 >
-                  Sign In
+                  {t('signIn')}
                 </Button>
-              </Link>
-              <Link href="/signup">
+              </LocalizedLink>
+              <LocalizedLink href="/signup">
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Join Now
+                  {t('joinNow')}
                 </Button>
-              </Link>
+              </LocalizedLink>
             </>
           ) : isAuthenticated && user ? (
             <UserMenu />
           ) : (
             <>
-              <Link href="/login">
-                <Button 
+              <LocalizedLink href="/login">
+                <Button
                   variant="outline"
                   className="border-purple-200 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 hover:shadow-md hover:translate-y-[-2px] transition-all"
                 >
-                  Sign In
+                  {t('signIn')}
                 </Button>
-              </Link>
-              <Link href="/signup">
+              </LocalizedLink>
+              <LocalizedLink href="/signup">
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Join Now
+                  {t('joinNow')}
                 </Button>
-              </Link>
+              </LocalizedLink>
             </>
           )}
         </div>
@@ -161,14 +189,14 @@ export function LandingHeader() {
               {languages.map((lang) => (
                 <DropdownMenuItem
                   key={lang.code}
-                  onClick={() => setLanguage(lang.code)}
+                  onClick={() => switchLocale(lang.code)}
                   className={`cursor-pointer hover:bg-purple-50 transition-all ${
-                    language === lang.code ? "bg-gradient-to-r from-purple-50 to-pink-50" : ""
+                    locale === lang.code ? "bg-gradient-to-r from-purple-50 to-pink-50" : ""
                   }`}
                 >
                   <span className="mr-2">{lang.flag}</span>
                   <span>{lang.name}</span>
-                  {language === lang.code && (
+                  {locale === lang.code && (
                     <span className="ml-auto text-purple-600">✓</span>
                   )}
                 </DropdownMenuItem>
@@ -213,13 +241,13 @@ export function LandingHeader() {
                     const Icon = link.icon
                     const isActive = pathname === link.href
                     return (
-                      <Link
+                      <LocalizedLink
                         key={link.href}
                         href={link.href}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative overflow-hidden group ${
-                          isActive 
-                            ? "bg-gradient-to-r from-purple-50 to-pink-50 text-purple-600 font-medium" 
+                          isActive
+                            ? "bg-gradient-to-r from-purple-50 to-pink-50 text-purple-600 font-medium"
                             : "text-gray-700 hover:bg-gray-50 hover:text-purple-600"
                         }`}
                       >
@@ -230,7 +258,7 @@ export function LandingHeader() {
                         }`} />
                         <Icon className="h-5 w-5" />
                         <span className="text-base">{link.label}</span>
-                      </Link>
+                      </LocalizedLink>
                     )
                   })}
                 </nav>
@@ -256,7 +284,7 @@ export function LandingHeader() {
                     {/* Quick Actions */}
                     <div className="space-y-2">
                       {user?.role === 'creator' && (
-                        <Link
+                        <LocalizedLink
                           href="/creator/dashboard"
                           onClick={() => setMobileMenuOpen(false)}
                         >
@@ -264,10 +292,10 @@ export function LandingHeader() {
                             <LayoutDashboard className="h-4 w-4 mr-2" />
                             Creator Dashboard
                           </Button>
-                        </Link>
+                        </LocalizedLink>
                       )}
                       {user?.role === 'admin' && (
-                        <Link
+                        <LocalizedLink
                           href="/admin/dashboard"
                           onClick={() => setMobileMenuOpen(false)}
                         >
@@ -275,19 +303,19 @@ export function LandingHeader() {
                             <LayoutDashboard className="h-4 w-4 mr-2" />
                             Admin Dashboard
                           </Button>
-                        </Link>
+                        </LocalizedLink>
                       )}
-                      <Link
+                      <LocalizedLink
                         href="/fan/home"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block"
                       >
                         <Button variant="ghost" className="w-full justify-start hover:bg-purple-50 hover:text-purple-600">
                           <Home className="h-4 w-4 mr-3" />
-                          Home
+                          {t('home')}
                         </Button>
-                      </Link>
-                      <Link
+                      </LocalizedLink>
+                      <LocalizedLink
                         href="/fan/orders"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block"
@@ -296,17 +324,17 @@ export function LandingHeader() {
                           <Package className="h-4 w-4 mr-3" />
                           My Orders
                         </Button>
-                      </Link>
-                      <Link
+                      </LocalizedLink>
+                      <LocalizedLink
                         href="/fan/settings"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block"
                       >
                         <Button variant="ghost" className="w-full justify-start hover:bg-purple-50 hover:text-purple-600">
                           <Settings className="h-4 w-4 mr-3" />
-                          Settings
+                          {t('settings')}
                         </Button>
-                      </Link>
+                      </LocalizedLink>
                       <div className="h-px bg-gray-200 my-2" />
                       <Button
                         variant="ghost"
@@ -317,36 +345,36 @@ export function LandingHeader() {
                         }}
                       >
                         <LogOut className="h-4 w-4 mr-3" />
-                        Sign Out
+                        {t('logout')}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <Link
+                    <LocalizedLink
                       href="/login"
                       onClick={() => setMobileMenuOpen(false)}
                       className="block"
                     >
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="w-full border-purple-200 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 hover:shadow-md hover:translate-y-[-2px] transition-all"
                       >
-                        Sign In
+                        {t('signIn')}
                       </Button>
-                    </Link>
-                    <Link
+                    </LocalizedLink>
+                    <LocalizedLink
                       href="/signup"
                       onClick={() => setMobileMenuOpen(false)}
                       className="block"
                     >
-                      <Button 
+                      <Button
                         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all"
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
-                        Join Now
+                        {t('joinNow')}
                       </Button>
-                    </Link>
+                    </LocalizedLink>
                     <p className="text-center text-sm text-gray-500 mt-4">
                       Join thousands connecting with Haitian celebrities
                     </p>
@@ -356,17 +384,17 @@ export function LandingHeader() {
                 {/* Footer Section */}
                 <div className="mt-auto pt-6 border-t border-gray-200">
                   <div className="flex justify-center space-x-4 mb-4">
-                    <Link href="/help" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">
+                    <LocalizedLink href="/help" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">
                       Help
-                    </Link>
+                    </LocalizedLink>
                     <span className="text-gray-400">•</span>
-                    <Link href="/blog" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">
+                    <LocalizedLink href="/blog" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">
                       Blog
-                    </Link>
+                    </LocalizedLink>
                     <span className="text-gray-400">•</span>
-                    <Link href="/about" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">
+                    <LocalizedLink href="/about" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">
                       About
-                    </Link>
+                    </LocalizedLink>
                   </div>
                   <div className="flex justify-center space-x-2 text-2xl opacity-50">
                     <span>🇭🇹</span>

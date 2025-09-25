@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useLanguage } from "@/contexts/language-context"
+import { useTranslations } from "next-intl"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/navigation/user-menu"
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Globe, Menu, X, Home, Search, HelpCircle, Users, User, Settings, LogOut, LayoutDashboard, Sparkles, Package } from "lucide-react"
-import Link from "next/link"
+import { LocalizedLink } from "@/components/navigation/localized-link"
 import { usePathname } from "next/navigation"
 
 type Language = "en" | "fr" | "ht"
@@ -25,7 +25,8 @@ const languages: { code: Language; name: string; flag: string }[] = [
 ]
 
 export function Header() {
-  const { language, setLanguage } = useLanguage()
+  const t = useTranslations()
+  const [language, setLanguage] = useState<Language>("en")
   const { isAuthenticated, user } = useSupabaseAuth()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -45,7 +46,7 @@ export function Header() {
       
       <div className="container mx-auto flex h-20 items-center justify-between px-4 relative">
         {/* Logo with Icon */}
-        <Link href="/" className="flex items-center space-x-3 group">
+        <LocalizedLink href="/" className="flex items-center space-x-3 group">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
             <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
@@ -55,7 +56,7 @@ export function Header() {
           <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Ann Pale
           </span>
-        </Link>
+        </LocalizedLink>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">

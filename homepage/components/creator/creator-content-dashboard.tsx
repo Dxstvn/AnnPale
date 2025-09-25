@@ -70,7 +70,7 @@ import {
 import { PostInteractions } from "@/components/ui/post-interactions"
 import { useDropzone } from 'react-dropzone'
 import { format, formatDistanceToNow } from "date-fns"
-import { useLanguage } from "@/contexts/language-context"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { Post, PostFilters, SubscriptionTier } from "@/types/posts"
 import { PostCreationDialog } from "./post-creation-dialog"
@@ -80,62 +80,9 @@ interface CreatorContentDashboardProps {
   subscriptionTiers: SubscriptionTier[]
 }
 
-// Translations
-const contentTranslations: Record<string, Record<string, string>> = {
-  subscriber_content: {
-    en: "Subscriber Content",
-    fr: "Contenu abonné",
-    ht: "Kontni abonè"
-  },
-  manage_posts: {
-    en: "Create and manage posts for your subscribers",
-    fr: "Créez et gérez du contenu pour vos abonnés",
-    ht: "Kreye ak jere kontni pou abonè ou yo"
-  },
-  create_post: {
-    en: "Create Post",
-    fr: "Créer publication",
-    ht: "Kreye publikasyon"
-  },
-  all_posts: {
-    en: "All Posts",
-    fr: "Toutes publications",
-    ht: "Tout publikasyon"
-  },
-  categories: {
-    en: "Categories",
-    fr: "Catégories", 
-    ht: "Kategori"
-  },
-  search_posts: {
-    en: "Search posts...",
-    fr: "Rechercher publications...",
-    ht: "Chèche publikasyon..."
-  },
-  drag_drop_media: {
-    en: "Drag & drop media here, or click to browse",
-    fr: "Glissez et déposez du média ici, ou cliquez pour parcourir",
-    ht: "Trennen ak lage medya isit la, oswa klike pou navige"
-  },
-  bulk_actions: {
-    en: "Bulk Actions",
-    fr: "Actions en masse",
-    ht: "Aksyon an mas"
-  },
-  select_all: {
-    en: "Select All",
-    fr: "Tout sélectionner",
-    ht: "Chwazi tout"
-  },
-  delete_selected: {
-    en: "Delete Selected",
-    fr: "Supprimer la sélection",
-    ht: "Efase sa ou chwazi"
-  }
-}
 
 export function CreatorContentDashboard({ subscriptionTiers }: CreatorContentDashboardProps) {
-  const { language } = useLanguage()
+  const t = useTranslations('creator')
   const { user } = useSupabaseAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -158,9 +105,6 @@ export function CreatorContentDashboard({ subscriptionTiers }: CreatorContentDas
   const { toast } = useToast()
   const router = useRouter()
 
-  const t = (key: string) => {
-    return contentTranslations[key]?.[language] || contentTranslations[key]?.en || key
-  }
 
   // Load posts
   const loadPosts = async () => {

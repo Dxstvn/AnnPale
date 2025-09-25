@@ -4,8 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star, Quote } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations/index"
+import { useTranslations } from "next-intl"
 
 interface Testimonial {
   id: string
@@ -53,7 +52,7 @@ interface SocialProofProps {
 }
 
 export function SocialProof({ className, variant = "grid" }: SocialProofProps) {
-  const { language } = useLanguage()
+  const t = useTranslations('common')
   if (variant === "minimal") {
     return (
       <div className={cn("text-center", className)}>
@@ -72,7 +71,7 @@ export function SocialProof({ className, variant = "grid" }: SocialProofProps) {
     <div className={cn("", className)}>
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
-          {getTranslation("home.socialProof.title", language)}
+          What Our Community Says
         </h2>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Join thousands of happy fans and creators connecting through personalized videos

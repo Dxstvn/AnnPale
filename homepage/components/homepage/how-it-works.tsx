@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { 
-  Search, 
-  MessageSquare, 
-  Gift, 
+import {
+  Search,
+  MessageSquare,
+  Gift,
   Heart,
   ArrowRight,
   Play,
@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from "next-intl"
 
 interface Step {
   number: string
@@ -32,36 +33,39 @@ interface HowItWorksProps {
   className?: string
 }
 
-const steps: Step[] = [
-  {
-    number: "01",
-    icon: <Search className="h-6 w-6" />,
-    title: "Find Your Star",
-    description: "Browse our catalog of Haitian celebrities",
-    detail: "Search by name, category, or occasion. Filter by price, language, and response time to find the perfect creator for your needs."
-  },
-  {
-    number: "02",
-    icon: <MessageSquare className="h-6 w-6" />,
-    title: "Request a Video",
-    description: "Tell them what to say and who it's for",
-    detail: "Fill out a simple form with your instructions. Add personal details to make the message extra special. Choose your delivery date."
-  },
-  {
-    number: "03",
-    icon: <Gift className="h-6 w-6" />,
-    title: "Receive Your Video",
-    description: "Get your personalized video message",
-    detail: "Most videos are delivered within 3 days. Download in HD quality. Share directly to social media or send as a gift."
-  },
-  {
-    number: "04",
-    icon: <Heart className="h-6 w-6" />,
-    title: "Share the Joy",
-    description: "Make someone's day unforgettable",
-    detail: "Watch their reaction as they receive a personal message from their favorite star. Create memories that last a lifetime."
-  }
-]
+// Move steps array inside component to use translations
+function getSteps(t: any): Step[] {
+  return [
+    {
+      number: "01",
+      icon: <Search className="h-6 w-6" />,
+      title: t('step1Title'),
+      description: t('step1Desc'),
+      detail: t('step1Detail')
+    },
+    {
+      number: "02",
+      icon: <MessageSquare className="h-6 w-6" />,
+      title: t('step2Title'),
+      description: t('step2Desc'),
+      detail: t('step2Detail')
+    },
+    {
+      number: "03",
+      icon: <Gift className="h-6 w-6" />,
+      title: t('step3Title'),
+      description: t('step3Desc'),
+      detail: t('step3Detail')
+    },
+    {
+      number: "04",
+      icon: <Heart className="h-6 w-6" />,
+      title: t('step4Title'),
+      description: t('step4Desc'),
+      detail: t('step4Detail')
+    }
+  ]
+}
 
 // Default Step Card
 function StepCard({ step, index }: { step: Step; index: number }) {
@@ -172,7 +176,7 @@ function TimelineStep({ step, index, isLast }: { step: Step; index: number; isLa
 }
 
 // Video Section
-function VideoSection() {
+function VideoSection({ t }: { t: any }) {
   return (
     <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-purple-600 to-pink-600 p-1">
       <div className="relative bg-black rounded-xl overflow-hidden">
@@ -184,8 +188,8 @@ function VideoSection() {
           </button>
         </div>
         <div className="absolute bottom-4 left-4 text-white">
-          <p className="font-semibold">See How It Works</p>
-          <p className="text-sm opacity-90">2 minute video</p>
+          <p className="font-semibold">{t('videoTitle')}</p>
+          <p className="text-sm opacity-90">{t('videoDuration')}</p>
         </div>
       </div>
     </div>
@@ -198,6 +202,9 @@ export function HowItWorks({
   showVideo = false,
   className
 }: HowItWorksProps) {
+  const t = useTranslations('common.howItWorks')
+  const steps = getSteps(t)
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -214,20 +221,20 @@ export function HowItWorks({
       <div className="text-center mb-12">
         <Badge variant="outline" className="mb-4">
           <Zap className="h-3 w-3 mr-1" />
-          Simple Process
+          {t('badge')}
         </Badge>
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          How Ann Pale Works
+          {t('title')}
         </h2>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Get personalized video messages from your favorite Haitian celebrities in 4 simple steps
+          {t('subtitle')}
         </p>
       </div>
 
       {/* Video Section */}
       {showVideo && (
         <div className="max-w-3xl mx-auto mb-12">
-          <VideoSection />
+          <VideoSection t={t} />
         </div>
       )}
 
@@ -271,22 +278,22 @@ export function HowItWorks({
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
         <div className="flex items-center gap-3 justify-center">
           <Shield className="h-5 w-5 text-green-600" />
-          <span className="text-sm font-medium">100% Authentic Videos</span>
+          <span className="text-sm font-medium">{t('trustBadge1')}</span>
         </div>
         <div className="flex items-center gap-3 justify-center">
           <Clock className="h-5 w-5 text-blue-600" />
-          <span className="text-sm font-medium">3-Day Delivery</span>
+          <span className="text-sm font-medium">{t('trustBadge2')}</span>
         </div>
         <div className="flex items-center gap-3 justify-center">
           <CheckCircle className="h-5 w-5 text-purple-600" />
-          <span className="text-sm font-medium">Money-Back Guarantee</span>
+          <span className="text-sm font-medium">{t('trustBadge3')}</span>
         </div>
       </div>
 
       {/* CTA */}
       <div className="text-center mt-12">
         <Button size="lg" variant="primary">
-          Browse Creators
+          {t('ctaButton')}
           <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>

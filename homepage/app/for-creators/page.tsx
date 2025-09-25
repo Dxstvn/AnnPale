@@ -34,7 +34,6 @@ import {
   Gift,
   ChevronRight,
 } from 'lucide-react'
-import { useLanguage } from '@/contexts/language-context'
 import { cn } from '@/lib/utils'
 
 const translations = {
@@ -61,7 +60,6 @@ const translations = {
 }
 
 export default function ForCreatorsPage() {
-  const { language } = useLanguage()
   const [requestCount, setRequestCount] = useState([3])
   const [pricePerVideo, setPricePerVideo] = useState([50])
 

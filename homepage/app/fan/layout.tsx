@@ -3,10 +3,11 @@
 import { ReactNode, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -38,90 +39,38 @@ import {
   Users,
   Search
 } from "lucide-react"
-import { useLanguage } from "@/contexts/language-context"
 import { FEATURES } from "@/lib/feature-flags"
+import { LanguageSwitcher } from "@/components/navigation/language-switcher"
 
 interface CustomerLayoutProps {
   children: ReactNode
 }
 
-const navigation = [
-  { name: "Home", href: "/fan/home", icon: Home, helpKey: "home_help" },
-  { name: "Explore", href: "/fan/explore", icon: Search, helpKey: "explore_help", badge: "New" },
-  // Archived 2025-01-15: { name: "Favorites", href: "/fan/favorites", icon: Heart, helpKey: "favorites_help", badge: "3" },
-  // Archived 2025-01-15: { name: "Bookings", href: "/fan/bookings", icon: Video, helpKey: "bookings_help" },
-  // Archived 2025-01-15: { name: "Video Calls", href: "/fan/calls", icon: Phone, helpKey: "calls_help", badge: "New" },
+// Updated to use translation keys
+const getNavigation = (t: any) => [
+  { nameKey: "navigation.home", href: "/fan/home", icon: Home, helpKey: "help.home" },
+  { nameKey: "navigation.explore", href: "/fan/explore", icon: Search, helpKey: "help.explore", badge: "New" },
+  // Archived 2025-01-15: { nameKey: "navigation.favorites", href: "/fan/favorites", icon: Heart, helpKey: "help.favorites", badge: "3" },
+  // Archived 2025-01-15: { nameKey: "navigation.bookings", href: "/fan/bookings", icon: Video, helpKey: "help.bookings" },
+  // Archived 2025-01-15: { nameKey: "navigation.videoCalls", href: "/fan/calls", icon: Phone, helpKey: "help.videoCalls", badge: "New" },
   // Conditionally include Live Streams based on feature flag
-  ...(FEATURES.LIVESTREAMING ? [{ name: "Live Streams", href: "/fan/livestreams", icon: Radio, helpKey: "livestreams_help" }] : []),
-  { name: "Orders", href: "/fan/orders", icon: Package, helpKey: "orders_help" },
-  // Archived 2025-01-15: { name: "Messages", href: "/fan/messages", icon: MessageSquare, helpKey: "messages_help", badge: "5" },
-  { name: "Settings", href: "/fan/settings", icon: Settings, helpKey: "settings_help" },
+  ...(FEATURES.LIVESTREAMING ? [{ nameKey: "navigation.liveStreams", href: "/fan/livestreams", icon: Radio, helpKey: "help.liveStreams" }] : []),
+  { nameKey: "navigation.orders", href: "/fan/orders", icon: Package, helpKey: "help.orders" },
+  // Archived 2025-01-15: { nameKey: "navigation.messages", href: "/fan/messages", icon: MessageSquare, helpKey: "help.messages", badge: "5" },
+  { nameKey: "navigation.settings", href: "/fan/settings", icon: Settings, helpKey: "help.settings" },
 ]
 
-// Help tooltips in multiple languages
-const helpTooltips: Record<string, Record<string, string>> = {
-  home_help: {
-    en: "View your personalized feed and updates from creators",
-    fr: "Consultez votre fil personnalisé et les mises à jour des créateurs",
-    ht: "Gade fil pèsonalize ou ak mizajou kreyatè yo"
-  },
-  explore_help: {
-    en: "Discover new creators and browse subscription tiers",
-    fr: "Découvrez de nouveaux créateurs et parcourez les niveaux d'abonnement",
-    ht: "Dekouvri nouvo kreyatè ak navige nan nivo abònman yo"
-  },
-  subscriptions_help: {
-    en: "Manage your creator subscriptions and tier benefits",
-    fr: "Gérez vos abonnements aux créateurs et avantages par niveau",
-    ht: "Jere abònman kreyatè ou yo ak avantaj pa nivo"
-  },
-  favorites_help: {
-    en: "Manage your favorite creators and get notified of their activities",
-    fr: "Gérez vos créateurs favoris et soyez notifié de leurs activités",
-    ht: "Jere kreyatè pi renmen ou yo epi resevwa notifikasyon sou aktivite yo"
-  },
-  bookings_help: {
-    en: "View and manage your video message bookings",
-    fr: "Consultez et gérez vos réservations de messages vidéo",
-    ht: "Gade ak jere rezèvasyon mesaj videyo ou yo"
-  },
-  calls_help: {
-    en: "Schedule and join video calls with creators",
-    fr: "Planifiez et rejoignez des appels vidéo avec les créateurs",
-    ht: "Pwograme epi rantre nan apèl videyo ak kreyatè yo"
-  },
-  livestreams_help: {
-    en: "Browse and watch live streams from your favorite creators",
-    fr: "Parcourez et regardez les diffusions en direct de vos créateurs préférés",
-    ht: "Navige epi gade emisyon an dirèk kreyatè ou renmen yo"
-  },
-  orders_help: {
-    en: "Track your order history and download videos",
-    fr: "Suivez votre historique de commandes et téléchargez des vidéos",
-    ht: "Swiv istwa kòmand ou epi telechaje videyo"
-  },
-  messages_help: {
-    en: "Communicate with creators about your bookings",
-    fr: "Communiquez avec les créateurs à propos de vos réservations",
-    ht: "Kominike ak kreyatè yo sou rezèvasyon ou yo"
-  },
-  settings_help: {
-    en: "Configure your account preferences and notifications",
-    fr: "Configurez vos préférences de compte et notifications",
-    ht: "Konfigire preferans kont ou ak notifikasyon"
-  }
-}
+// Help tooltips now handled by next-intl
 
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
   const pathname = usePathname()
-  const { language } = useLanguage()
+  const t = useTranslations('fan')
+  const tCommon = useTranslations('common')
   const { logout } = useSupabaseAuth()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
-  const getHelpText = (helpKey: string) => {
-    return helpTooltips[helpKey]?.[language] || helpTooltips[helpKey]?.en || ""
-  }
+  const navigation = getNavigation(t)
 
   return (
     <TooltipProvider>
@@ -158,53 +107,64 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
           >
             {/* Sidebar Header */}
             <div className={cn(
-              "p-6 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50",
+              "p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50",
               isSidebarCollapsed && "lg:p-4"
             )}>
-              {!isSidebarCollapsed && (
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50" />
-                    <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
-                      <Sparkles className="h-5 w-5 text-white" />
+              <div className="flex items-center justify-between">
+                {!isSidebarCollapsed && (
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-50" />
+                      <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
+                        <Sparkles className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Ann Pale
+                      </h2>
+                      <p className="text-xs text-gray-600">{t('dashboard.title')}</p>
                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      Ann Pale
-                    </h2>
-                    <p className="text-xs text-gray-600">Fan Portal</p>
-                  </div>
-                </div>
-              )}
-              {isSidebarCollapsed && (
-                <div className="mx-auto bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
-                  <Sparkles className="h-5 w-5 text-white" />
-                </div>
-              )}
-              
-              {/* Desktop Collapse Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hidden lg:flex hover:bg-white/50"
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              >
-                {isSidebarCollapsed ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronLeft className="h-4 w-4" />
                 )}
-              </Button>
+                {isSidebarCollapsed && (
+                  <div className="mx-auto bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-xl">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                )}
+
+                {/* Desktop Collapse Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hidden lg:flex hover:bg-white/50"
+                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                >
+                  {isSidebarCollapsed ? (
+                    <ChevronRight className="h-4 w-4" />
+                  ) : (
+                    <ChevronLeft className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Language Switcher */}
+              {!isSidebarCollapsed && (
+                <div className="mt-4 flex justify-center">
+                  <LanguageSwitcher variant="minimal" align="center" />
+                </div>
+              )}
             </div>
 
             {/* Navigation */}
             <nav className="px-4 py-6 space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
-                
+                const itemName = t(item.nameKey)
+                const helpText = t(item.helpKey)
+
                 return (
-                  <Tooltip key={item.name} delayDuration={0}>
+                  <Tooltip key={item.nameKey} delayDuration={0}>
                     <TooltipTrigger asChild>
                       <Link
                         href={item.href}
@@ -221,55 +181,55 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                           "h-5 w-5 flex-shrink-0",
                           isActive && "text-purple-600"
                         )} />
-                        
+
                         {!isSidebarCollapsed && (
                           <>
-                            <span className="flex-1">{item.name}</span>
-                            
+                            <span className="flex-1">{itemName}</span>
+
                             {/* Badge */}
                             {item.badge && (
-                              <Badge 
+                              <Badge
                                 variant={item.badge === "New" ? "default" : "secondary"}
                                 className={cn(
                                   "ml-auto",
                                   item.badge === "New" && "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
                                 )}
                               >
-                                {item.badge}
+                                {item.badge === "New" ? tCommon('badges.new') : item.badge}
                               </Badge>
                             )}
-                            
+
                             {/* Help Icon with Tooltip */}
                             <Tooltip delayDuration={0}>
                               <TooltipTrigger asChild>
                                 <HelpCircle className="h-4 w-4 opacity-0 group-hover:opacity-50 transition-opacity" />
                               </TooltipTrigger>
                               <TooltipContent side="right" className="max-w-xs">
-                                <p className="text-sm">{getHelpText(item.helpKey)}</p>
+                                <p className="text-sm">{helpText}</p>
                               </TooltipContent>
                             </Tooltip>
                           </>
                         )}
-                        
+
                         {/* Active Indicator */}
                         {isActive && (
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-600 to-pink-600 rounded-r-full" />
                         )}
                       </Link>
                     </TooltipTrigger>
-                    
+
                     {/* Tooltip for collapsed sidebar */}
                     {isSidebarCollapsed && (
                       <TooltipContent side="right">
                         <div>
-                          <p className="font-medium">{item.name}</p>
+                          <p className="font-medium">{itemName}</p>
                           {item.badge && (
                             <Badge variant="secondary" className="mt-1">
-                              {item.badge}
+                              {item.badge === "New" ? tCommon('badges.new') : item.badge}
                             </Badge>
                           )}
                           <p className="text-xs text-gray-500 mt-1">
-                            {getHelpText(item.helpKey)}
+                            {helpText}
                           </p>
                         </div>
                       </TooltipContent>
@@ -286,14 +246,14 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600 flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      Next Call
+                      {t('stats.nextCall')}
                     </span>
                     <span className="font-semibold text-purple-600">2:00 PM</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600 flex items-center gap-2">
                       <Video className="h-4 w-4" />
-                      Pending Videos
+                      {t('stats.pendingVideos')}
                     </span>
                     <span className="font-semibold text-orange-600">3</span>
                   </div>
@@ -301,7 +261,7 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600 flex items-center gap-2">
                         <Radio className="h-4 w-4" />
-                        Live Now
+                        {t('stats.liveNow')}
                       </span>
                       <span className="font-semibold text-green-600">12</span>
                     </div>
@@ -312,7 +272,7 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:translate-y-[-2px] transition-all">
                     <Bell className="h-4 w-4 mr-2" />
-                    Notifications
+                    {t('stats.notifications')}
                     <Badge variant="secondary" className="ml-2 bg-white text-purple-600">
                       8
                     </Badge>
@@ -340,12 +300,12 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     )}
                   >
                     <LogOut className="h-5 w-5 flex-shrink-0" />
-                    {!isSidebarCollapsed && <span>Sign Out</span>}
+                    {!isSidebarCollapsed && <span>{tCommon('navigation.logout')}</span>}
                   </button>
                 </TooltipTrigger>
                 {isSidebarCollapsed && (
                   <TooltipContent side="right">
-                    <p>Sign Out</p>
+                    <p>{tCommon('navigation.logout')}</p>
                   </TooltipContent>
                 )}
               </Tooltip>

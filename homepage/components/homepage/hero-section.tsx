@@ -11,8 +11,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations/index"
+import { useTranslations } from "next-intl"
 
 interface HeroSectionProps {
   variant?: "default" | "video" | "carousel" | "split"
@@ -31,16 +30,17 @@ export function HeroSection({
   onSearch,
   className,
 }: HeroSectionProps) {
-  const { language } = useLanguage()
+  const t = useTranslations('common.hero')
+  const tButtons = useTranslations('common.buttons')
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [isVisible, setIsVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
-  
-  // Get translated content based on language
-  const defaultTitle = title || getTranslation('home.hero.title', language)
-  const defaultSubtitle = subtitle || getTranslation('home.hero.subtitle', language)
-  const defaultPlaceholder = searchPlaceholder || getTranslation('home.hero.searchPlaceholder', language)
+
+  // Get translated content
+  const defaultTitle = title || t('title')
+  const defaultSubtitle = subtitle || t('subtitle')
+  const defaultPlaceholder = searchPlaceholder || t('searchPlaceholder')
   
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 150])
@@ -152,7 +152,7 @@ export function HeroSection({
             <motion.div variants={itemVariants} className="mb-6">
               <Badge className="bg-white/20 text-white border-white/30 px-4 py-2">
                 <Sparkles className="h-3 w-3 mr-1" />
-                {getTranslation('homepage.badges.new', language)}: {getTranslation('homepage.features.live_streaming', language, 'Live streaming now available!')}
+                {t('badge')}
               </Badge>
             </motion.div>
 
@@ -184,7 +184,7 @@ export function HeroSection({
                     asChild
                   >
                     <Link href="/browse">
-                      {getTranslation('homepage.buttons.browse_creators', language)}
+                      {tButtons('viewAll')}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -195,7 +195,7 @@ export function HeroSection({
                     asChild
                   >
                     <Link href="/signup">
-                      {getTranslation('home.cta.becomeCreator', language)}
+                      {tButtons('getStarted')}
                       <Play className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -219,7 +219,7 @@ export function HeroSection({
                     size="lg"
                     className="h-14 px-8 bg-white text-purple-600 hover:bg-gray-100 shadow-xl"
                   >
-                    {getTranslation('common.search', language)}
+                    {t('searchButton')}
                   </Button>
                 </form>
               )}

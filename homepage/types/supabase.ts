@@ -243,6 +243,9 @@ export type Database = {
           video_turnaround_days: number | null
           is_available: boolean
           stripe_account_id: string | null
+          is_creator: boolean
+          creator_activated_at: string | null
+          current_mode: 'fan' | 'creator'
           created_at: string
           updated_at: string
         }
@@ -265,6 +268,9 @@ export type Database = {
           video_turnaround_days?: number | null
           is_available?: boolean
           stripe_account_id?: string | null
+          is_creator?: boolean
+          creator_activated_at?: string | null
+          current_mode?: 'fan' | 'creator'
           created_at?: string
           updated_at?: string
         }
@@ -287,6 +293,9 @@ export type Database = {
           video_turnaround_days?: number | null
           is_available?: boolean
           stripe_account_id?: string | null
+          is_creator?: boolean
+          creator_activated_at?: string | null
+          current_mode?: 'fan' | 'creator'
           created_at?: string
           updated_at?: string
         }

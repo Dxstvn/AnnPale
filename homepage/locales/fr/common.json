@@ -1,0 +1,316 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "browse": "Parcourir",
+    "howItWorks": "Comment ça marche",
+    "forCreators": "Pour les créateurs",
+    "signIn": "Se connecter",
+    "joinNow": "Rejoindre maintenant",
+    "logout": "Se déconnecter",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "profile": "Profil"
+  },
+  "hero": {
+    "title": "Connectez-vous avec vos créateurs haïtiens préférés",
+    "subtitle": "Créez des liens durables grâce à des vidéos personnalisées et du contenu exclusif",
+    "searchPlaceholder": "Rechercher des créateurs...",
+    "searchButton": "Rechercher",
+    "badge": "Nouveau : Diffusion en direct maintenant disponible !"
+  },
+  "featured": {
+    "title": "Créateurs en vedette",
+    "verified": "Vérifié",
+    "reviews": "avis"
+  },
+  "categories": {
+    "browseByCategory": "Parcourir par catégorie",
+    "musicians": "Musiciens",
+    "actors": "Acteurs",
+    "athletes": "Athlètes",
+    "comedians": "Comédiens",
+    "influencers": "Influenceurs",
+    "artists": "Artistes",
+    "creatorsCount": "créateurs",
+    "musician": "Musicien",
+    "comedian": "Comédien",
+    "actor": "Acteur",
+    "djProducer": "DJ/Producteur",
+    "singer": "Chanteur",
+    "singers": "Chanteurs",
+    "radioHost": "Animateur radio",
+    "dj": "DJ",
+    "music": "Musique",
+    "comedy": "Comédie",
+    "sports": "Sports",
+    "radio": "Radio",
+    "activists": "Activistes",
+    "musicDesc": "Musiciens et chanteurs talentueux",
+    "comedyDesc": "Comédiens et animateurs hilarants",
+    "actorsDesc": "Acteurs et artistes acclamés",
+    "sportsDesc": "Athlètes professionnels et figures sportives",
+    "influencersDesc": "Stars des réseaux sociaux et influenceurs",
+    "artistsDesc": "Artistes créatifs et créateurs visuels",
+    "radioDesc": "Animateurs radio et DJs populaires",
+    "activistsDesc": "Leaders communautaires et activistes"
+  },
+  "howItWorks": {
+    "title": "Comment Ann Pale fonctionne",
+    "browseAndBook": "Parcourir et réserver",
+    "browseAndBookDesc": "Choisissez votre créateur préféré et dites-lui ce que vous aimeriez qu'il dise",
+    "receiveVideo": "Recevez votre vidéo",
+    "receiveVideoDesc": "Recevez un message vidéo personnalisé livré directement dans votre boîte de réception",
+    "makeSomeoneSmile": "Faire sourire quelqu'un",
+    "makeSomeoneSmileDesc": "Partagez la joie avec des amis, la famille, ou gardez-la pour vous"
+  },
+  "cta": {
+    "readyToStart": "Prêt à commencer?",
+    "readyToStartDesc": "Rejoignez des milliers de clients satisfaits qui ont reçu des vidéos personnalisées incroyables",
+    "browseCreators": "Parcourir les créateurs",
+    "becomeCreator": "Devenir créateur"
+  },
+  "footer": {
+    "aboutAnnPale": "Connectez-vous avec vos créateurs haïtiens préférés grâce à des messages vidéo personnalisés.",
+    "company": "Entreprise",
+    "about": "À propos",
+    "careers": "Carrières",
+    "press": "Presse",
+    "blog": "Blog",
+    "support": "Support",
+    "helpCenter": "Centre d'aide",
+    "safety": "Sécurité",
+    "communityGuidelines": "Directives communautaires",
+    "contact": "Contact",
+    "legal": "Légal",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialité",
+    "cookiePolicy": "Politique des cookies",
+    "allRightsReserved": "Tous droits réservés"
+  },
+  "filters": {
+    "noCreatorsFound": "Aucun créateur trouvé",
+    "tryAdjustingFilters": "Essayez d'ajuster vos filtres ou votre recherche",
+    "clearFilters": "Effacer tous les filtres",
+    "showing": "Affichage de",
+    "results": "résultats"
+  },
+  "sort": {
+    "mostPopular": "Plus populaire",
+    "priceLowToHigh": "Prix: Bas à Élevé",
+    "priceHighToLow": "Prix: Élevé à Bas",
+    "highestRated": "Mieux notés",
+    "newest": "Plus récents"
+  },
+  "actions": {
+    "requestVideo": "Demander une vidéo",
+    "subscribe": "S'abonner",
+    "signUpToContinue": "Inscrivez-vous pour continuer",
+    "signUpToSubscribe": "Inscrivez-vous pour vous abonner"
+  },
+  "errors": {
+    "creatorNotFound": "Créateur non trouvé"
+  },
+  "buttons": {
+    "getStarted": "Commencer",
+    "learnMore": "En savoir plus",
+    "viewAll": "Voir tout",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "close": "Fermer"
+  },
+  "status": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "cancelled": "Annulé"
+  },
+  "languages": {
+    "english": "Anglais",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen",
+    "spanish": "Espagnol"
+  },
+  "howItWorks": {
+    "badge": "Processus simple",
+    "title": "Comment Ann Pale fonctionne",
+    "subtitle": "Recevez des messages vidéo personnalisés de vos célébrités haïtiennes préférées en 4 étapes simples",
+    "step1Title": "Trouvez votre star",
+    "step1Desc": "Parcourez notre catalogue de célébrités haïtiennes",
+    "step1Detail": "Recherchez par nom, catégorie ou occasion. Filtrez par prix, langue et temps de réponse pour trouver le créateur parfait pour vos besoins.",
+    "step2Title": "Demandez une vidéo",
+    "step2Desc": "Dites-leur quoi dire et pour qui c'est",
+    "step2Detail": "Remplissez un formulaire simple avec vos instructions. Ajoutez des détails personnels pour rendre le message encore plus spécial. Choisissez votre date de livraison.",
+    "step3Title": "Recevez votre vidéo",
+    "step3Desc": "Obtenez votre message vidéo personnalisé",
+    "step3Detail": "La plupart des vidéos sont livrées sous 3 jours. Téléchargez en qualité HD. Partagez directement sur les réseaux sociaux ou envoyez comme cadeau.",
+    "step4Title": "Partagez la joie",
+    "step4Desc": "Rendez la journée de quelqu'un inoubliable",
+    "step4Detail": "Regardez leur réaction lorsqu'ils reçoivent un message personnel de leur star préférée. Créez des souvenirs qui durent toute une vie.",
+    "videoTitle": "Voir comment ça marche",
+    "videoDuration": "vidéo de 2 minutes",
+    "trustBadge1": "100% vidéos authentiques",
+    "trustBadge2": "Livraison en 3 jours",
+    "trustBadge3": "Garantie de remboursement",
+    "browseCreators": "Parcourir les créateurs",
+    "ctaButton": "Parcourir les créateurs"
+  },
+  "cta": {
+    "creator": {
+      "title": "Êtes-vous un créateur haïtien?",
+      "subtitle": "Rejoignez des milliers de célébrités haïtiennes qui gagnent de l'argent en créant des messages vidéo personnalisés pour les fans du monde entier.",
+      "benefit1": "Définissez vos propres prix et horaires",
+      "benefit2": "Gardez 75% de vos gains",
+      "benefit3": "Connectez-vous avec des fans du monde entier",
+      "applyButton": "Postuler pour rejoindre",
+      "learnMoreButton": "En savoir plus",
+      "avgEarnings": "50K$+",
+      "avgEarningsLabel": "Gains annuels moyens",
+      "activeCreators": "500+",
+      "activeCreatorsLabel": "Créateurs actifs",
+      "satisfaction": "4.9",
+      "satisfactionLabel": "Satisfaction des créateurs",
+      "responseTime": "72h",
+      "responseTimeLabel": "Temps de réponse moyen"
+    },
+    "fan": {
+      "title": "Rendez la journée de quelqu'un spéciale",
+      "subtitle": "Recevez des messages vidéo personnalisés de vos célébrités haïtiennes préférées. Parfait pour les anniversaires, les anniversaires de mariage ou juste parce que!",
+      "browseButton": "Parcourir tous les créateurs",
+      "howItWorksButton": "Comment ça marche",
+      "trustBadge1": "✨ 100% vidéos authentiques",
+      "trustBadge2": "💰 Garantie de remboursement",
+      "trustBadge3": "⚡ Livraison en 3 jours"
+    },
+    "business": {
+      "title": "Ann Pale pour les entreprises",
+      "subtitle": "Engagez vos clients et employés avec des messages de célébrités personnalisés",
+      "feature1Title": "Reconnaissance des employés",
+      "feature1Desc": "Célébrez les étapes et les réalisations avec des mentions de célébrités",
+      "feature2Title": "Campagnes marketing",
+      "feature2Desc": "Augmentez l'engagement avec des soutiens authentiques de célébrités",
+      "feature3Title": "Cadeaux clients",
+      "feature3Desc": "Envoyez des cadeaux mémorables qui renforcent les relations",
+      "getStartedButton": "Commencer pour les entreprises"
+    },
+    "gift": {
+      "title": "Le cadeau parfait pour toute occasion",
+      "subtitle": "Surprenez quelqu'un de spécial avec un message vidéo personnalisé de leur célébrité haïtienne préférée. C'est unique, significatif et inoubliable!",
+      "sendGiftButton": "Envoyer un cadeau"
+    }
+  },
+  "creators": {
+    "bookNow": "Réserver maintenant",
+    "popular": "Populaire",
+    "fastResponse": "Réponse rapide",
+    "languages": "langues",
+    "responseTime24Hours": "24 heures",
+    "responseTime2Days": "2 jours",
+    "responseTime3Days": "3 jours",
+    "responseTime5Days": "5 jours",
+    "featuredPrefix": "avec"
+  },
+  "filters": {
+    "title": "Filtres",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "priceRange": "Gamme de prix",
+    "allPrices": "Tous les prix",
+    "languages": "Langue",
+    "allLanguages": "Toutes les langues",
+    "responseTime": "Temps de réponse",
+    "minimumRating": "Note minimale",
+    "availability": "Disponibilité",
+    "verifiedOnly": "Vérifiés uniquement",
+    "verifiedCreatorsOnly": "Créateurs vérifiés uniquement",
+    "reset": "Réinitialiser",
+    "clearAll": "Tout effacer",
+    "apply": "Appliquer",
+    "showResults": "Afficher {count} résultats",
+    "activeFilters": "Filtres actifs :",
+    "creatorsFound": "créateurs trouvés",
+    "anyRating": "Toute note",
+    "starsPlus": "+ étoiles"
+  },
+  "search": {
+    "placeholder": "Rechercher des créateurs...",
+    "button": "Rechercher",
+    "clear": "Effacer la recherche",
+    "results": "{count} créateurs trouvés",
+    "noResults": "Aucun créateur trouvé",
+    "tryAdjusting": "Essayez d'ajuster vos filtres ou termes de recherche",
+    "clearFilters": "Effacer tous les filtres",
+    "errorLoading": "Erreur lors du chargement des créateurs",
+    "tryAgain": "Réessayer"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "sur",
+    "showing": "Affichage",
+    "results": "résultats"
+  },
+  "browse": {
+    "title": "Parcourir les créateurs",
+    "subtitle": "Trouvez vos célébrités haïtiennes préférées et réservez des messages vidéo personnalisés",
+    "quickView": "Aperçu rapide",
+    "viewProfile": "Voir le profil",
+    "creator": "Créateur",
+    "creators": "Créateurs",
+    "found": "Trouvé",
+    "mostPopular": "Plus populaire",
+    "priceLowToHigh": "Prix : Bas à Élevé",
+    "priceHighToLow": "Prix : Élevé à Bas",
+    "highestRated": "Mieux notés",
+    "newest": "Plus récents",
+    "gridView": "Vue grille",
+    "listView": "Vue liste",
+    "compactView": "Vue compacte",
+    "removeSearchFilter": "Supprimer le filtre de recherche",
+    "removeCategoryFilter": "Supprimer le filtre de catégorie",
+    "removePriceFilter": "Supprimer le filtre de prix"
+  },
+  "availability": {
+    "allCreators": "Tous les créateurs",
+    "availableNow": "Disponible maintenant",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois-ci"
+  },
+  "responseTimeOptions": {
+    "24hr": "24 heures",
+    "2days": "2 jours",
+    "3days": "3 jours",
+    "1week": "1 semaine"
+  },
+  "badges": {
+    "new": "Nouveau"
+  },
+  "testimonials": {
+    "title": "Ce que dit notre communauté",
+    "subtitle": "Vraies histoires de fans et créateurs utilisant Ann Pale",
+    "watchVideo": "Regarder la vidéo",
+    "playVideo": "Lire la vidéo",
+    "from": "de",
+    "videoFrom": "Vidéo de",
+    "weeksAgo": "semaines",
+    "weekAgo": "semaine",
+    "monthsAgo": "mois",
+    "monthAgo": "mois",
+    "daysAgo": "jours",
+    "dayAgo": "jour"
+  },
+  "stats": {
+    "activeCreators": "Créateurs actifs",
+    "videosDelivered": "Vidéos livrées",
+    "happyCustomers": "Clients satisfaits",
+    "countries": "Pays"
+  }
+}

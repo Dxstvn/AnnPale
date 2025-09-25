@@ -36,7 +36,6 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { CreatorAvatar } from "@/components/ui/avatar-with-fallback"
-import { useLanguage } from "@/contexts/language-context"
 import { useRouter, useSearchParams } from "next/navigation"
 
 // Dynamically import Stripe components to avoid SSR issues
@@ -65,7 +64,6 @@ const StripeSubscriptionCheckout = dynamic(
 )
 
 function CheckoutContent() {
-  const { language } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isProcessing, setIsProcessing] = useState(false)

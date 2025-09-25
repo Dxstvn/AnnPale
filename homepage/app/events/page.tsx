@@ -41,7 +41,6 @@ import {
   Share2,
   DollarSign
 } from "lucide-react"
-import { useLanguage } from "@/contexts/language-context"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 
@@ -245,7 +244,6 @@ const eventCategories = [
 ]
 
 export default function EventsPage() {
-  const { language } = useLanguage()
   const [selectedTab, setSelectedTab] = useState("all")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedType, setSelectedType] = useState("all")

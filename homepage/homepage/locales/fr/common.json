@@ -1,0 +1,54 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "browse": "Parcourir",
+    "howItWorks": "Comment ça marche",
+    "forCreators": "Pour les créateurs",
+    "signIn": "Se connecter",
+    "joinNow": "Rejoindre maintenant",
+    "logout": "Se déconnecter",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "profile": "Profil"
+  },
+  "hero": {
+    "badge": "Nouveau : Diffusion en direct maintenant disponible !",
+    "title": "Connectez-vous avec vos créateurs haïtiens préférés",
+    "subtitle": "Créez des connexions durables grâce à des vidéos personnalisées et du contenu exclusif",
+    "searchPlaceholder": "Rechercher des créateurs...",
+    "searchButton": "Rechercher"
+  },
+  "stats": {
+    "activeCreators": "Créateurs actifs",
+    "videosDelivered": "Vidéos livrées",
+    "happyCustomers": "Clients satisfaits",
+    "countries": "Pays"
+  },
+  "buttons": {
+    "getStarted": "Commencer",
+    "learnMore": "En savoir plus",
+    "viewAll": "Voir tout",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "close": "Fermer"
+  },
+  "status": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "cancelled": "Annulé"
+  },
+  "languages": {
+    "english": "Anglais",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen"
+  }
+}

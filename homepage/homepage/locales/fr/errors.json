@@ -1,0 +1,52 @@
+{
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "email": "Veuillez entrer une adresse e-mail valide",
+    "minLength": "Doit contenir au moins {{min}} caractères",
+    "maxLength": "Ne doit pas dépasser {{max}} caractères",
+    "passwordMatch": "Les mots de passe ne correspondent pas",
+    "invalidFormat": "Format invalide",
+    "numberOnly": "Veuillez entrer uniquement des chiffres",
+    "invalidDate": "Veuillez entrer une date valide",
+    "futureDate": "La date doit être dans le futur",
+    "pastDate": "La date doit être dans le passé"
+  },
+  "auth": {
+    "invalidCredentials": "E-mail ou mot de passe invalide",
+    "accountExists": "Un compte avec cet e-mail existe déjà",
+    "accountNotFound": "Aucun compte trouvé avec cet e-mail",
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter",
+    "unauthorized": "Vous n'êtes pas autorisé à accéder à cette page",
+    "emailNotVerified": "Veuillez vérifier votre adresse e-mail",
+    "tooManyAttempts": "Trop de tentatives. Veuillez réessayer plus tard"
+  },
+  "payment": {
+    "cardDeclined": "Votre carte a été refusée",
+    "insufficientFunds": "Fonds insuffisants",
+    "invalidCard": "Informations de carte invalides",
+    "paymentFailed": "Le paiement a échoué. Veuillez réessayer",
+    "stripeError": "Erreur de traitement du paiement",
+    "refundFailed": "Le remboursement n'a pas pu être traité"
+  },
+  "upload": {
+    "fileTooLarge": "La taille du fichier dépasse la limite maximale",
+    "invalidFileType": "Type de fichier invalide",
+    "uploadFailed": "Le téléchargement a échoué. Veuillez réessayer",
+    "videoTooLong": "La vidéo dépasse la durée maximale",
+    "videoTooShort": "La vidéo est trop courte"
+  },
+  "network": {
+    "offline": "Vous semblez être hors ligne",
+    "slowConnection": "Connexion lente détectée",
+    "requestTimeout": "Délai d'attente de la demande dépassé",
+    "serverError": "Erreur du serveur. Veuillez réessayer plus tard",
+    "connectionLost": "Connexion perdue. Reconnexion..."
+  },
+  "general": {
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "tryAgain": "Veuillez réessayer",
+    "notFound": "Page non trouvée",
+    "accessDenied": "Accès refusé",
+    "maintenance": "Site en maintenance"
+  }
+}

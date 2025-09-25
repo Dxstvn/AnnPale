@@ -5,19 +5,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Star, 
-  Clock, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  Clock,
   Globe,
-  Play,
   CheckCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
+import { useTranslations } from "next-intl"
 
 // Creator data type
 interface Creator {
@@ -32,7 +32,6 @@ interface Creator {
   languages: string[]
   verified: boolean
   videoCount: number
-  previewVideo?: string
 }
 
 // Carousel props
@@ -49,26 +48,25 @@ const mockCreators: Creator[] = [
   {
     id: "1",
     name: "Wyclef Jean",
-    category: "Music",
+    category: "music",
     avatar: "/images/wyclef-jean.png",
     coverImage: "/images/wyclef-jean.png",
     rating: 4.9,
     price: 250,
-    responseTime: "24 hours",
+    responseTime: "responseTime24Hours",
     languages: ["English", "Haitian Creole", "French"],
     verified: true,
-    videoCount: 342,
-    previewVideo: "/videos/wyclef-preview.mp4"
+    videoCount: 342
   },
   {
     id: "2",
     name: "Ti Jo Zenny",
-    category: "Comedy",
+    category: "comedy",
     avatar: "/images/ti-jo-zenny.jpg",
     coverImage: "/images/ti-jo-zenny.jpg",
     rating: 4.8,
     price: 75,
-    responseTime: "2 days",
+    responseTime: "responseTime2Days",
     languages: ["Haitian Creole"],
     verified: true,
     videoCount: 156
@@ -76,12 +74,12 @@ const mockCreators: Creator[] = [
   {
     id: "3",
     name: "Michael Brun",
-    category: "DJ/Producer",
+    category: "djProducer",
     avatar: "/images/michael-brun.jpg",
     coverImage: "/images/michael-brun.jpg",
     rating: 4.9,
     price: 150,
-    responseTime: "3 days",
+    responseTime: "responseTime3Days",
     languages: ["English", "French"],
     verified: true,
     videoCount: 89
@@ -89,12 +87,12 @@ const mockCreators: Creator[] = [
   {
     id: "4",
     name: "Rutshelle Guillaume",
-    category: "Singer",
+    category: "singer",
     avatar: "/images/rutshelle-guillaume.jpg",
     coverImage: "/images/rutshelle-guillaume.jpg",
     rating: 4.7,
     price: 100,
-    responseTime: "24 hours",
+    responseTime: "responseTime24Hours",
     languages: ["Haitian Creole", "English"],
     verified: true,
     videoCount: 203
@@ -102,12 +100,12 @@ const mockCreators: Creator[] = [
   {
     id: "5",
     name: "Carel Pedre",
-    category: "Radio Host",
+    category: "radioHost",
     avatar: "/images/carel-pedre.jpg",
     coverImage: "/images/carel-pedre.jpg",
     rating: 4.8,
     price: 200,
-    responseTime: "5 days",
+    responseTime: "responseTime5Days",
     languages: ["Haitian Creole", "French"],
     verified: true,
     videoCount: 178
@@ -115,15 +113,17 @@ const mockCreators: Creator[] = [
 ]
 
 // Creator Card Component
-function CreatorCard({ 
-  creator, 
-  variant = "default" 
-}: { 
+function CreatorCard({
+  creator,
+  variant = "default"
+}: {
   creator: Creator
-  variant?: "default" | "featured" | "compact" 
+  variant?: "default" | "featured" | "compact"
 }) {
+  const t = useTranslations('common.creators')
+  const tCategories = useTranslations('common.categories')
   const [isHovered, setIsHovered] = React.useState(false)
-  const [showVideo, setShowVideo] = React.useState(false)
+  // Ensure translation hook is available throughout component
 
   const cardSizes = {
     default: "w-[280px] h-[400px]",
@@ -136,10 +136,7 @@ function CreatorCard({
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false)
-        setShowVideo(false)
-      }}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Card 
         className={cn(
@@ -149,39 +146,17 @@ function CreatorCard({
           cardSizes[variant]
         )}
       >
-        {/* Background Image/Video */}
+        {/* Background Image */}
         <div className="absolute inset-0">
-          {showVideo && creator.previewVideo ? (
-            <video
-              src={creator.previewVideo}
-              autoPlay
-              loop
-              muted
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div 
-              className="w-full h-full bg-gradient-to-b from-transparent to-black/60"
-              style={{
-                backgroundImage: `url(${creator.coverImage || creator.avatar})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center"
-              }}
-            />
-          )}
+          <div
+            className="w-full h-full bg-gradient-to-b from-transparent to-black/60"
+            style={{
+              backgroundImage: `url(${creator.coverImage || creator.avatar})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center"
+            }}
+          />
         </div>
-
-        {/* Play Button Overlay */}
-        {creator.previewVideo && isHovered && !showVideo && (
-          <button
-            onClick={() => setShowVideo(true)}
-            className="absolute inset-0 flex items-center justify-center bg-black/30 z-10"
-          >
-            <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
-              <Play className="h-8 w-8 text-purple-600 ml-1" />
-            </div>
-          </button>
-        )}
 
         {/* Content */}
         <CardContent className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent text-white">
@@ -199,7 +174,7 @@ function CreatorCard({
                   <CheckCircle className="h-4 w-4 text-blue-400 flex-shrink-0" />
                 )}
               </div>
-              <p className="text-sm text-gray-300">{creator.category}</p>
+              <p className="text-sm text-gray-300">{tCategories(creator.category)}</p>
             </div>
           </div>
 
@@ -218,11 +193,11 @@ function CreatorCard({
               <div className="flex items-center gap-3 text-xs text-gray-300">
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  <span>{creator.responseTime}</span>
+                  <span>{t(creator.responseTime)}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Globe className="h-3 w-3" />
-                  <span>{creator.languages.length} languages</span>
+                  <span>{creator.languages.length} {t('languages')}</span>
                 </div>
               </div>
             </div>
@@ -235,7 +210,7 @@ function CreatorCard({
               variant="primary"
               className="w-full mt-3 bg-white/20 backdrop-blur hover:bg-white/30"
             >
-              Book Now
+              {t('bookNow')}
             </Button>
           )}
         </CardContent>
@@ -245,12 +220,12 @@ function CreatorCard({
           <div className="absolute top-3 right-3 flex flex-col gap-2">
             {creator.videoCount > 100 && (
               <Badge variant="success" className="bg-green-500/90 backdrop-blur">
-                Popular
+                {t('popular')}
               </Badge>
             )}
-            {creator.responseTime === "24 hours" && (
+            {creator.responseTime === "responseTime24Hours" && (
               <Badge variant="info" className="bg-blue-500/90 backdrop-blur">
-                Fast Response
+                {t('fastResponse')}
               </Badge>
             )}
           </div>
@@ -268,6 +243,7 @@ export function FeaturedCreatorsCarousel({
   autoplayDelay = 5000,
   className
 }: FeaturedCreatorsCarouselProps) {
+  const t = useTranslations('common.creators')
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { 
       loop: true,

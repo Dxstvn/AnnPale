@@ -35,6 +35,7 @@ import {
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
+import { VideoPlayerModal } from "@/components/browse/video-player-modal"
 
 interface CreatorQuickViewModalProps {
   creator: any
@@ -55,6 +56,40 @@ export default function CreatorQuickViewModal({
   const { isAuthenticated } = useSupabaseAuth()
   const [isLiked, setIsLiked] = React.useState(false)
   const [imageLoaded, setImageLoaded] = React.useState(false)
+  const [previewVideos, setPreviewVideos] = React.useState<any[]>([])
+  const [loadingVideos, setLoadingVideos] = React.useState(false)
+  const [selectedVideo, setSelectedVideo] = React.useState<any>(null)
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = React.useState(false)
+
+  // Fetch preview videos when creator changes
+  React.useEffect(() => {
+    if (creator?.id) {
+      fetchPreviewVideos(creator.id)
+    }
+  }, [creator?.id])
+
+  const fetchPreviewVideos = async (creatorId: string) => {
+    setLoadingVideos(true)
+    try {
+      const response = await fetch(`/api/public/creator-previews/${creatorId}`)
+      if (response.ok) {
+        const videos = await response.json()
+        setPreviewVideos(videos)
+      } else {
+        setPreviewVideos([])
+      }
+    } catch (error) {
+      console.error('Failed to fetch preview videos:', error)
+      setPreviewVideos([])
+    } finally {
+      setLoadingVideos(false)
+    }
+  }
+
+  const handleVideoPlay = (video: any) => {
+    setSelectedVideo(video)
+    setIsVideoPlayerOpen(true)
+  }
 
   if (!creator) return null
 
@@ -225,25 +260,68 @@ export default function CreatorQuickViewModal({
               <Play className="h-5 w-5 text-purple-600" />
               Sample Videos
             </h3>
-            <div className="grid grid-cols-3 gap-3">
-              {[1, 2, 3].map((i) => (
-                <div 
-                  key={i}
-                  className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden cursor-pointer group"
-                  onClick={handleViewProfile}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="h-6 w-6 text-purple-600 ml-1" />
+            {loadingVideos ? (
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="aspect-video bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            ) : previewVideos.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                {previewVideos.slice(0, 3).map((video) => (
+                  <div
+                    key={video.id}
+                    className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden cursor-pointer group"
+                    onClick={() => handleVideoPlay(video)}
+                  >
+                    {video.thumbnail_url ? (
+                      <img
+                        src={video.thumbnail_url}
+                        alt={video.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform opacity-0 group-hover:opacity-100">
+                        <Play className="h-6 w-6 text-purple-600 ml-1" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                      <p className="text-white text-xs font-medium truncate">
+                        {video.title || video.occasion || `Sample ${previewVideos.indexOf(video) + 1}`}
+                      </p>
+                    </div>
+                    {video.duration && (
+                      <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                        {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Video className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                      <p className="text-white text-xs font-medium">No preview yet</p>
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                    <p className="text-white text-xs font-medium">Sample {i}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <Separator />
@@ -329,6 +407,16 @@ export default function CreatorQuickViewModal({
             </button>
           </div>
         </div>
+
+        {/* Video Player Modal */}
+        <VideoPlayerModal
+          isOpen={isVideoPlayerOpen}
+          onClose={() => {
+            setIsVideoPlayerOpen(false)
+            setSelectedVideo(null)
+          }}
+          video={selectedVideo}
+        />
       </DialogContent>
     </Dialog>
   )

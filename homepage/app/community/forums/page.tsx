@@ -26,7 +26,6 @@ import {
   Award,
   ChevronRight
 } from "lucide-react"
-import { useLanguage } from "@/contexts/language-context"
 import { format } from "date-fns"
 
 // Mock forum data
@@ -47,7 +46,6 @@ const trendingTopics = [
 ]
 
 export default function ForumsPage() {
-  const { language } = useLanguage()
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 

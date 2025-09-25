@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "Creator Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "overview": "Overview",
+    "requests": "Video Requests",
+    "earnings": "Earnings",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "profile": {
+    "title": "Creator Profile",
+    "displayName": "Display Name",
+    "bio": "Bio",
+    "category": "Category",
+    "pricing": "Video Price",
+    "deliveryTime": "Delivery Time",
+    "languages": "Languages",
+    "saveProfile": "Save Profile",
+    "profilePicture": "Profile Picture",
+    "coverImage": "Cover Image"
+  },
+  "requests": {
+    "title": "Video Requests",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "noRequests": "No requests yet",
+    "accept": "Accept",
+    "decline": "Decline",
+    "deliver": "Deliver Video",
+    "requestDetails": "Request Details"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "totalEarnings": "Total Earnings",
+    "videosCompleted": "Videos Completed",
+    "averageRating": "Average Rating",
+    "responseTime": "Response Time",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month"
+  },
+  "categories": {
+    "music": "Music",
+    "comedy": "Comedy",
+    "entertainment": "Entertainment",
+    "sports": "Sports",
+    "education": "Education",
+    "lifestyle": "Lifestyle",
+    "business": "Business",
+    "other": "Other"
+  }
+}

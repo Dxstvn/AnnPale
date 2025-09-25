@@ -1,0 +1,52 @@
+{
+  "validation": {
+    "required": "Jaden sa a obligatwa",
+    "email": "Tanpri antre yon adrès email ki valab",
+    "minLength": "Dwe gen omwen {{min}} karaktè yo",
+    "maxLength": "Pa dwe depase {{max}} karaktè yo",
+    "passwordMatch": "Mo de pase yo pa matche",
+    "invalidFormat": "Fòma ki pa valab",
+    "numberOnly": "Tanpri antre chif yo sèlman",
+    "invalidDate": "Tanpri antre yon dat ki valab",
+    "futureDate": "Dat la dwe nan lavni",
+    "pastDate": "Dat la dwe nan pase a"
+  },
+  "auth": {
+    "invalidCredentials": "Email oswa mo de pase ki pa valab",
+    "accountExists": "Yon kont ak email sa a egziste deja",
+    "accountNotFound": "Pa gen kont yo jwenn ak email sa a",
+    "sessionExpired": "Sesyon ou an ekspire. Tanpri konekte ankò",
+    "unauthorized": "Ou pa otorize pou aksede paj sa a",
+    "emailNotVerified": "Tanpri verifye adrès email ou a",
+    "tooManyAttempts": "Twòp tantativ. Tanpri eseye ankò pi ta"
+  },
+  "payment": {
+    "cardDeclined": "Kat ou a te refize",
+    "insufficientFunds": "Fon yo pa kont",
+    "invalidCard": "Enfòmasyon kat ki pa valab",
+    "paymentFailed": "Peman an echwe. Tanpri eseye ankò",
+    "stripeError": "Erè nan trete peman an",
+    "refundFailed": "Ranbousmann an pa ka trete"
+  },
+  "upload": {
+    "fileTooLarge": "Gwosè fichye a depase limit maksimòm nan",
+    "invalidFileType": "Kalite fichye ki pa valab",
+    "uploadFailed": "Chajman an echwe. Tanpri eseye ankò",
+    "videoTooLong": "Videyo a depase diré maksimòm nan",
+    "videoTooShort": "Videyo a twò kout"
+  },
+  "network": {
+    "offline": "Ou sanble ou pa konekte",
+    "slowConnection": "Koneksyon ki rete yo detekte",
+    "requestTimeout": "Demann nan depase tan limite",
+    "serverError": "Erè sèvè a. Tanpri eseye ankò pi ta",
+    "connectionLost": "Koneksyon an pèdi. Y ap rekonekte..."
+  },
+  "general": {
+    "somethingWentWrong": "Yon bagay mal pase",
+    "tryAgain": "Tanpri eseye ankò",
+    "notFound": "Paj la pa jwenn",
+    "accessDenied": "Aksè refize",
+    "maintenance": "Sit la nan antretyen"
+  }
+}

@@ -242,12 +242,12 @@ export function CreatorServicesModal({
         throw new Error(`Failed to create video request: ${error.message}`)
       }
 
-      // Navigate to checkout
+      // Navigate to checkout - price fetched server-side for security
       const checkoutParams = new URLSearchParams({
         type: 'video',
         creator: creator.id,
-        requestId: data.id,
-        price: videoPrice.toString()
+        requestId: data.id
+        // SECURITY: Price removed - will be fetched from database
       })
 
       router.push(`/checkout?${checkoutParams.toString()}`)
@@ -263,11 +263,10 @@ export function CreatorServicesModal({
 
   const handleSubscribe = (tierId: string, tierName: string, price: number) => {
     if (!isAuthenticated) {
-      // Save subscription selection to sessionStorage
+      // SECURITY: Only save tierId to sessionStorage - price and name will be fetched server-side
       sessionStorage.setItem('subscriptionSelection', JSON.stringify({
-        tierId,
-        tierName,
-        price
+        tierId
+        // tierName and price removed for security - will be fetched from database
       }))
       // Redirect to signup with return URL
       const returnUrl = `/fan/creators/${creator.id}?openSubscription=true`
@@ -283,7 +282,8 @@ export function CreatorServicesModal({
     })
 
     handleOpenChange(false)
-    router.push(`/checkout?type=subscription&creator=${creator.id}&tier=${tierId}&name=${encodeURIComponent(tierName)}&price=${price}`)
+    // SECURITY: Price and name are now fetched server-side to prevent manipulation
+    router.push(`/checkout?type=subscription&creator=${creator.id}&tier=${tierId}`)
   }
 
   // Load saved form data if returning from auth
@@ -299,10 +299,11 @@ export function CreatorServicesModal({
     if (open && activeTab === "subscription" && isAuthenticated) {
       const savedSelection = sessionStorage.getItem('subscriptionSelection')
       if (savedSelection) {
-        const { tierId, tierName, price } = JSON.parse(savedSelection)
+        const { tierId } = JSON.parse(savedSelection)
         sessionStorage.removeItem('subscriptionSelection')
-        // Auto-navigate to checkout
-        handleSubscribe(tierId, tierName, price)
+        // Auto-navigate to checkout with only tierId - price and name fetched server-side
+        router.push(`/checkout?type=subscription&creator=${creator.id}&tier=${tierId}`)
+        handleOpenChange(false)
       }
     }
   }, [open, activeTab, isAuthenticated])
@@ -554,7 +555,7 @@ export function CreatorServicesModal({
           </TabsContent>
 
           {/* Subscription Tab */}
-          <TabsContent value="subscription" className="p-4 sm:p-6 pt-4">
+          <TabsContent value="subscription" className="p-4 sm:p-6 pt-4" data-testid="subscription-tab-content">
             <div className="w-full">
               <div className="text-center mb-4">
                 <p className="text-gray-600 text-sm sm:text-base">

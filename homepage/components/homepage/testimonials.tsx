@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
+import { useTranslations } from "next-intl"
 
 interface Testimonial {
   id: string
@@ -263,6 +264,7 @@ export function Testimonials({
   autoplay = true,
   className
 }: TestimonialsProps) {
+  const t = useTranslations('common.testimonials')
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: "start" },
     autoplay ? [Autoplay({ delay: 6000, stopOnInteraction: true })] : []

@@ -51,7 +51,6 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useLanguage } from '@/contexts/language-context';
 
 // Translations
 const liveTranslations: Record<string, Record<string, string>> = {
@@ -113,7 +112,6 @@ const liveTranslations: Record<string, Record<string, string>> = {
 };
 
 export default function LiveDirectoryPage() {
-  const { language } = useLanguage();
   
   const t = (key: string) => {
     return liveTranslations[key]?.[language] || liveTranslations[key]?.en || key;

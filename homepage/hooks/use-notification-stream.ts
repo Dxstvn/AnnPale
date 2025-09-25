@@ -4,13 +4,17 @@ import { useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useNotificationStore } from '@/stores/notification-store'
 import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
+import { SessionManager } from '@/lib/auth/session-manager'
 
 interface SSEMessage {
-  type: 'connected' | 'unread_count' | 'new_notification' | 'notification_updated' | 'initial_notifications' | 'realtime_connected' | 'realtime_error'
+  type: 'connected' | 'unread_count' | 'new_notification' | 'notification_updated' | 'initial_notifications' | 'realtime_connected' | 'realtime_error' | 'realtime_unavailable' | 'reconnect_required'
   count?: number
   notification?: any
   notifications?: any[]
   error?: string
+  reason?: string
+  fallback?: string
+  message?: string
   timestamp: string
 }
 
@@ -19,13 +23,15 @@ let globalEventSource: EventSource | null = null
 let globalConnectionCount = 0
 
 export function useNotificationStream() {
-  const { user, isAuthenticated } = useSupabaseAuth()
+  const { user, isAuthenticated, supabase } = useSupabaseAuth()
   const router = useRouter()
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const sessionMonitorRef = useRef<NodeJS.Timeout | null>(null)
   const reconnectAttempts = useRef(0)
   const isConnectingRef = useRef(false) // Prevent multiple connection attempts
+  const sessionManagerRef = useRef<SessionManager | null>(null)
 
   const {
     addNotification,
@@ -95,18 +101,41 @@ export function useNotificationStream() {
     setPollingStatus(false)
   }, [setPollingStatus])
 
-  // Connect to SSE
-  const connectSSE = useCallback(() => {
+  // Connect to SSE with auth check
+  const connectSSE = useCallback(async () => {
     if (!isAuthenticated || isConnectingRef.current) return
 
-    // Use global singleton to prevent multiple connections
-    if (globalEventSource) {
+    // Initialize session manager if needed
+    if (!sessionManagerRef.current && supabase) {
+      sessionManagerRef.current = SessionManager.getInstance(supabase)
+    }
+
+    // Check and refresh session if needed before connecting
+    if (sessionManagerRef.current) {
+      const sessionValid = await sessionManagerRef.current.refreshSession()
+      if (!sessionValid) {
+        console.warn('[SSE] Session refresh failed, falling back to polling')
+        startPolling()
+        return
+      }
+    }
+
+    // Check health of global connection before reusing
+    if (globalEventSource && globalEventSource.readyState === EventSource.OPEN) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('[SSE] Using existing global connection, count:', globalConnectionCount)
+        console.log('[SSE] Using existing healthy global connection, count:', globalConnectionCount)
       }
       eventSourceRef.current = globalEventSource
       globalConnectionCount++
       return
+    } else if (globalEventSource) {
+      // Global connection exists but is not healthy, clean it up
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[SSE] Cleaning up unhealthy global connection')
+      }
+      globalEventSource.close()
+      globalEventSource = null
+      globalConnectionCount = 0
     }
 
     // Close existing local connection if any
@@ -131,6 +160,9 @@ export function useNotificationStream() {
         setConnectionStatus(true)
         reconnectAttempts.current = 0
         stopPolling() // Stop polling when SSE is connected
+
+        // Start monitoring session expiry
+        startSessionMonitoring()
       }
 
       eventSource.onmessage = (event) => {
@@ -183,9 +215,48 @@ export function useNotificationStream() {
               break
 
             case 'realtime_error':
+              // This is now a hard error - should be rare
               console.error('[SSE] Real-time subscription error:', data.error)
               // Fall back to polling if real-time fails
               startPolling()
+              break
+
+            case 'realtime_unavailable':
+              // This is expected in some environments - use debug log instead of error
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[SSE] Real-time unavailable, using polling fallback')
+              }
+              // Start polling as a fallback
+              startPolling()
+              break
+
+            case 'reconnect_required':
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[SSE] Server requested reconnection:', data.reason)
+              }
+              // Close current connection and reconnect
+              eventSource.close()
+              eventSourceRef.current = null
+              globalEventSource = null
+              globalConnectionCount = 0
+
+              // If session is expiring, refresh it first
+              if (data.reason === 'session_expiring' || data.reason === 'session_expired') {
+                if (sessionManagerRef.current) {
+                  sessionManagerRef.current.refreshSession().then(() => {
+                    if (isAuthenticated) {
+                      connectSSE()
+                    }
+                  })
+                }
+              } else {
+                // Reconnect after a short delay for other reasons
+                setTimeout(() => {
+                  if (isAuthenticated) {
+                    connectSSE()
+                  }
+                }, 1000)
+              }
               break
           }
         } catch (error) {
@@ -199,23 +270,38 @@ export function useNotificationStream() {
         // Don't log the raw error event as it's typically empty
         // Instead, provide meaningful context based on the connection state
         if (eventSource.readyState === EventSource.CLOSED) {
-          console.error('[SSE] Connection closed unexpectedly')
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[SSE] Connection closed - will reconnect')
+          }
         } else if (eventSource.readyState === EventSource.CONNECTING) {
-          console.error('[SSE] Failed to establish connection')
+          // This is a normal reconnection attempt, not an error
+          if (reconnectAttempts.current === 0) {
+            console.warn('[SSE] Connection interrupted - attempting to reconnect')
+          }
         } else {
-          console.error('[SSE] Connection error occurred')
+          console.warn('[SSE] Connection issue detected')
         }
 
-        setConnectionStatus(false, 'Connection lost')
+        setConnectionStatus(false, 'Reconnecting...')
         eventSource.close()
         eventSourceRef.current = null
+        globalEventSource = null
+        globalConnectionCount = 0
 
         // Start polling as fallback
         startPolling()
 
-        // Attempt reconnection with exponential backoff
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000)
+        // Attempt reconnection with exponential backoff and jitter
+        const baseDelay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000)
+        const jitter = Math.random() * 1000 // Add 0-1 second of random jitter
+        const delay = baseDelay + jitter
         reconnectAttempts.current++
+
+        // Don't attempt reconnection if we've failed too many times
+        if (reconnectAttempts.current > 10) {
+          console.warn('[SSE] Max reconnection attempts reached, falling back to polling only')
+          return
+        }
 
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current)
@@ -224,7 +310,7 @@ export function useNotificationStream() {
         reconnectTimeoutRef.current = setTimeout(() => {
           if (isAuthenticated) {
             if (process.env.NODE_ENV === 'development') {
-              console.log(`[SSE] Attempting reconnection in ${delay}ms`)
+              console.log(`[SSE] Attempting reconnection (attempt ${reconnectAttempts.current})`)
             }
             connectSSE()
           }
@@ -239,6 +325,7 @@ export function useNotificationStream() {
     }
   }, [
     isAuthenticated,
+    supabase,
     setConnectionStatus,
     setUnreadCount,
     addNotification,
@@ -247,9 +334,64 @@ export function useNotificationStream() {
     stopPolling
   ])
 
+  // Start monitoring session expiry (defined without dependencies to avoid circular ref)
+  const startSessionMonitoring = useCallback(() => {
+    if (!sessionManagerRef.current) return
+
+    // Clear existing monitor
+    if (sessionMonitorRef.current) {
+      clearInterval(sessionMonitorRef.current)
+    }
+
+    // Check session every minute
+    sessionMonitorRef.current = setInterval(async () => {
+      if (!sessionManagerRef.current) return
+
+      const sessionInfo = await sessionManagerRef.current.getSessionInfo()
+      if (!sessionInfo) {
+        // No session, disconnect
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close()
+          eventSourceRef.current = null
+        }
+        return
+      }
+
+      const timeUntilExpiry = sessionInfo.expiresAt - Date.now()
+
+      // If session expires in less than 5 minutes, proactively reconnect
+      if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[SSE] Session expiring soon, refreshing and reconnecting')
+        }
+
+        // Refresh session
+        const refreshed = await sessionManagerRef.current.refreshSession()
+        if (refreshed) {
+          // Send a heartbeat to confirm connection is still alive
+          // The server will detect the refreshed session on next auth check
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[SSE] Session refreshed successfully')
+          }
+        } else {
+          // If refresh fails, trigger reconnection
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close()
+          }
+        }
+      }
+    }, 60000) // Check every minute
+  }, [])
+
   // Disconnect from SSE
   const disconnectSSE = useCallback(() => {
     isConnectingRef.current = false
+
+    // Stop session monitoring
+    if (sessionMonitorRef.current) {
+      clearInterval(sessionMonitorRef.current)
+      sessionMonitorRef.current = null
+    }
 
     // Decrement global connection count
     if (globalConnectionCount > 0) {
@@ -308,11 +450,28 @@ export function useNotificationStream() {
     }
   }, [router, isAuthenticated, pollNotifications])
 
-  // Handle visibility change (poll when tab becomes active)
+  // Handle visibility change (reconnect when tab becomes active)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isAuthenticated && !eventSourceRef.current) {
-        pollNotifications()
+      if (document.visibilityState === 'visible' && isAuthenticated) {
+        // Tab became visible
+        if (!eventSourceRef.current || eventSourceRef.current.readyState !== EventSource.OPEN) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[SSE] Tab became visible, reconnecting...')
+          }
+          // Reset reconnection attempts when tab becomes active
+          reconnectAttempts.current = 0
+          connectSSE()
+        } else {
+          // Connection exists, just poll for latest data
+          pollNotifications()
+        }
+      } else if (document.visibilityState === 'hidden') {
+        // Tab became hidden - could optionally close connection to save resources
+        // but we'll keep it open for now for better UX
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[SSE] Tab became hidden')
+        }
       }
     }
 
@@ -320,7 +479,7 @@ export function useNotificationStream() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [isAuthenticated, pollNotifications])
+  }, [isAuthenticated, pollNotifications, connectSSE])
 
   return {
     isConnected: useNotificationStore((state) => state.isConnected),

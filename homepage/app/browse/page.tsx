@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useLanguage } from '@/contexts/language-context'
 import { getTranslation } from '@/lib/translations'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/layouts/header'
@@ -173,7 +172,6 @@ const priceRanges = [
 ]
 
 export default function BrowsePage() {
-  const { language } = useLanguage()
   const searchParams = useSearchParams()
 
   // State management

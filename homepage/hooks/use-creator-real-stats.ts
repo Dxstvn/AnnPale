@@ -58,28 +58,57 @@ export function useCreatorRealStats() {
   const { data: creatorStats, error: statsError, mutate: mutateStats } = useSWR(
     creatorId ? ['creatorStats', creatorId] : null,
     async () => {
-      const { data, error } = await supabase
-        .from('creator_stats')
-        .select('*')
-        .eq('creator_id', creatorId!)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching creator stats:', error);
-        return null;
-      }
-      
-      // If no stats exist, create default
-      if (!data) {
-        const { data: newStats } = await supabase
+      try {
+        const { data, error } = await supabase
           .from('creator_stats')
-          .insert({ creator_id: creatorId })
-          .select()
-          .single();
-        return newStats;
+          .select('*')
+          .eq('creator_id', creatorId!)
+          .maybeSingle(); // Use maybeSingle instead of single to handle no rows gracefully
+
+        if (error) {
+          console.error('Error fetching creator stats:', error);
+          // Return default stats on error
+          return {
+            creator_id: creatorId,
+            total_requests: 0,
+            completed_videos: 0,
+            pending_requests: 0,
+            total_earnings: 0,
+            average_rating: 0,
+            total_reviews: 0,
+            completion_rate: 0
+          };
+        }
+
+        // If no stats exist, return default stats (view might not have data yet)
+        if (!data) {
+          return {
+            creator_id: creatorId,
+            total_requests: 0,
+            completed_videos: 0,
+            pending_requests: 0,
+            total_earnings: 0,
+            average_rating: 0,
+            total_reviews: 0,
+            completion_rate: 0
+          };
+        }
+
+        return data;
+      } catch (err) {
+        console.error('Unexpected error in creator stats fetch:', err);
+        // Return default stats on any error
+        return {
+          creator_id: creatorId,
+          total_requests: 0,
+          completed_videos: 0,
+          pending_requests: 0,
+          total_earnings: 0,
+          average_rating: 0,
+          total_reviews: 0,
+          completion_rate: 0
+        };
       }
-      
-      return data;
     },
     swrConfig
   );

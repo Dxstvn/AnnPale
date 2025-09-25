@@ -49,7 +49,6 @@ import {
   Info
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useLanguage } from "@/contexts/language-context"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 
 // Types
@@ -154,7 +153,7 @@ const mockOrder: OrderDetails = {
 export default function OrderTrackingPage() {
   const params = useParams()
   const router = useRouter()
-  const { language } = useLanguage()
+  const t = useTranslations('fan')
   const { user, isLoading: authLoading, isAuthenticated } = useSupabaseAuth()
   
   const [order, setOrder] = useState<OrderDetails>(mockOrder)

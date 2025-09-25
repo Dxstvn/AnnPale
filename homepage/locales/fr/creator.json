@@ -1,0 +1,89 @@
+{
+  "dashboard": {
+    "title": "Tableau de bord créateur",
+    "welcome": "Bon retour",
+    "overview": "Aperçu",
+    "videoRequests": "Demandes de vidéo",
+    "earnings": "Revenus",
+    "analytics": "Analytique",
+    "settings": "Paramètres",
+    "pendingRequests": "Demandes en attente",
+    "completedVideos": "Vidéos complétées",
+    "totalEarnings": "Revenus totaux",
+    "thisMonth": "Ce mois-ci",
+    "viewAll": "Voir tout"
+  },
+  "requests": {
+    "title": "Demandes de vidéo",
+    "pending": "En attente",
+    "inProgress": "En cours",
+    "completed": "Complété",
+    "declined": "Refusé",
+    "dueDate": "Date limite",
+    "requestFrom": "Demande de",
+    "occasion": "Occasion",
+    "instructions": "Instructions",
+    "price": "Prix",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "uploadVideo": "Télécharger la vidéo",
+    "sendVideo": "Envoyer la vidéo",
+    "noRequests": "Aucune demande de vidéo pour le moment"
+  },
+  "profile": {
+    "title": "Profil du créateur",
+    "bio": "Biographie",
+    "videoPrice": "Prix de la vidéo",
+    "responseTime": "Temps de réponse",
+    "categories": "Catégories",
+    "languages": "Langues parlées",
+    "availability": "Disponibilité",
+    "socialLinks": "Liens sociaux",
+    "updateProfile": "Mettre à jour le profil",
+    "profileUpdated": "Profil mis à jour avec succès"
+  },
+  "earnings": {
+    "title": "Revenus",
+    "available": "Solde disponible",
+    "pending": "En attente",
+    "totalEarned": "Total gagné",
+    "withdraw": "Retirer les fonds",
+    "payoutHistory": "Historique des paiements",
+    "earningsChart": "Revenus au fil du temps",
+    "topEarningVideos": "Vidéos les plus rentables"
+  },
+  "onboarding": {
+    "title": "Complétez votre profil de créateur",
+    "step1": "Informations de base",
+    "step2": "Définir vos tarifs",
+    "step3": "Configuration du paiement",
+    "step4": "Vérification",
+    "continue": "Continuer",
+    "back": "Retour",
+    "finish": "Terminer la configuration"
+  },
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "requests": "Demandes",
+    "revenue": "Revenus",
+    "content": "Contenu",
+    "settings": "Paramètres"
+  },
+  "help": {
+    "dashboard": "Consultez vos performances globales et métriques clés",
+    "requests": "Gérez et répondez aux demandes de vidéo",
+    "revenue": "Suivez vos revenus et analyses financières",
+    "content": "Gérez vos vidéos et bibliothèque de contenu",
+    "settings": "Configurez votre compte et préférences"
+  },
+  "stats": {
+    "todaysEarnings": "Revenus d'aujourd'hui",
+    "pendingRequests": "Demandes en attente",
+    "responseRate": "Taux de réponse"
+  },
+  "actions": {
+    "switching": "Basculement...",
+    "switchToFanPortal": "Basculer vers le Portail Fan",
+    "switchToFanDescription": "Accédez à vos fonctionnalités de fan et parcourez les créateurs"
+  }
+}

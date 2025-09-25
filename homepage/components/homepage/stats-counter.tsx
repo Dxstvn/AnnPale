@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { Users, Video, Star, Globe } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface Stat {
   label: string
@@ -11,32 +12,34 @@ interface Stat {
   icon: React.ReactNode
 }
 
-const stats: Stat[] = [
-  {
-    label: "Active Creators",
-    value: 500,
-    suffix: "+",
-    icon: <Users className="h-5 w-5" />,
-  },
-  {
-    label: "Videos Delivered",
-    value: 10000,
-    suffix: "+",
-    icon: <Video className="h-5 w-5" />,
-  },
-  {
-    label: "Happy Customers",
-    value: 25000,
-    suffix: "+",
-    icon: <Star className="h-5 w-5" />,
-  },
-  {
-    label: "Countries",
-    value: 15,
-    suffix: "",
-    icon: <Globe className="h-5 w-5" />,
-  },
-]
+function getStats(t: any): Stat[] {
+  return [
+    {
+      label: t('activeCreators'),
+      value: 500,
+      suffix: "+",
+      icon: <Users className="h-5 w-5" />,
+    },
+    {
+      label: t('videosDelivered'),
+      value: 10000,
+      suffix: "+",
+      icon: <Video className="h-5 w-5" />,
+    },
+    {
+      label: t('happyCustomers'),
+      value: 25000,
+      suffix: "+",
+      icon: <Star className="h-5 w-5" />,
+    },
+    {
+      label: t('countries'),
+      value: 15,
+      suffix: "",
+      icon: <Globe className="h-5 w-5" />,
+    },
+  ]
+}
 
 interface CounterProps {
   end: number
@@ -77,6 +80,9 @@ function Counter({ end, duration = 2, suffix = "" }: CounterProps) {
 }
 
 export function StatsCounter() {
+  const t = useTranslations('common.stats')
+  const stats = getStats(t)
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
       {stats.map((stat, index) => (

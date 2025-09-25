@@ -1,0 +1,60 @@
+{
+  "browse": {
+    "title": "Parcourir les créateurs",
+    "searchPlaceholder": "Rechercher des créateurs...",
+    "filters": "Filtres",
+    "category": "Catégorie",
+    "priceRange": "Gamme de prix",
+    "deliveryTime": "Délai de livraison",
+    "rating": "Note",
+    "language": "Langue",
+    "clearFilters": "Effacer les filtres",
+    "noResults": "Aucun créateur trouvé",
+    "loadMore": "Charger plus"
+  },
+  "creator": {
+    "profile": "Profil du créateur",
+    "about": "À propos",
+    "reviews": "Avis",
+    "requestVideo": "Demander une vidéo",
+    "price": "Prix",
+    "deliveryTime": "Délai de livraison",
+    "rating": "Note",
+    "languages": "Langues",
+    "responseTime": "Temps de réponse"
+  },
+  "booking": {
+    "title": "Demander une vidéo",
+    "occasion": "Quelle est l'occasion ?",
+    "recipient": "Pour qui est-ce ?",
+    "instructions": "Instructions spéciales",
+    "occasionPlaceholder": "Anniversaire, anniversaire de mariage, félicitations...",
+    "recipientPlaceholder": "Parlez-nous du destinataire",
+    "instructionsPlaceholder": "Demandes spéciales ou détails...",
+    "deliveryDate": "Date de livraison",
+    "urgent": "Livraison express",
+    "total": "Total",
+    "submitRequest": "Soumettre la demande"
+  },
+  "orders": {
+    "title": "Mes commandes",
+    "pending": "En attente",
+    "inProgress": "En cours",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "noOrders": "Aucune commande pour le moment",
+    "orderDetails": "Détails de la commande",
+    "downloadVideo": "Télécharger la vidéo",
+    "shareVideo": "Partager la vidéo",
+    "leaveReview": "Laisser un avis"
+  },
+  "subscriptions": {
+    "title": "Mes abonnements",
+    "active": "Actif",
+    "expired": "Expiré",
+    "noSubscriptions": "Aucun abonnement pour le moment",
+    "renewSubscription": "Renouveler",
+    "cancelSubscription": "Annuler",
+    "subscriptionDetails": "Détails de l'abonnement"
+  }
+}

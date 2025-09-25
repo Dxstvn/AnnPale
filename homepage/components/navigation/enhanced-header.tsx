@@ -22,8 +22,8 @@ import {
 import { UserMenu } from "./user-menu"
 import { MobileNav } from "./mobile-nav"
 import { SearchOverlay } from "./search-overlay"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations"
+import { useTranslations, useLocale } from "next-intl"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   DropdownMenu,
@@ -61,7 +61,11 @@ const navigationItems = [
 
 export function EnhancedHeader({ variant = "default", className }: HeaderProps) {
   const pathname = usePathname()
-  const { language, setLanguage } = useLanguage()
+  const router = useRouter()
+  const t = useTranslations('nav')
+  const tCategories = useTranslations('categories')
+  const tBrowse = useTranslations('browse')
+  const locale = useLocale()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isScrollingUp, setIsScrollingUp] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -104,7 +108,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
     { code: 'ht' as const, name: 'Kreyòl', flag: '🇭🇹' },
   ]
 
-  const currentLanguage = languages.find(lang => lang.code === language)
+  const currentLanguage = languages.find(lang => lang.code === locale)
 
   const headerClasses = cn(
     "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
@@ -132,13 +136,13 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                 <div className="flex items-center gap-6">
                   <span className="opacity-70 flex items-center gap-2">
                     <span className="text-lg">🇭🇹</span>
-                    {getTranslation('nav.welcome', language, 'Welcome to Ann Pale')}
+                    {t('welcome')}
                   </span>
                   <Link 
                     href="/help" 
                     className="hover:opacity-100 opacity-70 transition flex items-center gap-1"
                   >
-                    {getTranslation('nav.help', language)}
+                    {t('help')}
                   </Link>
                 </div>
                 <div className="flex items-center gap-6">
@@ -155,7 +159,10 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                       {languages.map((lang) => (
                         <DropdownMenuItem
                           key={lang.code}
-                          onClick={() => setLanguage(lang.code)}
+                          onClick={() => {
+                            const newPath = pathname.replace(`/${locale}`, `/${lang.code}`)
+                            router.push(newPath)
+                          }}
                           className={cn(
                             "flex items-center gap-3 px-3 py-2",
                             language === lang.code && "bg-purple-50 text-purple-600"
@@ -209,7 +216,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                           isActive('/browse') && "bg-purple-50 text-purple-600"
                         )}
                       >
-                        {getTranslation('nav.browse', language)}
+                        {t('browse')}
                         <ChevronDown className="h-4 w-4" />
                       </button>
                     </DropdownMenuTrigger>
@@ -222,7 +229,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50"
                             >
                               <span className="text-xl">{category.emoji}</span>
-                              <span>{getTranslation(`categories.${category.key}`, language)}</span>
+                              <span>{tCategories(category.key)}</span>
                             </Link>
                           </DropdownMenuItem>
                         ))}
@@ -233,7 +240,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                           href="/browse" 
                           className="flex items-center justify-center py-2.5 text-purple-600 font-medium"
                         >
-                          {getTranslation('browse.viewAll', language)}
+                          {tBrowse('viewAll')}
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -249,7 +256,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                       isActive('/how-it-works') && "bg-purple-50 text-purple-600"
                     )}
                   >
-                    {getTranslation('nav.howItWorks', language)}
+                    {t('howItWorks')}
                   </Link>
                   
                   {isAuthenticated && (
@@ -262,7 +269,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                         isActive('/creator/dashboard') && "bg-purple-50 text-purple-600"
                       )}
                     >
-                      {getTranslation('nav.dashboard', language)}
+                      {t('dashboard')}
                     </Link>
                   )}
                 </div>
@@ -347,7 +354,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                       )}
                     >
                       <Link href="/login">
-                        {getTranslation('nav.login', language)}
+                        {t('login')}
                       </Link>
                     </Button>
                     <Button 
@@ -355,7 +362,7 @@ export function EnhancedHeader({ variant = "default", className }: HeaderProps) 
                       asChild
                     >
                       <Link href="/signup">
-                        {getTranslation('nav.signup', language)}
+                        {t('signup')}
                       </Link>
                     </Button>
                   </>

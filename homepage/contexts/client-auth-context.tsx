@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+import { SessionManager } from '@/lib/auth/session-manager'
 import type { UserRole, UserProfile } from '@/types/auth'
 
 interface AuthContextType {
@@ -34,6 +35,7 @@ export function ClientAuthProvider({
   const [isLoading, setIsLoading] = useState(!initialUser)
   const router = useRouter()
   const supabase = createClient()
+  const sessionManager = useRef<SessionManager | null>(null)
 
   // Refs for state deduplication
   const previousAuthState = useRef<{ event: string | null, userId: string | null }>({
@@ -41,6 +43,13 @@ export function ClientAuthProvider({
     userId: initialUser?.id || null
   })
   const isInitializing = useRef(true)
+
+  // Initialize session manager
+  useEffect(() => {
+    if (!sessionManager.current) {
+      sessionManager.current = SessionManager.getInstance(supabase)
+    }
+  }, [supabase])
 
   useEffect(() => {
     // Get initial session
@@ -106,6 +115,10 @@ export function ClientAuthProvider({
 
       // Skip TOKEN_REFRESHED if user hasn't changed
       if (event === 'TOKEN_REFRESHED' && previousAuthState.current.userId === currentUserId) {
+        // Update session manager when token is refreshed
+        if (sessionManager.current) {
+          sessionManager.current.startMonitoring()
+        }
         return
       }
 
@@ -128,9 +141,17 @@ export function ClientAuthProvider({
 
         if (event === 'SIGNED_OUT') {
           setProfile(null)
+          // Stop session monitoring on sign out
+          if (sessionManager.current) {
+            sessionManager.current.stopMonitoring()
+          }
           // Only redirect on sign out, not refresh the page
           router.push('/login')
         } else if (event === 'SIGNED_IN' && session?.user) {
+          // Start session monitoring on sign in
+          if (sessionManager.current) {
+            sessionManager.current.startMonitoring()
+          }
           // Fetch profile on sign in
           try {
             const { data } = await supabase
@@ -151,11 +172,19 @@ export function ClientAuthProvider({
 
     return () => {
       subscription.unsubscribe()
+      // Clean up session manager
+      if (sessionManager.current) {
+        sessionManager.current.stopMonitoring()
+      }
     }
   }, [supabase, router, initialUser])
 
   const signOut = async () => {
     try {
+      // Stop session monitoring before sign out
+      if (sessionManager.current) {
+        sessionManager.current.stopMonitoring()
+      }
       await supabase.auth.signOut()
       setUser(null)
       setProfile(null)

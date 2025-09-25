@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { SocialLogin } from "./social-login"
 import { useToast } from "@/components/ui/use-toast"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations"
+import { useTranslations } from "next-intl"
 import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -23,7 +22,8 @@ interface EnhancedLoginFormProps {
 export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const { language } = useLanguage()
+  const t = useTranslations('auth')
+  const tCommon = useTranslations('common')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -42,20 +42,20 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!email) {
-      return getTranslation("auth.errors.emailRequired", language)
+      return t('errors.emailRequired')
     }
     if (!emailRegex.test(email)) {
-      return getTranslation("auth.errors.invalidEmail", language)
+      return t('errors.invalidEmail')
     }
     return ""
   }
 
   const validatePassword = (password: string) => {
     if (!password) {
-      return getTranslation("auth.errors.passwordRequired", language)
+      return t('errors.passwordRequired')
     }
     if (password.length < 6) {
-      return getTranslation("auth.errors.passwordTooShort", language)
+      return t('errors.passwordTooShort')
     }
     return ""
   }
@@ -96,8 +96,8 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
       
       if (account) {
         toast({
-          title: getTranslation("auth.login.success", language),
-          description: getTranslation(`auth.login.role.${account.role}`, language),
+          title: t('login.success'),
+          description: t(`login.role.${account.role}`),
         })
         
         // Store auth state
@@ -116,10 +116,10 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
         
         onSuccess?.()
       } else {
-        setError(getTranslation("auth.login.errors.invalidCredentials", language))
+        setError(t('login.errors.invalidCredentials'))
       }
     } catch (err) {
-      setError(getTranslation("auth.errors.generic", language))
+      setError(t('errors.generic'))
     } finally {
       setLoading(false)
     }
@@ -130,10 +130,10 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">
-          {getTranslation("auth.login.title", language)}
+          {t('login.title')}
         </h1>
         <p className="text-gray-600">
-          {getTranslation("auth.login.subtitle", language)}
+          {t('login.subtitle')}
         </p>
       </div>
 
@@ -157,14 +157,14 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
         {/* Email Field with proper spacing */}
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium">
-            {getTranslation("auth.login.email", language)}
+            {t('login.email')}
           </Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               id="email"
               type="email"
-              placeholder={getTranslation("auth.login.emailPlaceholder", language)}
+              placeholder={t('login.emailPlaceholder')}
               value={formData.email}
               onChange={(e) => {
                 setFormData({ ...formData, email: e.target.value })
@@ -185,14 +185,14 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
         {/* Password Field with proper spacing */}
         <div className="space-y-2">
           <Label htmlFor="password" className="text-sm font-medium">
-            {getTranslation("auth.login.password", language)}
+            {t('login.password')}
           </Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder={getTranslation("auth.login.passwordPlaceholder", language)}
+              placeholder={t('login.passwordPlaceholder')}
               value={formData.password}
               onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value })
@@ -233,14 +233,14 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
               disabled={loading}
             />
             <Label htmlFor="remember" className="text-sm cursor-pointer">
-              {getTranslation("auth.login.rememberMe", language)}
+              {t('login.rememberMe')}
             </Label>
           </div>
           <Link
             href="/auth/reset-password"
             className="text-sm text-purple-600 hover:text-purple-700 transition"
           >
-            {getTranslation("auth.login.forgotPassword", language)}
+            {t('login.forgotPassword')}
           </Link>
         </div>
 
@@ -253,10 +253,10 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {getTranslation("common.loading", language)}
+              {tCommon('loading')}
             </>
           ) : (
-            getTranslation("auth.login.submit", language)
+            t('login.submit')
           )}
         </Button>
 
@@ -267,7 +267,7 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-4 bg-white text-gray-500">
-              {getTranslation("auth.login.orContinueWith", language)}
+              {t('login.orContinueWith')}
             </span>
           </div>
         </div>
@@ -277,13 +277,13 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
         {/* Sign Up Link */}
         <div className="text-center text-sm">
           <span className="text-gray-600">
-            {getTranslation("auth.login.noAccount", language)}{" "}
+            {t('login.noAccount')}{" "}
           </span>
           <Link
             href="/auth/signup"
             className="text-purple-600 hover:text-purple-700 font-medium transition"
           >
-            {getTranslation("auth.login.signupLink", language)}
+            {t('login.signupLink')}
           </Link>
         </div>
       </form>
@@ -296,7 +296,7 @@ export function EnhancedLoginForm({ className, onSuccess }: EnhancedLoginFormPro
         className="mt-8 p-4 bg-purple-50 rounded-lg"
       >
         <p className="text-xs text-purple-700 font-medium mb-2">
-          {getTranslation("auth.demo.title", language, "Demo Accounts")}:
+          {t('demo.title')}:
         </p>
         <div className="space-y-1 text-xs text-purple-600">
           <p>Customer: customer@annpale.com / demo123</p>

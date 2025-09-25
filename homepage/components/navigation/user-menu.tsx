@@ -24,7 +24,9 @@ import {
   Shield,
   HelpCircle,
   Layout,
-  Home
+  Home,
+  Sparkles,
+  ArrowRightLeft
 } from "lucide-react"
 
 export function UserMenu() {
@@ -47,82 +49,106 @@ export function UserMenu() {
     router.push("/")
   }
 
-  const menuItems = {
-    customer: [
-      {
-        label: "Home",
-        href: "/fan/home",
-        icon: Home
-      },
-      {
-        label: "My Orders",
-        href: "/fan/orders",
-        icon: Package
-      },
-      {
-        label: "Settings",
-        href: "/fan/settings",
-        icon: Settings
+  const handleSwitchMode = async (mode: 'fan' | 'creator') => {
+    try {
+      const response = await fetch('/api/account/switch-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode })
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.redirectUrl) {
+        router.push(data.redirectUrl)
+        // Optionally refresh the page to update all components
+        router.refresh()
       }
-      // Archived: Help & Support
-      // {
-      //   label: "Help & Support",
-      //   href: "/help",
-      //   icon: HelpCircle
-      // }
-    ],
-    creator: [
-      {
-        label: "Creator Dashboard",
-        href: "/creator/dashboard",
-        icon: Layout
-      },
-      {
-        label: "My Videos",
-        href: "/creator/content",
-        icon: Video
-      },
-      {
-        label: "Analytics",
-        href: "/creator/analytics",
-        icon: BarChart3
-      },
-      {
-        label: "Earnings",
-        href: "/creator/finances",
-        icon: DollarSign
-      },
-      {
-        label: "Settings",
-        href: "/creator/settings",
-        icon: Settings
-      }
-    ],
-    admin: [
-      {
-        label: "Admin Dashboard",
-        href: "/admin/dashboard",
-        icon: Shield
-      },
-      {
-        label: "User Management",
-        href: "/admin/users",
-        icon: User
-      },
-      {
-        label: "Analytics",
-        href: "/admin/analytics",
-        icon: BarChart3
-      },
-      {
-        label: "Settings",
-        href: "/admin/settings",
-        icon: Settings
-      }
-    ]
+    } catch (error) {
+      console.error('Error switching mode:', error)
+    }
   }
 
-  const userMenuItems = menuItems[user.role] || menuItems.customer
+  const fanMenuItems = [
+    {
+      label: "Home",
+      href: "/fan/home",
+      icon: Home
+    },
+    {
+      label: "My Orders",
+      href: "/fan/orders",
+      icon: Package
+    },
+    {
+      label: "Settings",
+      href: "/fan/settings",
+      icon: Settings
+    }
+  ]
+
+  const creatorMenuItems = [
+    {
+      label: "Creator Studio",
+      href: "/creator/dashboard",
+      icon: Layout
+    },
+    {
+      label: "My Videos",
+      href: "/creator/content",
+      icon: Video
+    },
+    {
+      label: "Analytics",
+      href: "/creator/analytics",
+      icon: BarChart3
+    },
+    {
+      label: "Earnings",
+      href: "/creator/finances",
+      icon: DollarSign
+    },
+    {
+      label: "Creator Settings",
+      href: "/creator/settings",
+      icon: Settings
+    }
+  ]
+
+  const adminMenuItems = [
+    {
+      label: "Admin Dashboard",
+      href: "/admin/dashboard",
+      icon: Shield
+    },
+    {
+      label: "User Management",
+      href: "/admin/users",
+      icon: User
+    },
+    {
+      label: "Analytics",
+      href: "/admin/analytics",
+      icon: BarChart3
+    },
+    {
+      label: "Settings",
+      href: "/admin/settings",
+      icon: Settings
+    }
+  ]
+
+  // Determine what menu items to show based on user role and creator status
+  const isCreator = user.is_creator || user.role === 'creator'
+  const currentMode = user.current_mode || 'fan'
+
+  let userMenuItems = fanMenuItems
+
+  if (user.role === 'admin') {
+    userMenuItems = adminMenuItems
+  } else if (user.role === 'creator') {
+    userMenuItems = creatorMenuItems
+  }
 
   return (
     <DropdownMenu>
@@ -137,6 +163,12 @@ export function UserMenu() {
           {user.role === "creator" && (
             <Badge variant="secondary" className="text-xs">
               Creator
+            </Badge>
+          )}
+          {user.role === "fan" && isCreator && (
+            <Badge className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <Sparkles className="h-3 w-3 mr-1" />
+              Fan + Creator
             </Badge>
           )}
           {user.role === "admin" && (
@@ -154,14 +186,79 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {userMenuItems.map((item, index) => (
-          <DropdownMenuItem key={index} asChild>
-            <Link href={item.href} className="cursor-pointer">
-              <item.icon className="mr-2 h-4 w-4" />
-              <span>{item.label}</span>
-            </Link>
-          </DropdownMenuItem>
-        ))}
+
+        {/* Show mode switcher if user has creator access */}
+        {isCreator && user.role !== 'admin' && (
+          <>
+            <DropdownMenuLabel className="text-xs text-gray-500 uppercase">
+              Current: {currentMode === 'creator' ? '🎬 Creator Mode' : '👤 Fan Mode'}
+            </DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => handleSwitchMode(currentMode === 'fan' ? 'creator' : 'fan')}
+              className="mb-2 cursor-pointer"
+            >
+              <ArrowRightLeft className="mr-2 h-4 w-4" />
+              <span>Switch to {currentMode === 'fan' ? 'Creator' : 'Fan'} Mode</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {/* Show appropriate menu items based on role and mode */}
+        {user.role === 'admin' ? (
+          // Admin users see only admin menu
+          adminMenuItems.map((item, index) => (
+            <DropdownMenuItem key={index} asChild>
+              <Link href={item.href} className="cursor-pointer">
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            </DropdownMenuItem>
+          ))
+        ) : isCreator ? (
+          // Users with creator access see both sections
+          <>
+            <DropdownMenuLabel className="text-xs text-gray-500 uppercase">
+              Fan Features
+            </DropdownMenuLabel>
+            {fanMenuItems.map((item, index) => (
+              <DropdownMenuItem key={`fan-${index}`} asChild>
+                <Link href={item.href} className="cursor-pointer">
+                  <item.icon className="mr-2 h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              </DropdownMenuItem>
+            ))}
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuLabel className="text-xs text-gray-500 uppercase">
+              <span className="flex items-center">
+                <Sparkles className="mr-1 h-3 w-3" />
+                Creator Features
+              </span>
+            </DropdownMenuLabel>
+            {creatorMenuItems.map((item, index) => (
+              <DropdownMenuItem key={`creator-${index}`} asChild>
+                <Link href={item.href} className="cursor-pointer">
+                  <item.icon className="mr-2 h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </>
+        ) : (
+          // Regular fans see only fan menu
+          userMenuItems.map((item, index) => (
+            <DropdownMenuItem key={index} asChild>
+              <Link href={item.href} className="cursor-pointer">
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            </DropdownMenuItem>
+          ))
+        )}
+
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
           <LogOut className="mr-2 h-4 w-4" />

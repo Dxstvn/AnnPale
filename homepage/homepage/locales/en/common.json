@@ -1,0 +1,72 @@
+{
+  "navigation": {
+    "home": "Home",
+    "browse": "Browse",
+    "categories": "Categories",
+    "howItWorks": "How It Works",
+    "forCreators": "For Creators",
+    "signIn": "Sign In",
+    "joinNow": "Join Now",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "profile": "Profile",
+    "searchPlaceholder": "Search creators..."
+  },
+  "hero": {
+    "badge": "New: Live streaming now available!",
+    "title": "Connect with your favorite Haitian creators",
+    "subtitle": "Build lasting connections through personalized videos and exclusive content",
+    "searchPlaceholder": "Search creators...",
+    "searchButton": "Search"
+  },
+  "stats": {
+    "activeCreators": "Active Creators",
+    "videosDelivered": "Videos Delivered",
+    "happyCustomers": "Happy Customers",
+    "countries": "Countries"
+  },
+  "buttons": {
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "languages": {
+    "english": "English",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of"
+  },
+  "categories": {
+    "musicians": "Musicians",
+    "actors": "Actors",
+    "athletes": "Athletes",
+    "comedians": "Comedians",
+    "influencers": "Influencers",
+    "artists": "Artists"
+  }
+}

@@ -19,7 +19,6 @@ import {
   Rocket,
   ChevronRight
 } from "lucide-react"
-import { useLanguage } from "@/contexts/language-context"
 import { cn } from "@/lib/utils"
 
 const subscriptionTiers = [
@@ -86,7 +85,6 @@ const subscriptionTiers = [
 ]
 
 export default function SubscriptionsPage() {
-  const { language } = useLanguage()
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
 

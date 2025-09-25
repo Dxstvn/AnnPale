@@ -136,8 +136,8 @@ export function StripeOnboardingRedirect() {
     }
   }
 
-  // Show nothing if user is not a creator or already has Stripe setup
-  if (user?.role !== 'creator' || stripeStatus.chargesEnabled) {
+  // Show nothing if user is not a creator (and not a dual-role user) or already has Stripe setup
+  if ((!user?.is_creator && user?.role !== 'creator') || stripeStatus.chargesEnabled) {
     return null
   }
 

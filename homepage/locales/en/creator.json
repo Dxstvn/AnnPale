@@ -1,0 +1,89 @@
+{
+  "dashboard": {
+    "title": "Creator Dashboard",
+    "welcome": "Welcome back",
+    "overview": "Overview",
+    "videoRequests": "Video Requests",
+    "earnings": "Earnings",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "pendingRequests": "Pending Requests",
+    "completedVideos": "Completed Videos",
+    "totalEarnings": "Total Earnings",
+    "thisMonth": "This Month",
+    "viewAll": "View All"
+  },
+  "requests": {
+    "title": "Video Requests",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "declined": "Declined",
+    "dueDate": "Due Date",
+    "requestFrom": "Request from",
+    "occasion": "Occasion",
+    "instructions": "Instructions",
+    "price": "Price",
+    "accept": "Accept",
+    "decline": "Decline",
+    "uploadVideo": "Upload Video",
+    "sendVideo": "Send Video",
+    "noRequests": "No video requests at the moment"
+  },
+  "profile": {
+    "title": "Creator Profile",
+    "bio": "Bio",
+    "videoPrice": "Video Price",
+    "responseTime": "Response Time",
+    "categories": "Categories",
+    "languages": "Languages Spoken",
+    "availability": "Availability",
+    "socialLinks": "Social Links",
+    "updateProfile": "Update Profile",
+    "profileUpdated": "Profile updated successfully"
+  },
+  "earnings": {
+    "title": "Earnings",
+    "available": "Available Balance",
+    "pending": "Pending",
+    "totalEarned": "Total Earned",
+    "withdraw": "Withdraw Funds",
+    "payoutHistory": "Payout History",
+    "earningsChart": "Earnings Over Time",
+    "topEarningVideos": "Top Earning Videos"
+  },
+  "onboarding": {
+    "title": "Complete Your Creator Profile",
+    "step1": "Basic Information",
+    "step2": "Set Your Pricing",
+    "step3": "Payment Setup",
+    "step4": "Verification",
+    "continue": "Continue",
+    "back": "Back",
+    "finish": "Finish Setup"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "requests": "Requests",
+    "revenue": "Revenue",
+    "content": "Content",
+    "settings": "Settings"
+  },
+  "help": {
+    "dashboard": "View your overall performance and key metrics",
+    "requests": "Manage and respond to video requests",
+    "revenue": "Track your earnings and financial analytics",
+    "content": "Manage your videos and content library",
+    "settings": "Configure your account and preferences"
+  },
+  "stats": {
+    "todaysEarnings": "Today's Earnings",
+    "pendingRequests": "Pending Requests",
+    "responseRate": "Response Rate"
+  },
+  "actions": {
+    "switching": "Switching...",
+    "switchToFanPortal": "Switch to Fan Portal",
+    "switchToFanDescription": "Access your fan features and browse creators"
+  }
+}

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { useLanguage } from "@/contexts/language-context"
 import { getTranslation } from "@/lib/translations"
 import { Check, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -53,7 +52,6 @@ const steps = [
 export default function BookingPage() {
   const params = useParams()
   const router = useRouter()
-  const { language } = useLanguage()
   const [currentStep, setCurrentStep] = useState(1)
   const [isAnimating, setIsAnimating] = useState(false)
   const [bookingData, setBookingData] = useState({

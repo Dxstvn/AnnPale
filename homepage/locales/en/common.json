@@ -1,0 +1,316 @@
+{
+  "navigation": {
+    "home": "Home",
+    "browse": "Browse",
+    "howItWorks": "How It Works",
+    "forCreators": "For Creators",
+    "signIn": "Sign In",
+    "joinNow": "Join Now",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "profile": "Profile"
+  },
+  "hero": {
+    "title": "Connect with your favorite Haitian creators",
+    "subtitle": "Build lasting connections through personalized videos and exclusive content",
+    "searchPlaceholder": "Search creators...",
+    "searchButton": "Search",
+    "badge": "New: Live streaming now available!"
+  },
+  "featured": {
+    "title": "Featured Creators",
+    "verified": "Verified",
+    "reviews": "reviews"
+  },
+  "categories": {
+    "browseByCategory": "Browse by category",
+    "musicians": "Musicians",
+    "actors": "Actors",
+    "athletes": "Athletes",
+    "comedians": "Comedians",
+    "influencers": "Influencers",
+    "artists": "Artists",
+    "creatorsCount": "creators",
+    "musician": "Musician",
+    "comedian": "Comedian",
+    "actor": "Actor",
+    "djProducer": "DJ/Producer",
+    "singer": "Singer",
+    "singers": "Singers",
+    "radioHost": "Radio Host",
+    "dj": "DJ",
+    "music": "Music",
+    "comedy": "Comedy",
+    "sports": "Sports",
+    "radio": "Radio",
+    "activists": "Activists",
+    "musicDesc": "Talented musicians and singers",
+    "comedyDesc": "Hilarious comedians and entertainers",
+    "actorsDesc": "Acclaimed actors and performers",
+    "sportsDesc": "Professional athletes and sports figures",
+    "influencersDesc": "Social media stars and influencers",
+    "artistsDesc": "Creative artists and visual creators",
+    "radioDesc": "Popular radio hosts and DJs",
+    "activistsDesc": "Community leaders and activists"
+  },
+  "howItWorks": {
+    "title": "How Ann Pale works",
+    "browseAndBook": "Browse & Book",
+    "browseAndBookDesc": "Choose your favorite creator and tell them what you'd like them to say",
+    "receiveVideo": "Receive your video",
+    "receiveVideoDesc": "Get a personalized video message delivered straight to your inbox",
+    "makeSomeoneSmile": "Make someone smile",
+    "makeSomeoneSmileDesc": "Share the joy with friends, family, or keep it for yourself"
+  },
+  "cta": {
+    "readyToStart": "Ready to get started?",
+    "readyToStartDesc": "Join thousands of happy customers who've received amazing personalized videos",
+    "browseCreators": "Browse creators",
+    "becomeCreator": "Become a creator"
+  },
+  "footer": {
+    "aboutAnnPale": "Connect with your favorite Haitian creators through personalized video messages.",
+    "company": "Company",
+    "about": "About",
+    "careers": "Careers",
+    "press": "Press",
+    "blog": "Blog",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "safety": "Safety",
+    "communityGuidelines": "Community Guidelines",
+    "contact": "Contact",
+    "legal": "Legal",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "cookiePolicy": "Cookie Policy",
+    "allRightsReserved": "All rights reserved"
+  },
+  "filters": {
+    "noCreatorsFound": "No creators found",
+    "tryAdjustingFilters": "Try adjusting your filters or search",
+    "clearFilters": "Clear all filters",
+    "showing": "Showing",
+    "results": "results"
+  },
+  "sort": {
+    "mostPopular": "Most Popular",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "highestRated": "Highest Rated",
+    "newest": "Newest"
+  },
+  "actions": {
+    "requestVideo": "Request Video",
+    "subscribe": "Subscribe",
+    "signUpToContinue": "Sign up to Continue",
+    "signUpToSubscribe": "Sign up to Subscribe"
+  },
+  "errors": {
+    "creatorNotFound": "Creator not found"
+  },
+  "buttons": {
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "languages": {
+    "english": "English",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen",
+    "spanish": "Español"
+  },
+  "howItWorks": {
+    "badge": "Simple Process",
+    "title": "How Ann Pale Works",
+    "subtitle": "Get personalized video messages from your favorite Haitian celebrities in 4 simple steps",
+    "step1Title": "Find Your Star",
+    "step1Desc": "Browse our catalog of Haitian celebrities",
+    "step1Detail": "Search by name, category, or occasion. Filter by price, language, and response time to find the perfect creator for your needs.",
+    "step2Title": "Request a Video",
+    "step2Desc": "Tell them what to say and who it's for",
+    "step2Detail": "Fill out a simple form with your instructions. Add personal details to make the message extra special. Choose your delivery date.",
+    "step3Title": "Receive Your Video",
+    "step3Desc": "Get your personalized video message",
+    "step3Detail": "Most videos are delivered within 3 days. Download in HD quality. Share directly to social media or send as a gift.",
+    "step4Title": "Share the Joy",
+    "step4Desc": "Make someone's day unforgettable",
+    "step4Detail": "Watch their reaction as they receive a personal message from their favorite star. Create memories that last a lifetime.",
+    "videoTitle": "See How It Works",
+    "videoDuration": "2 minute video",
+    "trustBadge1": "100% Authentic Videos",
+    "trustBadge2": "3-Day Delivery",
+    "trustBadge3": "Money-Back Guarantee",
+    "browseCreators": "Browse Creators",
+    "ctaButton": "Browse Creators"
+  },
+  "cta": {
+    "creator": {
+      "title": "Are You a Haitian Creator?",
+      "subtitle": "Join thousands of Haitian celebrities earning money by creating personalized video messages for fans worldwide.",
+      "benefit1": "Set your own prices and schedule",
+      "benefit2": "Keep 75% of your earnings",
+      "benefit3": "Connect with fans globally",
+      "applyButton": "Apply to Join",
+      "learnMoreButton": "Learn More",
+      "avgEarnings": "$50K+",
+      "avgEarningsLabel": "Avg Annual Earnings",
+      "activeCreators": "500+",
+      "activeCreatorsLabel": "Active Creators",
+      "satisfaction": "4.9",
+      "satisfactionLabel": "Creator Satisfaction",
+      "responseTime": "72hr",
+      "responseTimeLabel": "Avg Response Time"
+    },
+    "fan": {
+      "title": "Make Someone's Day Special",
+      "subtitle": "Get personalized video messages from your favorite Haitian celebrities. Perfect for birthdays, anniversaries, or just because!",
+      "browseButton": "Browse All Creators",
+      "howItWorksButton": "How It Works",
+      "trustBadge1": "✨ 100% Authentic Videos",
+      "trustBadge2": "💰 Money-Back Guarantee",
+      "trustBadge3": "⚡ 3-Day Delivery"
+    },
+    "business": {
+      "title": "Ann Pale for Business",
+      "subtitle": "Engage your customers and employees with personalized celebrity messages",
+      "feature1Title": "Employee Recognition",
+      "feature1Desc": "Celebrate milestones and achievements with celebrity shoutouts",
+      "feature2Title": "Marketing Campaigns",
+      "feature2Desc": "Boost engagement with authentic celebrity endorsements",
+      "feature3Title": "Client Gifts",
+      "feature3Desc": "Send memorable gifts that strengthen relationships",
+      "getStartedButton": "Get Started for Business"
+    },
+    "gift": {
+      "title": "The Perfect Gift for Any Occasion",
+      "subtitle": "Surprise someone special with a personalized video message from their favorite Haitian celebrity. It's unique, meaningful, and unforgettable!",
+      "sendGiftButton": "Send a Gift"
+    }
+  },
+  "creators": {
+    "bookNow": "Book Now",
+    "popular": "Popular",
+    "fastResponse": "Fast Response",
+    "languages": "languages",
+    "responseTime24Hours": "24 hours",
+    "responseTime2Days": "2 days",
+    "responseTime3Days": "3 days",
+    "responseTime5Days": "5 days",
+    "featuredPrefix": "feat."
+  },
+  "filters": {
+    "title": "Filters",
+    "category": "Category",
+    "allCategories": "All Categories",
+    "priceRange": "Price Range",
+    "allPrices": "All Prices",
+    "languages": "Language",
+    "allLanguages": "All Languages",
+    "responseTime": "Response Time",
+    "minimumRating": "Minimum Rating",
+    "availability": "Availability",
+    "verifiedOnly": "Verified Only",
+    "verifiedCreatorsOnly": "Verified Creators Only",
+    "reset": "Reset",
+    "clearAll": "Clear all",
+    "apply": "Apply",
+    "showResults": "Show {count} Results",
+    "activeFilters": "Active filters:",
+    "creatorsFound": "creators found",
+    "anyRating": "Any rating",
+    "starsPlus": "+ stars"
+  },
+  "search": {
+    "placeholder": "Search creators...",
+    "button": "Search",
+    "clear": "Clear search",
+    "results": "{count} creators found",
+    "noResults": "No creators found",
+    "tryAdjusting": "Try adjusting your filters or search terms",
+    "clearFilters": "Clear all filters",
+    "errorLoading": "Error loading creators",
+    "tryAgain": "Try again"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "results": "results"
+  },
+  "browse": {
+    "title": "Browse Creators",
+    "subtitle": "Find your favorite Haitian celebrities and book personalized video messages",
+    "quickView": "Quick View",
+    "viewProfile": "View Profile",
+    "creator": "Creator",
+    "creators": "Creators",
+    "found": "Found",
+    "mostPopular": "Most Popular",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "highestRated": "Highest Rated",
+    "newest": "Newest",
+    "gridView": "Grid view",
+    "listView": "List view",
+    "compactView": "Compact view",
+    "removeSearchFilter": "Remove search filter",
+    "removeCategoryFilter": "Remove category filter",
+    "removePriceFilter": "Remove price filter"
+  },
+  "availability": {
+    "allCreators": "All Creators",
+    "availableNow": "Available Now",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month"
+  },
+  "responseTimeOptions": {
+    "24hr": "24 hours",
+    "2days": "2 days",
+    "3days": "3 days",
+    "1week": "1 week"
+  },
+  "badges": {
+    "new": "New"
+  },
+  "testimonials": {
+    "title": "What Our Community Says",
+    "subtitle": "Real stories from fans and creators using Ann Pale",
+    "watchVideo": "Watch Video",
+    "playVideo": "Play Video",
+    "from": "from",
+    "videoFrom": "Video from",
+    "weeksAgo": "weeks ago",
+    "weekAgo": "week ago",
+    "monthsAgo": "months ago",
+    "monthAgo": "month ago",
+    "daysAgo": "days ago",
+    "dayAgo": "day ago"
+  },
+  "stats": {
+    "activeCreators": "Active Creators",
+    "videosDelivered": "Videos Delivered",
+    "happyCustomers": "Happy Customers",
+    "countries": "Countries"
+  }
+}

@@ -1,0 +1,98 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic [active]:
+    - generic [ref=e5] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e6] [cursor=pointer]:
+        - img [ref=e7] [cursor=pointer]
+      - generic [ref=e10] [cursor=pointer]:
+        - button "Open issues overlay" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12] [cursor=pointer]:
+            - generic [ref=e13] [cursor=pointer]: "0"
+            - generic [ref=e14] [cursor=pointer]: "1"
+          - generic [ref=e15] [cursor=pointer]: Issue
+        - button "Collapse issues badge" [ref=e16] [cursor=pointer]:
+          - img [ref=e17] [cursor=pointer]
+    - generic [ref=e21]:
+      - dialog "Runtime Error" [ref=e22]:
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]:
+                - generic [ref=e29]: Runtime Error
+                - generic [ref=e30]:
+                  - button "Copy Stack Trace" [ref=e31] [cursor=pointer]:
+                    - img [ref=e32] [cursor=pointer]
+                  - button "No related documentation found" [disabled] [ref=e34]:
+                    - img [ref=e35]
+                  - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e37] [cursor=pointer]:
+                    - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                    - img [ref=e38] [cursor=pointer]
+              - generic [ref=e46]:
+                - paragraph [ref=e47]: "Error: Cannot find module './8556.js' Require stack: - /Users/dustinjasmin/AnnPale/homepage/.next/server/webpack-runtime.js - /Users/dustinjasmin/AnnPale/homepage/.next/server/pages/_document.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/server/require.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/server/load-components.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/build/utils.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/build/swc/options.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/build/swc/index.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/build/analysis/parse-module.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/build/analysis/get-page-static-info.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/server/lib/router-server.js - /Users/dustinjasmin/AnnPale/homepage/node_modules/.pnpm/next@15.2.4_@babel+core@7.28.4_@playwright+test@1.55.1_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/server/lib/start-server.js"
+                - button "Show More" [ref=e49] [cursor=pointer]
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - paragraph [ref=e53]:
+                  - text: Call Stack
+                  - generic [ref=e54]: "50"
+                - button "Show 42 ignore-listed frame(s)" [ref=e55] [cursor=pointer]:
+                  - text: Show 42 ignore-listed frame(s)
+                  - img [ref=e56] [cursor=pointer]
+              - generic [ref=e58]:
+                - generic [ref=e59]: __webpack_require__.f.require
+                - generic [ref=e60]: .next/server/webpack-runtime.js (208:28)
+              - generic [ref=e61]:
+                - generic [ref=e62]: <unknown>
+                - generic [ref=e63]: .next/server/webpack-runtime.js (116:40)
+              - generic [ref=e64]:
+                - generic [ref=e65]: Array.reduce
+                - generic [ref=e66]: <anonymous> (0:0)
+              - generic [ref=e67]:
+                - generic [ref=e68]: __webpack_require__.e
+                - generic [ref=e69]: .next/server/webpack-runtime.js (115:67)
+              - generic [ref=e70]:
+                - generic [ref=e71]: Array.map
+                - generic [ref=e72]: <anonymous> (0:0)
+              - generic [ref=e73]:
+                - generic [ref=e74]: __webpack_require__.X
+                - generic [ref=e75]: .next/server/webpack-runtime.js (167:22)
+              - generic [ref=e76]:
+                - generic [ref=e77]: <unknown>
+                - generic [ref=e78]: .next/server/pages/_document.js (1:392)
+              - generic [ref=e79]:
+                - generic [ref=e80]: Object.<anonymous>
+                - generic [ref=e81]: .next/server/pages/_document.js (1:435)
+          - contentinfo [ref=e83]:
+            - paragraph [ref=e84]: This error happened while generating the page. Any console logs will be displayed in the terminal window.
+            - region "Error feedback" [ref=e85]:
+              - paragraph [ref=e86]:
+                - link "Was this helpful?" [ref=e87] [cursor=pointer]:
+                  - /url: https://nextjs.org/telemetry#error-feedback
+              - button "Mark as helpful" [ref=e88] [cursor=pointer]:
+                - img [ref=e89] [cursor=pointer]
+              - button "Mark as not helpful" [ref=e92] [cursor=pointer]:
+                - img [ref=e93] [cursor=pointer]
+          - generic [ref=e95]:
+            - generic [ref=e96]: "1"
+            - generic [ref=e97]: "2"
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - navigation [ref=e100]:
+            - button "previous" [disabled] [ref=e101]:
+              - img "previous" [ref=e102]
+            - generic [ref=e104]:
+              - generic [ref=e105]: 1/
+              - generic [ref=e106]: "1"
+            - button "next" [disabled] [ref=e107]:
+              - img "next" [ref=e108]
+          - img
+        - generic [ref=e110]:
+          - link "Next.js 15.2.4 (stale)" [ref=e111] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+            - img [ref=e112] [cursor=pointer]
+            - generic "There is a newer version (15.5.4) available, upgrade recommended!" [ref=e114] [cursor=pointer]: Next.js 15.2.4 (stale)
+          - img
+  - alert [ref=e115]
+```

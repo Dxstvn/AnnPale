@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useLanguage } from '@/contexts/language-context'
+import { useTranslations } from 'next-intl'
 import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -31,7 +31,7 @@ import { SubscriptionManagement } from '@/components/subscription/subscription-m
 import { useToast } from '@/components/ui/use-toast'
 
 export default function CustomerSettingsPage() {
-  const { language } = useLanguage()
+  const t = useTranslations()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useSupabaseAuth()

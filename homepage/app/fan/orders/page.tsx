@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useLanguage } from '@/contexts/language-context'
+import { useTranslations } from 'next-intl'
 import { 
   Package, Clock, CheckCircle, XCircle, Download, MessageSquare,
   Calendar, CreditCard, Video, Gift, Star, Filter, Search,
@@ -68,7 +68,8 @@ interface Order {
 }
 
 export default function CustomerOrdersPage() {
-  const { language } = useLanguage()
+  const t = useTranslations('fan')
+  const tOrders = (key: string) => t(`orders.${key}`)
   const { user, isLoading: authLoading } = useSupabaseAuth()
   const [selectedTab, setSelectedTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -351,7 +352,7 @@ export default function CustomerOrdersPage() {
                 }}
               >
                 <Play className="h-4 w-4 mr-1" />
-                {isLoadingVideo ? 'Loading...' : 'Watch'}
+                {isLoadingVideo ? tOrders('loading') : tOrders('watch')}
               </Button>
             )}
             {order.status === 'completed' && (
@@ -436,10 +437,10 @@ export default function CustomerOrdersPage() {
             <div>
               <h1 className="text-3xl font-bold flex items-center">
                 <Package className="mr-3 h-8 w-8" />
-                {'My Orders'}
+                {tOrders('title')}
               </h1>
               <p className="mt-2 text-purple-100">
-                {'Track and manage all your orders'}
+                {tOrders('subtitle')}
               </p>
             </div>
             <div className="text-right">
@@ -518,7 +519,7 @@ export default function CustomerOrdersPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
               type="text"
-              placeholder={'Search orders...'}
+              placeholder={tOrders('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -527,14 +528,14 @@ export default function CustomerOrdersPage() {
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-[180px]">
               <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filter by type" />
+              <SelectValue placeholder={tOrders('filterByType')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="video">Videos</SelectItem>
-              <SelectItem value="call">Calls</SelectItem>
-              <SelectItem value="livestream">Livestreams</SelectItem>
-              <SelectItem value="gift">Gifts</SelectItem>
+              <SelectItem value="all">{tOrders('allTypes')}</SelectItem>
+              <SelectItem value="video">{tOrders('videos')}</SelectItem>
+              <SelectItem value="call">{tOrders('calls')}</SelectItem>
+              <SelectItem value="livestream">{tOrders('livestreams')}</SelectItem>
+              <SelectItem value="gift">{tOrders('gifts')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -543,16 +544,16 @@ export default function CustomerOrdersPage() {
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="all">
-              All Orders ({orders.length})
+              {tOrders('allOrders')} ({orders.length})
             </TabsTrigger>
             <TabsTrigger value="active">
-              Active ({stats.active})
+              {tOrders('active')} ({stats.active})
             </TabsTrigger>
             <TabsTrigger value="completed">
-              Completed ({stats.completed})
+              {tOrders('completed')} ({stats.completed})
             </TabsTrigger>
             <TabsTrigger value="cancelled">
-              Cancelled/Refunded
+              {tOrders('cancelledRefunded')}
             </TabsTrigger>
           </TabsList>
 
@@ -566,15 +567,15 @@ export default function CustomerOrdersPage() {
                 <CardContent className="p-12 text-center">
                   <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No orders found
+                    {tOrders('noOrdersFound')}
                   </h3>
                   <p className="text-gray-500">
-                    {searchQuery 
-                      ? `No orders matching "${searchQuery}"`
-                      : 'You haven\'t placed any orders yet'}
+                    {searchQuery
+                      ? `${tOrders('noOrdersSearchMessage')} "${searchQuery}"`
+                      : tOrders('noOrdersMessage')}
                   </p>
                   <Button className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                    Browse Creators
+                    {tOrders('browseCreators')}
                   </Button>
                 </CardContent>
               </Card>
@@ -587,9 +588,9 @@ export default function CustomerOrdersPage() {
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
         <DialogContent className="max-w-2xl !bg-white !text-gray-900 dark:!bg-white dark:!text-gray-900">
           <DialogHeader>
-            <DialogTitle className="!text-gray-900 dark:!text-gray-900">Order Details</DialogTitle>
+            <DialogTitle className="!text-gray-900 dark:!text-gray-900">{tOrders('orderDetails')}</DialogTitle>
             <DialogDescription className="!text-gray-600 dark:!text-gray-600">
-              Order #{selectedOrder?.id.slice(0, 8)}
+              {tOrders('orderNumber')}{selectedOrder?.id.slice(0, 8)}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
@@ -665,7 +666,7 @@ export default function CustomerOrdersPage() {
                       }}
                     >
                       <Play className="h-4 w-4 mr-2" />
-                      {isLoadingVideo ? 'Loading...' : 'Watch Video'}
+                      {isLoadingVideo ? tOrders('loading') : tOrders('watchVideo')}
                     </Button>
                     <Button 
                       variant="outline"

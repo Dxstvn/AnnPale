@@ -77,8 +77,8 @@ export function CreatorSubscriptionTiers({
     if (onSubscribe) {
       onSubscribe(tierId)
     } else {
-      // Default behavior - redirect to checkout
-      window.location.href = `/checkout?tier=${tierId}&creator=${creatorId}`
+      // Default behavior - redirect to checkout (price fetched server-side for security)
+      window.location.href = `/checkout?type=subscription&tier=${tierId}&creator=${creatorId}`
     }
     
     setSubscribing(null)

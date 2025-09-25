@@ -150,7 +150,7 @@ export default function CreatorVideoGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredVideos.map((video, index) => (
           <div
-            key={video.id}
+            key={video.id || `video-${index}`}
             className="group"
             style={mounted ? {
               opacity: 1,

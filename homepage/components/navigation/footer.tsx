@@ -14,11 +14,8 @@ import {
   Phone,
   Send
 } from "lucide-react"
-import { useLanguage } from "@/contexts/language-context"
-import { getTranslation } from "@/lib/translations"
 
 export function Footer() {
-  const { language } = useLanguage()
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault()

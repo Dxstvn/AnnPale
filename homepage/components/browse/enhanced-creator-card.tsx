@@ -22,9 +22,6 @@ import {
   TrendingUp,
   Heart,
   Play,
-  Pause,
-  Volume2,
-  VolumeX,
   AlertCircle,
   RefreshCw,
   Eye,
@@ -47,7 +44,6 @@ export interface EnhancedCreator {
   category: string
   avatar: string
   coverImage?: string
-  videoPreview?: string
   rating: number
   reviewCount: number
   price: number
@@ -197,50 +193,11 @@ export function EnhancedCreatorCard({
 }: EnhancedCreatorCardProps) {
   const [isHovered, setIsHovered] = React.useState(false)
   const [imageLoaded, setImageLoaded] = React.useState(false)
-  const [videoLoaded, setVideoLoaded] = React.useState(false)
-  const [isPlaying, setIsPlaying] = React.useState(false)
-  const [isMuted, setIsMuted] = React.useState(true)
   const [hasError, setHasError] = React.useState(false)
   const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
-  const videoRef = React.useRef<HTMLVideoElement>(null)
   const router = useRouter()
   const { isAuthenticated } = useSupabaseAuth()
 
-  // Auto-play video on hover
-  React.useEffect(() => {
-    if (isHovered && creator.videoPreview && videoRef.current && videoLoaded) {
-      videoRef.current.play().catch(() => {
-        // Fallback if autoplay fails
-        setIsPlaying(false)
-      })
-    } else if (!isHovered && videoRef.current) {
-      videoRef.current.pause()
-      videoRef.current.currentTime = 0
-      setIsPlaying(false)
-    }
-  }, [isHovered, creator.videoPreview, videoLoaded])
-
-  const handleVideoToggle = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause()
-      } else {
-        videoRef.current.play()
-      }
-      setIsPlaying(!isPlaying)
-    }
-  }
-
-  const handleMuteToggle = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
-    }
-  }
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -443,29 +400,12 @@ export function EnhancedCreatorCard({
               alt={creator.name}
               className={cn(
                 "absolute inset-0 w-full h-full object-cover transition-all duration-500",
-                imageLoaded ? "opacity-100" : "opacity-0",
-                isHovered && creator.videoPreview ? "opacity-0" : "opacity-100"
+                imageLoaded ? "opacity-100" : "opacity-0"
               )}
               onLoad={() => setImageLoaded(true)}
               onError={() => setHasError(true)}
               loading={priority ? "eager" : "lazy"}
             />
-
-            {/* Video Preview */}
-            {creator.videoPreview && (
-              <video
-                ref={videoRef}
-                src={creator.videoPreview}
-                className={cn(
-                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
-                  isHovered && videoLoaded ? "opacity-100" : "opacity-0"
-                )}
-                muted={isMuted}
-                loop
-                playsInline
-                onLoadedData={() => setVideoLoaded(true)}
-              />
-            )}
 
             {/* Loading Skeleton */}
             {!imageLoaded && (
@@ -504,39 +444,6 @@ export function EnhancedCreatorCard({
                 <span className="text-sm font-semibold">{creator.rating}</span>
               </div>
             </div>
-
-            {/* Video Controls */}
-            {creator.videoPreview && isHovered && (
-              <AnimatePresence>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute bottom-3 left-3 flex gap-2"
-                >
-                  <button
-                    onClick={handleVideoToggle}
-                    className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-full hover:bg-white dark:hover:bg-gray-900 transition"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-4 w-4" />
-                    ) : (
-                      <Play className="h-4 w-4" />
-                    )}
-                  </button>
-                  <button
-                    onClick={handleMuteToggle}
-                    className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-full hover:bg-white dark:hover:bg-gray-900 transition"
-                  >
-                    {isMuted ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </button>
-                </motion.div>
-              </AnimatePresence>
-            )}
 
             {/* Quick Actions (Hover) */}
             <AnimatePresence>
