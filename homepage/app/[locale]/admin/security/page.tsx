@@ -26,6 +26,7 @@ import {
   FileWarning
 } from "lucide-react"
 import { format } from "date-fns"
+import { useTranslations } from 'next-intl'
 
 // Translations
 const securityTranslations: Record<string, Record<string, string>> = {
@@ -57,7 +58,7 @@ const threatLevel = {
 }
 
 export default function SecurityPage() {
-  const tAdmin = useTranslations()
+  const t = useTranslations('admin.system')
 
   const tAdmin = (key: string) => {
     return securityTranslations[key]?.['en'] || securityTranslations[key]?.en || key
@@ -76,8 +77,8 @@ export default function SecurityPage() {
     <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">{tAdmin('security_monitoring'}</h1>
-        <p className="text-gray-600 mt-1">{tAdmin('platform_security'}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{tAdmin('security_monitoring')}</h1>
+        <p className="text-gray-600 mt-1">{tAdmin('platform_security')}</p>
       </div>
 
       {/* Security Status */}
