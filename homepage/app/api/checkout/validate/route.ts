@@ -68,11 +68,11 @@ export async function POST(request: NextRequest) {
 
       // 5. Check if user is already subscribed to this tier
       const { data: existingSubscription } = await supabase
-        .from('creator_subscriptions')
+        .from('subscription_orders')
         .select('*')
-        .eq('fan_id', user.id)
+        .eq('user_id', user.id)
         .eq('creator_id', creatorId)
-        .eq('subscription_tier_id', tierId)
+        .eq('tier_id', tierId)
         .in('status', ['active', 'trialing'])
         .single()
 
@@ -139,8 +139,8 @@ export async function POST(request: NextRequest) {
         }, { status: 403 })
       }
 
-      // 3. Check request status
-      if (videoRequest.status !== 'pending_payment') {
+      // 3. Check request status - allow both pending and pending_payment
+      if (videoRequest.status !== 'pending_payment' && videoRequest.status !== 'pending') {
         return NextResponse.json({
           error: `Cannot process payment for request with status: ${videoRequest.status}`,
           valid: false

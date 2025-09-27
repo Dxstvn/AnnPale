@@ -1,0 +1,296 @@
+{
+  "dashboard": {
+    "title": "Tablo Administrasyon",
+    "welcomeBack": "Byenveni ankò",
+    "tabs": {
+      "overview": "Apèsi",
+      "creators": "Kreyatè",
+      "users": "Itilizatè",
+      "content": "Kontni",
+      "finance": "Finans"
+    },
+    "stats": {
+      "totalUsers": "Total Itilizatè",
+      "totalCreators": "Total Kreyatè",
+      "totalVideos": "Total Videyo",
+      "totalRevenue": "Total Revni",
+      "monthlyGrowth": "Kwasans Chak Mwa",
+      "pendingApprovals": "Apwobasyon k ap Tann",
+      "activeOrders": "Kòmand Aktif",
+      "averageRating": "Nòt Mwayèn"
+    },
+    "activities": {
+      "title": "Aktivite Resan",
+      "userJoined": "Nouvo itilizatè enskri",
+      "videoUploaded": "Nouvo videyo telechaje",
+      "orderCompleted": "Kòmand fini",
+      "creatorVerified": "Kreyatè verifye",
+      "withdrawalRequest": "Demann retrè"
+    },
+    "approvals": {
+      "title": "Apwobasyon k ap Tann",
+      "review": "Revize",
+      "approve": "Apwouve",
+      "reject": "Rejte"
+    },
+    "performance": {
+      "title": "Pèfòmans Platfòm lan",
+      "chartPlaceholder": "Grafik la ta dwe la"
+    }
+  },
+  "creators": {
+    "title": "Jesyon Kreyatè",
+    "searchPlaceholder": "Chèche kreyatè...",
+    "filters": {
+      "all": "Tout",
+      "active": "Aktif",
+      "pending": "K ap tann",
+      "inactive": "Pa aktif"
+    },
+    "table": {
+      "name": "Non",
+      "username": "Non itilizatè",
+      "email": "Imèl",
+      "phone": "Telefòn",
+      "status": "Stati",
+      "joined": "Enskri",
+      "videos": "Videyo",
+      "earnings": "Kòb fè",
+      "rating": "Nòt",
+      "actions": "Aksyon"
+    },
+    "actions": {
+      "view": "Gade",
+      "edit": "Modifye",
+      "approve": "Apwouve",
+      "suspend": "Sispann",
+      "delete": "Efase",
+      "message": "Mesaj"
+    },
+    "status": {
+      "active": "Aktif",
+      "pending": "K ap tann",
+      "suspended": "Sispandi",
+      "inactive": "Pa aktif"
+    }
+  },
+  "users": {
+    "title": "Jesyon Itilizatè",
+    "searchPlaceholder": "Chèche itilizatè...",
+    "filters": {
+      "all": "Tout Itilizatè",
+      "verified": "Verifye",
+      "unverified": "Pa verifye",
+      "premium": "Premium",
+      "blocked": "Bloke"
+    },
+    "table": {
+      "name": "Non",
+      "email": "Imèl",
+      "joined": "Enskri",
+      "lastActive": "Dènye Aktivite",
+      "orders": "Kòmand",
+      "spent": "Total Depanse",
+      "status": "Stati",
+      "actions": "Aksyon"
+    }
+  },
+  "content": {
+    "title": "Jesyon Kontni",
+    "tabs": {
+      "videos": "Videyo",
+      "reviews": "Revi",
+      "reports": "Rapò"
+    },
+    "videos": {
+      "title": "Jesyon Videyo",
+      "pending": "K ap tann revizyon",
+      "approved": "Apwouve",
+      "rejected": "Rejte",
+      "flagged": "Make"
+    },
+    "moderation": {
+      "approve": "Apwouve",
+      "reject": "Rejte",
+      "flag": "Make",
+      "delete": "Efase",
+      "viewDetails": "Gade detay"
+    }
+  },
+  "finance": {
+    "title": "Jesyon Finansye",
+    "overview": "Apèsi Finansye",
+    "revenue": {
+      "title": "Revni",
+      "total": "Total Revni",
+      "monthly": "Revni Chak Mwa",
+      "pending": "Peman k ap Tann",
+      "completed": "Peman Fini"
+    },
+    "payouts": {
+      "title": "Peman Kreyatè",
+      "pending": "Peman k ap Tann",
+      "processing": "Ap trete",
+      "completed": "Fini",
+      "failed": "Echwe",
+      "processAll": "Trete Tout Peman",
+      "viewDetails": "Gade detay"
+    },
+    "transactions": {
+      "title": "Tranzaksyon Resan",
+      "id": "ID Tranzaksyon",
+      "date": "Dat",
+      "amount": "Kantite",
+      "type": "Tip",
+      "status": "Stati",
+      "user": "Itilizatè",
+      "creator": "Kreyatè"
+    }
+  },
+  "orders": {
+    "title": "Jesyon Kòmand",
+    "searchPlaceholder": "Chèche kòmand...",
+    "filters": {
+      "all": "Tout Kòmand",
+      "pending": "K ap tann",
+      "processing": "Ap trete",
+      "completed": "Fini",
+      "cancelled": "Anile",
+      "refunded": "Ranbouse"
+    },
+    "table": {
+      "orderId": "ID Kòmand",
+      "customer": "Kliyan",
+      "creator": "Kreyatè",
+      "date": "Dat",
+      "amount": "Kantite",
+      "status": "Stati",
+      "actions": "Aksyon"
+    },
+    "actions": {
+      "view": "Gade detay",
+      "refund": "Ranbouse",
+      "cancel": "Anile",
+      "message": "Voye mesaj bay kliyan"
+    }
+  },
+  "analytics": {
+    "title": "Analitik",
+    "overview": "Apèsi Analitik",
+    "metrics": {
+      "users": "Mezi Itilizatè",
+      "creators": "Mezi Kreyatè",
+      "revenue": "Mezi Revni",
+      "engagement": "Mezi Angajman"
+    },
+    "charts": {
+      "userGrowth": "Kwasans Itilizatè",
+      "revenueGrowth": "Kwasans Revni",
+      "videoUploads": "Telechajman Videyo",
+      "orderVolume": "Volim Kòmand"
+    },
+    "export": "Ekspòte Done",
+    "dateRange": "Peryòd",
+    "compare": "Konpare Peryòd"
+  },
+  "settings": {
+    "title": "Paramèt Admin",
+    "general": "Paramèt Jeneral",
+    "security": "Sekirite",
+    "notifications": "Notifikasyon",
+    "api": "Paramèt API",
+    "backup": "Sovgad ak Restore"
+  },
+  "moderation": {
+    "title": "Moderasyon Kontni",
+    "queue": {
+      "title": "Liy Moderasyon",
+      "pending": "K ap tann revizyon",
+      "reviewed": "Revize",
+      "flagged": "Kontni Make"
+    },
+    "actions": {
+      "approve": "Apwouve",
+      "reject": "Rejte",
+      "escalate": "Eskale",
+      "ban": "Entèdi Itilizatè",
+      "warn": "Bay Avètisman"
+    },
+    "reasons": {
+      "inappropriate": "Kontni Pa Apwopriye",
+      "spam": "Spam",
+      "harassment": "Asèlman",
+      "copyright": "Vyolasyon Dwa Otè",
+      "other": "Lòt"
+    }
+  },
+  "system": {
+    "title": "Jesyon Sistèm",
+    "health": "Sante Sistèm",
+    "performance": "Pèfòmans",
+    "logs": "Jounal Sistèm",
+    "cache": "Jesyon Kach",
+    "queue": "Liy Travay",
+    "maintenance": "Mòd Antretyen"
+  },
+  "roles": {
+    "title": "Wòl ak Pèmisyon",
+    "admin": "Administratè",
+    "moderator": "Moderatè",
+    "support": "Anplwaye Sipò",
+    "viewer": "Obsèvatè",
+    "manage": "Jere Wòl",
+    "permissions": "Modifye Pèmisyon"
+  },
+  "emergency": {
+    "title": "Kontwòl Ijans",
+    "pausePlatform": "Poz Platfòm lan",
+    "disablePayments": "Dezaktive Peman",
+    "lockdownMode": "Mòd Fèmen",
+    "alertUsers": "Avèti Tout Itilizatè",
+    "backupNow": "Sovgad Kounye a"
+  },
+  "common": {
+    "loading": "Ap chaje...",
+    "error": "Gen yon erè ki fèt",
+    "success": "Siksè",
+    "save": "Anrejistre",
+    "cancel": "Anile",
+    "delete": "Efase",
+    "edit": "Modifye",
+    "view": "Gade",
+    "export": "Ekspòte",
+    "import": "Enpòte",
+    "refresh": "Rafrechi",
+    "search": "Chèche",
+    "filter": "Filtre",
+    "sort": "Klase",
+    "actions": "Aksyon",
+    "status": "Stati",
+    "date": "Dat",
+    "time": "Lè",
+    "yes": "Wi",
+    "no": "Non",
+    "confirm": "Konfime",
+    "confirmDelete": "Èske w sèten ou vle efase sa?",
+    "noDataFound": "Pa gen done",
+    "showing": "Montre",
+    "of": "nan",
+    "results": "rezilta",
+    "page": "Paj",
+    "perPage": "Pa paj",
+    "total": "Total",
+    "selected": "Seleksyone",
+    "selectAll": "Seleksyone tout",
+    "deselectAll": "Deseleksyone tout",
+    "bulkActions": "Aksyon an gwoup",
+    "apply": "Aplike",
+    "clear": "Efase",
+    "reset": "Reset",
+    "back": "Retounen",
+    "next": "Pwochen",
+    "previous": "Anvan",
+    "first": "Premye",
+    "last": "Dènye"
+  }
+}

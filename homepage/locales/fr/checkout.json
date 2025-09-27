@@ -1,0 +1,137 @@
+{
+  "title": "Paiement",
+  "secureCheckout": "Paiement sécurisé",
+  "orderSummary": "Résumé de la commande",
+  "paymentDetails": "Détails de paiement",
+  "loadingPaymentSystem": "Chargement du système de paiement...",
+  "loadingSubscription": "Chargement du paiement d'abonnement...",
+  "loading": "Chargement...",
+  "redirecting": "Redirection en cours...",
+  "videoDetails": "Détails de la vidéo",
+  "customerSupport": "Support client",
+  "support247": "Aide disponible 24h/24 et 7j/7",
+  "paymentCardDescription": "Entrez les informations de votre carte pour effectuer le paiement",
+  "poweredByStripe": "Propulsé par Stripe",
+  "initializingPayment": "Initialisation du paiement...",
+  "paymentInitFailed": "Échec de l'initialisation du paiement. Veuillez réessayer.",
+
+  "orderDetails": {
+    "videoRequest": "Demande de vidéo",
+    "subscription": "Abonnement",
+    "creator": "Créateur",
+    "deliveryTime": "Délai de livraison",
+    "standardDelivery": "Livraison standard",
+    "rushDelivery": "Livraison express",
+    "days": "jours",
+    "hours": "heures",
+    "recipientName": "Nom du destinataire",
+    "occasion": "Occasion",
+    "specialInstructions": "Instructions spéciales",
+    "makeGift": "En faire un cadeau",
+    "giftFrom": "Cadeau de",
+    "giftMessage": "Message cadeau",
+    "rushDeliveryDesc": "Recevez votre vidéo dans les 24 heures"
+  },
+
+  "pricing": {
+    "basePrice": "Prix de base",
+    "rushDeliveryFee": "Frais de livraison express",
+    "subtotal": "Sous-total",
+    "tax": "Taxe",
+    "processingFee": "Frais de traitement",
+    "total": "Total",
+    "discount": "Réduction",
+    "promoCode": "Code promo",
+    "applyPromo": "Appliquer",
+    "perMonth": "par mois",
+    "billedMonthly": "Facturé mensuellement",
+    "billedYearly": "Facturé annuellement",
+    "billingCycle": "Cycle de facturation"
+  },
+
+  "payment": {
+    "paymentMethod": "Méthode de paiement",
+    "cardNumber": "Numéro de carte",
+    "cardholderName": "Nom du titulaire",
+    "expiryDate": "Date d'expiration",
+    "cvv": "CVV",
+    "billingAddress": "Adresse de facturation",
+    "saveCard": "Sauvegarder la carte pour les achats futurs",
+    "useNewCard": "Utiliser une nouvelle carte",
+    "savedCards": "Cartes sauvegardées",
+    "endingIn": "se terminant par",
+    "expires": "Expire"
+  },
+
+  "customerInfo": {
+    "title": "Informations client",
+    "email": "Email",
+    "phone": "Téléphone",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "country": "Pays",
+    "address": "Adresse",
+    "city": "Ville",
+    "state": "État/Province",
+    "zipCode": "Code postal"
+  },
+
+  "actions": {
+    "placeOrder": "Passer la commande",
+    "processing": "Traitement...",
+    "backToCreator": "Retour au créateur",
+    "cancel": "Annuler",
+    "continuePayment": "Continuer vers le paiement",
+    "completePurchase": "Finaliser l'achat",
+    "subscribeNow": "S'abonner maintenant"
+  },
+
+  "billing": {
+    "nextBilling": "Prochaine facturation"
+  },
+
+  "benefits": {
+    "included": "Avantages inclus:"
+  },
+
+  "terms": {
+    "agreeToTerms": "J'accepte les",
+    "termsOfService": "Conditions d'utilisation",
+    "and": "et",
+    "privacyPolicy": "Politique de confidentialité",
+    "refundPolicy": "Politique de remboursement",
+    "subscriptionTerms": "Conditions d'abonnement"
+  },
+
+  "security": {
+    "securePayment": "Paiement sécurisé",
+    "encryptedData": "Vos informations de paiement sont chiffrées",
+    "sslProtected": "Protégé SSL",
+    "pciCompliant": "Conforme PCI",
+    "moneyBackGuarantee": "Garantie de remboursement",
+    "satisfaction": "Satisfaction 100% ou remboursement"
+  },
+
+  "errors": {
+    "invalidCheckout": "Paramètres de paiement invalides",
+    "alreadySubscribed": "Vous êtes déjà abonné à ce créateur",
+    "paymentFailed": "Échec du paiement. Veuillez réessayer.",
+    "cardDeclined": "Carte refusée",
+    "insufficientFunds": "Fonds insuffisants",
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "requiredFields": "Veuillez remplir tous les champs requis",
+    "invalidEmail": "Veuillez entrer un email valide",
+    "invalidCard": "Veuillez entrer un numéro de carte valide",
+    "agreeTerms": "Veuillez accepter les conditions"
+  },
+
+  "success": {
+    "orderComplete": "Commande terminée!",
+    "subscriptionActive": "Abonnement actif!",
+    "thankYou": "Merci pour votre achat",
+    "orderNumber": "Numéro de commande",
+    "confirmationSent": "Une confirmation a été envoyée à",
+    "videoDelivery": "Votre vidéo sera livrée dans",
+    "accessContent": "Vous avez maintenant accès au contenu d'abonné"
+  }
+}

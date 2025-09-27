@@ -72,7 +72,8 @@ export async function GET(request: NextRequest) {
             {
               event: '*',  // Listen to all events
               schema: 'public',
-              table: 'notifications'
+              table: 'notifications',
+              filter: `user_id=eq.${user.id}` // Only listen to this user's notifications
             },
             (payload) => {
               console.log('[SSE Server] Database event received:', payload.eventType, payload)
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
           )
           // Removed separate UPDATE handler since we're using * for all events
           .subscribe((status, error) => {
-            console.log('[SSE Server] Realtime subscription status:', status, error)
+            console.log('[SSE Server] Realtime subscription status:', status, error?.message || 'No error details')
             if (status === 'SUBSCRIBED') {
               console.log('[SSE Server] Successfully subscribed to notifications table')
               // Send a confirmation message
@@ -119,14 +120,16 @@ export async function GET(request: NextRequest) {
               })}\n\n`
               controller.enqueue(encoder.encode(confirmMessage))
             } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-              console.error('[SSE Server] Error subscribing to notifications table:', error)
-              // Send error message to client
-              const errorMessage = `data: ${JSON.stringify({
-                type: 'realtime_error',
-                error: 'Failed to subscribe to real-time updates',
-                timestamp: new Date().toISOString()
-              })}\n\n`
-              controller.enqueue(encoder.encode(errorMessage))
+              console.error('[SSE Server] Subscription error:', {
+                status,
+                error: error?.message || 'Unknown error',
+                userId: user.id,
+                channel: `notifications_all_${user.id}`
+              })
+              // Don't crash, just log the error and continue with polling
+              // The client will fall back to polling if realtime fails
+            } else if (status === 'CLOSED') {
+              console.log('[SSE Server] Realtime subscription closed')
             }
           })
       } catch (error) {

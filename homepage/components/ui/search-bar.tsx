@@ -4,16 +4,17 @@ import * as React from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Search, 
-  X, 
-  TrendingUp, 
+import {
+  Search,
+  X,
+  TrendingUp,
   Clock,
   Loader2,
   ArrowRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { useTranslations } from "next-intl"
 
 interface SearchSuggestion {
   id: string
@@ -39,7 +40,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({
-  placeholder = "Search for creators, categories, or occasions...",
+  placeholder,
   value: controlledValue,
   onChange,
   onSearch,
@@ -59,6 +60,7 @@ export function SearchBar({
   const inputRef = React.useRef<HTMLInputElement>(null)
   const dropdownRef = React.useRef<HTMLDivElement>(null)
   const debounceRef = React.useRef<NodeJS.Timeout>()
+  const t = useTranslations('components.searchBar')
 
   const value = controlledValue !== undefined ? controlledValue : internalValue
   const setValue = (newValue: string) => {
@@ -70,11 +72,11 @@ export function SearchBar({
 
   // Default trending searches if none provided
   const defaultTrending = [
-    "Birthday messages",
-    "Wedding congratulations",
-    "Kompa artists",
-    "Comedians",
-    "Anniversary wishes"
+    t('birthdayMessages'),
+    t('weddingCongratulations'),
+    t('kompaArtists'),
+    t('comedians'),
+    t('anniversaryWishes')
   ]
 
   const displayTrending = trendingSearches.length > 0 ? trendingSearches : defaultTrending
@@ -193,7 +195,7 @@ export function SearchBar({
             setShowDropdown(true)
           }}
           onBlur={() => setIsFocused(false)}
-          placeholder={placeholder}
+          placeholder={placeholder || t('placeholder')}
           className={cn(
             "w-full rounded-full border bg-white dark:bg-gray-800 transition-all",
             "placeholder:text-gray-400 outline-none",
@@ -231,7 +233,7 @@ export function SearchBar({
             <ArrowRight className={iconSizes[variant]} />
           ) : (
             <>
-              Search
+              {t('searchButton')}
               <ArrowRight className={cn("ml-1", iconSizes[variant])} />
             </>
           )}
@@ -273,7 +275,7 @@ export function SearchBar({
                     {suggestion.type === "trending" && (
                       <Badge variant="secondary" className="text-xs">
                         <TrendingUp className="h-3 w-3 mr-1" />
-                        Trending
+                        {t('trending')}
                       </Badge>
                     )}
                   </button>
@@ -286,7 +288,7 @@ export function SearchBar({
                   <div className="p-4 border-b dark:border-gray-700">
                     <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-3">
                       <TrendingUp className="h-4 w-4" />
-                      <span>Trending Searches</span>
+                      <span>{t('trendingSearches')}</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {displayTrending.map((search, index) => (
@@ -313,7 +315,7 @@ export function SearchBar({
                   <div className="p-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-3">
                       <Clock className="h-4 w-4" />
-                      <span>Recent Searches</span>
+                      <span>{t('recentSearches')}</span>
                     </div>
                     <div className="space-y-1">
                       {recentSearches.map((search, index) => {

@@ -1,0 +1,296 @@
+{
+  "dashboard": {
+    "title": "Tableau de Bord Admin",
+    "welcomeBack": "Bon retour",
+    "tabs": {
+      "overview": "Aperçu",
+      "creators": "Créateurs",
+      "users": "Utilisateurs",
+      "content": "Contenu",
+      "finance": "Finance"
+    },
+    "stats": {
+      "totalUsers": "Utilisateurs Totaux",
+      "totalCreators": "Créateurs Totaux",
+      "totalVideos": "Vidéos Totales",
+      "totalRevenue": "Revenus Totaux",
+      "monthlyGrowth": "Croissance Mensuelle",
+      "pendingApprovals": "Approbations en Attente",
+      "activeOrders": "Commandes Actives",
+      "averageRating": "Note Moyenne"
+    },
+    "activities": {
+      "title": "Activités Récentes",
+      "userJoined": "Nouvel utilisateur inscrit",
+      "videoUploaded": "Nouvelle vidéo téléchargée",
+      "orderCompleted": "Commande complétée",
+      "creatorVerified": "Créateur vérifié",
+      "withdrawalRequest": "Demande de retrait"
+    },
+    "approvals": {
+      "title": "Approbations en Attente",
+      "review": "Examiner",
+      "approve": "Approuver",
+      "reject": "Rejeter"
+    },
+    "performance": {
+      "title": "Performance de la Plateforme",
+      "chartPlaceholder": "La visualisation du graphique irait ici"
+    }
+  },
+  "creators": {
+    "title": "Gestion des Créateurs",
+    "searchPlaceholder": "Rechercher des créateurs...",
+    "filters": {
+      "all": "Tous",
+      "active": "Actif",
+      "pending": "En attente",
+      "inactive": "Inactif"
+    },
+    "table": {
+      "name": "Nom",
+      "username": "Nom d'utilisateur",
+      "email": "Email",
+      "phone": "Téléphone",
+      "status": "Statut",
+      "joined": "Inscrit",
+      "videos": "Vidéos",
+      "earnings": "Gains",
+      "rating": "Note",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "Voir",
+      "edit": "Modifier",
+      "approve": "Approuver",
+      "suspend": "Suspendre",
+      "delete": "Supprimer",
+      "message": "Message"
+    },
+    "status": {
+      "active": "Actif",
+      "pending": "En attente",
+      "suspended": "Suspendu",
+      "inactive": "Inactif"
+    }
+  },
+  "users": {
+    "title": "Gestion des Utilisateurs",
+    "searchPlaceholder": "Rechercher des utilisateurs...",
+    "filters": {
+      "all": "Tous les Utilisateurs",
+      "verified": "Vérifié",
+      "unverified": "Non vérifié",
+      "premium": "Premium",
+      "blocked": "Bloqué"
+    },
+    "table": {
+      "name": "Nom",
+      "email": "Email",
+      "joined": "Inscrit",
+      "lastActive": "Dernière Activité",
+      "orders": "Commandes",
+      "spent": "Total Dépensé",
+      "status": "Statut",
+      "actions": "Actions"
+    }
+  },
+  "content": {
+    "title": "Gestion du Contenu",
+    "tabs": {
+      "videos": "Vidéos",
+      "reviews": "Avis",
+      "reports": "Signalements"
+    },
+    "videos": {
+      "title": "Gestion des Vidéos",
+      "pending": "En attente de révision",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "flagged": "Signalé"
+    },
+    "moderation": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "flag": "Signaler",
+      "delete": "Supprimer",
+      "viewDetails": "Voir les détails"
+    }
+  },
+  "finance": {
+    "title": "Gestion Financière",
+    "overview": "Aperçu Financier",
+    "revenue": {
+      "title": "Revenus",
+      "total": "Revenus Totaux",
+      "monthly": "Revenus Mensuels",
+      "pending": "Paiements en Attente",
+      "completed": "Paiements Complétés"
+    },
+    "payouts": {
+      "title": "Paiements aux Créateurs",
+      "pending": "Paiements en Attente",
+      "processing": "En cours de traitement",
+      "completed": "Complété",
+      "failed": "Échoué",
+      "processAll": "Traiter Tous les Paiements",
+      "viewDetails": "Voir les détails"
+    },
+    "transactions": {
+      "title": "Transactions Récentes",
+      "id": "ID de Transaction",
+      "date": "Date",
+      "amount": "Montant",
+      "type": "Type",
+      "status": "Statut",
+      "user": "Utilisateur",
+      "creator": "Créateur"
+    }
+  },
+  "orders": {
+    "title": "Gestion des Commandes",
+    "searchPlaceholder": "Rechercher des commandes...",
+    "filters": {
+      "all": "Toutes les Commandes",
+      "pending": "En attente",
+      "processing": "En traitement",
+      "completed": "Complété",
+      "cancelled": "Annulé",
+      "refunded": "Remboursé"
+    },
+    "table": {
+      "orderId": "ID de Commande",
+      "customer": "Client",
+      "creator": "Créateur",
+      "date": "Date",
+      "amount": "Montant",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "Voir les détails",
+      "refund": "Rembourser",
+      "cancel": "Annuler",
+      "message": "Envoyer un message au client"
+    }
+  },
+  "analytics": {
+    "title": "Analytiques",
+    "overview": "Aperçu des Analytiques",
+    "metrics": {
+      "users": "Métriques Utilisateurs",
+      "creators": "Métriques Créateurs",
+      "revenue": "Métriques de Revenus",
+      "engagement": "Métriques d'Engagement"
+    },
+    "charts": {
+      "userGrowth": "Croissance des Utilisateurs",
+      "revenueGrowth": "Croissance des Revenus",
+      "videoUploads": "Téléchargements de Vidéos",
+      "orderVolume": "Volume des Commandes"
+    },
+    "export": "Exporter les Données",
+    "dateRange": "Période",
+    "compare": "Comparer les Périodes"
+  },
+  "settings": {
+    "title": "Paramètres Admin",
+    "general": "Paramètres Généraux",
+    "security": "Sécurité",
+    "notifications": "Notifications",
+    "api": "Paramètres API",
+    "backup": "Sauvegarde et Restauration"
+  },
+  "moderation": {
+    "title": "Modération du Contenu",
+    "queue": {
+      "title": "File de Modération",
+      "pending": "En attente de révision",
+      "reviewed": "Révisé",
+      "flagged": "Contenu Signalé"
+    },
+    "actions": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "escalate": "Escalader",
+      "ban": "Bannir l'Utilisateur",
+      "warn": "Émettre un Avertissement"
+    },
+    "reasons": {
+      "inappropriate": "Contenu Inapproprié",
+      "spam": "Spam",
+      "harassment": "Harcèlement",
+      "copyright": "Violation de Droits d'Auteur",
+      "other": "Autre"
+    }
+  },
+  "system": {
+    "title": "Gestion du Système",
+    "health": "Santé du Système",
+    "performance": "Performance",
+    "logs": "Journaux Système",
+    "cache": "Gestion du Cache",
+    "queue": "File d'Attente des Tâches",
+    "maintenance": "Mode Maintenance"
+  },
+  "roles": {
+    "title": "Rôles et Permissions",
+    "admin": "Administrateur",
+    "moderator": "Modérateur",
+    "support": "Personnel de Support",
+    "viewer": "Observateur",
+    "manage": "Gérer les Rôles",
+    "permissions": "Modifier les Permissions"
+  },
+  "emergency": {
+    "title": "Contrôles d'Urgence",
+    "pausePlatform": "Mettre en Pause la Plateforme",
+    "disablePayments": "Désactiver les Paiements",
+    "lockdownMode": "Mode Verrouillage",
+    "alertUsers": "Alerter Tous les Utilisateurs",
+    "backupNow": "Sauvegarder Maintenant"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Succès",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "export": "Exporter",
+    "import": "Importer",
+    "refresh": "Actualiser",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "actions": "Actions",
+    "status": "Statut",
+    "date": "Date",
+    "time": "Heure",
+    "yes": "Oui",
+    "no": "Non",
+    "confirm": "Confirmer",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ceci?",
+    "noDataFound": "Aucune donnée trouvée",
+    "showing": "Affichage",
+    "of": "de",
+    "results": "résultats",
+    "page": "Page",
+    "perPage": "Par page",
+    "total": "Total",
+    "selected": "Sélectionné",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "bulkActions": "Actions en masse",
+    "apply": "Appliquer",
+    "clear": "Effacer",
+    "reset": "Réinitialiser",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "first": "Premier",
+    "last": "Dernier"
+  }
+}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useTranslations } from 'next-intl'
 import {
   BarChart3,
   TrendingUp,
@@ -136,6 +137,8 @@ const mockAnalytics: AnalyticsData = {
 }
 
 export function AnalyticsDashboard() {
+  const t = useTranslations('admin.analytics')
+  const tCommon = useTranslations('admin.common')
   const [timeRange, setTimeRange] = useState("30")
   const [selectedMetric, setSelectedMetric] = useState("revenue")
 
@@ -156,8 +159,8 @@ export function AnalyticsDashboard() {
       {/* Time Range Selector */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
-          <p className="text-muted-foreground">Platform performance metrics and insights</p>
+          <h2 className="text-2xl font-bold">{t('title')}</h2>
+          <p className="text-muted-foreground">{t('overview')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -165,19 +168,19 @@ export function AnalyticsDashboard() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
+              <SelectItem value="7">{tCommon('last', {fallback: 'Last'})} 7 {tCommon('days', {fallback: 'days'})}</SelectItem>
+              <SelectItem value="30">{tCommon('last', {fallback: 'Last'})} 30 {tCommon('days', {fallback: 'days'})}</SelectItem>
+              <SelectItem value="90">{tCommon('last', {fallback: 'Last'})} 90 {tCommon('days', {fallback: 'days'})}</SelectItem>
+              <SelectItem value="365">{tCommon('last', {fallback: 'Last'})} {tCommon('year', {fallback: 'year'})}</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
-            Export Report
+            {tCommon('export')} {tCommon('report', {fallback: 'Report'})}
           </Button>
           <Button variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
+            {tCommon('refresh')}
           </Button>
         </div>
       </div>
@@ -188,7 +191,7 @@ export function AnalyticsDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('metrics.users')}</p>
                 <p className="text-2xl font-bold">{mockAnalytics.userGrowth.total.toLocaleString()}</p>
                 <div className={`flex items-center text-sm mt-1 ${getChangeColor(mockAnalytics.userGrowth.trend)}`}>
                   {getChangeIcon(mockAnalytics.userGrowth.trend)}
@@ -204,7 +207,7 @@ export function AnalyticsDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('metrics.revenue')}</p>
                 <p className="text-2xl font-bold">${mockAnalytics.revenue.total.toLocaleString()}</p>
                 <div className={`flex items-center text-sm mt-1 ${getChangeColor(mockAnalytics.revenue.trend)}`}>
                   {getChangeIcon(mockAnalytics.revenue.trend)}
@@ -220,7 +223,7 @@ export function AnalyticsDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Videos Created</p>
+                <p className="text-sm font-medium text-muted-foreground">{tCommon('videosCreated', {fallback: 'Videos Created'})}</p>
                 <p className="text-2xl font-bold">{mockAnalytics.content.totalVideos.toLocaleString()}</p>
                 <div className={`flex items-center text-sm mt-1 ${getChangeColor(mockAnalytics.content.trend)}`}>
                   {getChangeIcon(mockAnalytics.content.trend)}
@@ -236,11 +239,11 @@ export function AnalyticsDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Average Rating</p>
+                <p className="text-sm font-medium text-muted-foreground">{tCommon('averageRating', {fallback: 'Average Rating'})}</p>
                 <p className="text-2xl font-bold">{mockAnalytics.content.averageRating}</p>
                 <div className="flex items-center text-sm text-green-600 mt-1">
                   <Star className="h-3 w-3 fill-current mr-1" />
-                  <span>High satisfaction</span>
+                  <span>{tCommon('highSatisfaction', {fallback: 'High satisfaction'})}</span>
                 </div>
               </div>
               <Star className="h-8 w-8 text-yellow-600" />
@@ -252,11 +255,11 @@ export function AnalyticsDashboard() {
       {/* Detailed Analytics Tabs */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="geographic">Geographic</TabsTrigger>
+          <TabsTrigger value="overview">{tCommon('overview', {fallback: 'Overview'})}</TabsTrigger>
+          <TabsTrigger value="users">{tCommon('users', {fallback: 'Users'})}</TabsTrigger>
+          <TabsTrigger value="revenue">{tCommon('revenue', {fallback: 'Revenue'})}</TabsTrigger>
+          <TabsTrigger value="content">{tCommon('content', {fallback: 'Content'})}</TabsTrigger>
+          <TabsTrigger value="geographic">{tCommon('geographic', {fallback: 'Geographic'})}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -267,7 +270,7 @@ export function AnalyticsDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">New Users</p>
+                      <p className="text-sm font-medium text-muted-foreground">{tCommon('newUsers', {fallback: 'New Users'})}</p>
                       <p className="text-xl font-bold">{mockAnalytics.userGrowth.newUsers}</p>
                       <p className="text-xs text-muted-foreground">This month</p>
                     </div>
@@ -279,7 +282,7 @@ export function AnalyticsDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
+                      <p className="text-sm font-medium text-muted-foreground">{tCommon('conversionRate', {fallback: 'Conversion Rate'})}</p>
                       <p className="text-xl font-bold">{mockAnalytics.revenue.conversionRate}%</p>
                       <p className="text-xs text-muted-foreground">Browse to purchase</p>
                     </div>
@@ -291,7 +294,7 @@ export function AnalyticsDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Session Duration</p>
+                      <p className="text-sm font-medium text-muted-foreground">{tCommon('sessionDuration', {fallback: 'Session Duration'})}</p>
                       <p className="text-xl font-bold">{mockAnalytics.timeMetrics.averageSessionDuration}</p>
                       <p className="text-xs text-muted-foreground">Average time</p>
                     </div>
@@ -304,14 +307,14 @@ export function AnalyticsDashboard() {
             {/* Chart Placeholder */}
             <Card>
               <CardHeader>
-                <CardTitle>Performance Trends</CardTitle>
-                <CardDescription>Key metrics over time</CardDescription>
+                <CardTitle>{tCommon('performanceTrends', {fallback: 'Performance Trends'})}</CardTitle>
+                <CardDescription>{tCommon('keyMetricsOverTime', {fallback: 'Key metrics over time'})}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
                   <div className="text-center">
                     <BarChart3 className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                    <p className="text-gray-600">Interactive charts would be displayed here</p>
+                    <p className="text-gray-600">{tCommon('chartsPlaceholder', {fallback: 'Interactive charts would be displayed here'})}</p>
                     <p className="text-sm text-gray-500">Using libraries like Recharts or Chart.js</p>
                   </div>
                 </div>
@@ -526,8 +529,8 @@ export function AnalyticsDashboard() {
         <TabsContent value="geographic" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Geographic Distribution</CardTitle>
-              <CardDescription>Users and revenue by location</CardDescription>
+              <CardTitle>{tCommon('geographicDistribution', {fallback: 'Geographic Distribution'})}</CardTitle>
+              <CardDescription>{tCommon('geographicDescription', {fallback: 'Users and revenue by location'})}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

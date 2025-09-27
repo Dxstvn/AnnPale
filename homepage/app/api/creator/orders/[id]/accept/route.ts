@@ -23,22 +23,20 @@ export async function POST(
       )
     }
 
-    // Accept the order
+    // Accept the video request
     const { data: updatedOrder, error: updateError } = await supabase
-      .from('orders')
+      .from('video_requests')
       .update({
         status: 'accepted',
-        accepted_at: new Date().toISOString(),
-        metadata: {
-          estimatedDelivery: estimatedDelivery || null,
-          creatorNotes: notes || '',
-          acceptedAt: new Date().toISOString()
-        },
         updated_at: new Date().toISOString()
       })
       .eq('id', orderId)
       .eq('creator_id', user.id) // Ensure only creator can accept their orders
-      .select()
+      .select(`
+        *,
+        fan:profiles!fan_id(id, display_name, avatar_url, email),
+        creator:profiles!creator_id(id, display_name, avatar_url)
+      `)
       .single()
 
     if (updateError || !updatedOrder) {

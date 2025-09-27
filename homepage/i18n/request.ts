@@ -17,6 +17,8 @@ export default getRequestConfig(async ({ locale }) => {
         creator: (await import(`../locales/${validLocale}/creator.json`)).default,
         fan: (await import(`../locales/${validLocale}/fan.json`)).default,
         errors: (await import(`../locales/${validLocale}/errors.json`)).default,
+        checkout: (await import(`../locales/${validLocale}/checkout.json`)).default,
+        orders: (await import(`../locales/${validLocale}/orders.json`)).default,
       }
     };
   } catch (error) {
@@ -30,6 +32,8 @@ export default getRequestConfig(async ({ locale }) => {
         creator: {},
         fan: {},
         errors: {},
+        checkout: {},
+        orders: {},
       }
     };
   }

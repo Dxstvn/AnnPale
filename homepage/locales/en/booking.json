@@ -1,0 +1,72 @@
+{
+  "videoOrder": {
+    "title": "Book a Video",
+    "requestVideo": "Request a Video",
+    "personalVideo": "Personal Video",
+    "businessVideo": "Business Video",
+    "startingAt": "Starting at",
+    "deliveredIn": "Delivered in",
+    "days": "days",
+    "hours": "hours",
+    "expressDelivery": "Express delivery",
+    "standardDelivery": "Standard delivery"
+  },
+  "form": {
+    "recipientName": "Recipient's name",
+    "recipientEmail": "Recipient's email",
+    "occasion": "Occasion",
+    "selectOccasion": "Select an occasion",
+    "birthday": "Birthday",
+    "anniversary": "Anniversary",
+    "congratulations": "Congratulations",
+    "getWellSoon": "Get well soon",
+    "justBecause": "Just because",
+    "other": "Other",
+    "message": "Your message",
+    "messagePlaceholder": "Tell the creator what you'd like them to say...",
+    "instructions": "Special instructions",
+    "instructionsPlaceholder": "Any specific pronunciations or details?",
+    "makePublic": "Make video public",
+    "addToCart": "Add to Cart",
+    "bookNow": "Book Now",
+    "processing": "Processing..."
+  },
+  "pricing": {
+    "basePrice": "Base price",
+    "rushDelivery": "Rush delivery",
+    "additionalOptions": "Additional options",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total",
+    "discount": "Discount",
+    "promoCode": "Promo code",
+    "apply": "Apply"
+  },
+  "status": {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded"
+  },
+  "confirmation": {
+    "orderReceived": "Order received!",
+    "orderNumber": "Order number",
+    "estimatedDelivery": "Estimated delivery",
+    "trackOrder": "Track your order",
+    "emailSent": "Confirmation email sent to",
+    "whatNext": "What happens next?",
+    "creatorNotified": "The creator has been notified",
+    "videoCreation": "They'll record your video",
+    "deliveryNotification": "You'll be notified when it's ready"
+  },
+  "errors": {
+    "recipientRequired": "Recipient name is required",
+    "emailRequired": "Email is required",
+    "messageRequired": "Message is required",
+    "paymentFailed": "Payment failed",
+    "tryAgain": "Please try again"
+  }
+}

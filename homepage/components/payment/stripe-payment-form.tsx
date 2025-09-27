@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, CreditCard, Lock, CheckCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useTranslations, useLocale } from 'next-intl'
 
 // Initialize Stripe with the correct environment variable
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_SANDBOX_PUBLIC_KEY!)
@@ -28,18 +29,20 @@ interface PaymentFormProps {
   paymentIntentId?: string | null
 }
 
-function CheckoutForm({ 
-  amount, 
-  currency = 'usd', 
+function CheckoutForm({
+  amount,
+  currency = 'usd',
   creatorId,
   requestDetails,
-  onSuccess, 
+  onSuccess,
   onError,
   paymentIntentId
 }: PaymentFormProps) {
   const stripe = useStripe()
   const elements = useElements()
   const { toast } = useToast()
+  const t = useTranslations('checkout')
+  const locale = useLocale()
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -64,7 +67,10 @@ function CheckoutForm({
       const { error: stripeError } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/fan/orders/${paymentIntentId}`,
+          // Use video request ID if available, otherwise use payment intent ID
+          return_url: requestDetails?.requestId
+            ? `${window.location.origin}/${locale}/fan/orders/${requestDetails.requestId}`
+            : `${window.location.origin}/${locale}/fan/orders/${paymentIntentId}`,
         },
         redirect: 'if_required',
       })
@@ -75,17 +81,18 @@ function CheckoutForm({
       } else {
         setPaymentSuccess(true)
         toast({
-          title: "Payment successful!",
-          description: "Your order has been placed.",
+          title: t('success.orderComplete'),
+          description: t('success.thankYou'),
         })
-        onSuccess?.(paymentIntentId)
+        // Pass video request ID if available, otherwise payment intent ID
+        onSuccess?.(requestDetails?.requestId || paymentIntentId)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Payment failed'
       setError(errorMessage)
       onError?.(errorMessage)
       toast({
-        title: "Payment failed",
+        title: t('errors.paymentFailed'),
         description: errorMessage,
         variant: "destructive",
       })
@@ -100,9 +107,9 @@ function CheckoutForm({
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
-            <h3 className="text-xl font-semibold">Payment Successful!</h3>
+            <h3 className="text-xl font-semibold">{t('success.orderComplete')}</h3>
             <p className="text-muted-foreground">
-              Your payment has been processed successfully.
+              {t('success.thankYou')}
             </p>
           </div>
         </CardContent>
@@ -112,14 +119,14 @@ function CheckoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Payment Details
+            {t('paymentDetails')}
           </CardTitle>
           <CardDescription>
-            Enter your card information to complete the payment
+            {t('paymentCardDescription', { defaultValue: 'Enter your card information to complete the payment' })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -136,10 +143,10 @@ function CheckoutForm({
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Lock className="h-4 w-4" />
-              <span>Secure payment</span>
+              <span>{t('security.securePayment')}</span>
             </div>
             <div>
-              Powered by Stripe
+              {t('poweredByStripe', { defaultValue: 'Powered by Stripe' })}
             </div>
           </div>
         </CardContent>
@@ -155,10 +162,10 @@ function CheckoutForm({
         {isProcessing ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing...
+            {t('actions.processing')}
           </>
         ) : (
-          `Pay $${amount.toFixed(2)} ${currency.toUpperCase()}`
+          `${t('actions.placeOrder')} - $${amount.toFixed(2)} ${currency.toUpperCase()}`
         )}
       </Button>
     </form>
@@ -169,6 +176,7 @@ export default function StripePaymentForm(props: PaymentFormProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
+  const t = useTranslations('checkout')
 
   // Create payment intent on component mount (only once)
   useEffect(() => {
@@ -178,7 +186,7 @@ export default function StripePaymentForm(props: PaymentFormProps) {
       setLoading(false)
       // For subscriptions, we should redirect to Stripe Checkout instead
       // This component shouldn't be used for subscriptions
-      props.onError?.('Please use the subscription checkout component for subscriptions')
+      props.onError?.(t('errors.invalidCheckout'))
       return
     }
     
@@ -220,9 +228,9 @@ export default function StripePaymentForm(props: PaymentFormProps) {
       .catch(err => {
         console.error('❌ DIAGNOSTIC: Error creating payment intent:', err)
         setLoading(false)
-        props.onError?.('Failed to initialize payment')
+        props.onError?.(t('paymentInitFailed', { defaultValue: 'Failed to initialize payment. Please try again.' }))
       })
-  }, []) // Empty dependency array - only run once on mount
+  }, [t]) // Add t to dependencies for translations
 
   if (loading) {
     return (
@@ -230,7 +238,7 @@ export default function StripePaymentForm(props: PaymentFormProps) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-center space-x-2">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Initializing payment...</span>
+            <span>{t('initializingPayment', { defaultValue: 'Initializing payment...' })}</span>
           </div>
         </CardContent>
       </Card>
@@ -243,7 +251,7 @@ export default function StripePaymentForm(props: PaymentFormProps) {
         <CardContent className="pt-6">
           <Alert variant="destructive">
             <AlertDescription>
-              Failed to initialize payment. Please try again.
+              {t('paymentInitFailed', { defaultValue: 'Failed to initialize payment. Please try again.' })}
             </AlertDescription>
           </Alert>
         </CardContent>

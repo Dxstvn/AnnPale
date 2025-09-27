@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-// TODO: Convert to next-intl translations
+import { useTranslations } from 'next-intl'
 import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -32,7 +32,7 @@ import { SubscriptionManagement } from '@/components/subscription/subscription-m
 import { useToast } from '@/components/ui/use-toast'
 
 export default function CustomerSettingsPage() {
-  // TODO: Add useTranslations hook
+  const t = useTranslations('fan')
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useSupabaseAuth()
@@ -89,8 +89,8 @@ export default function CustomerSettingsPage() {
         if (error) {
           console.error('Error fetching profile:', error)
           toast({
-            title: 'Error loading profile',
-            description: 'Could not load your profile data.',
+            title: t('settings.profile.profileUpdateError'),
+            description: t('settings.profile.profileUpdateErrorMessage'),
             variant: 'destructive'
           })
           return
@@ -150,8 +150,8 @@ export default function CustomerSettingsPage() {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
       toast({
-        title: 'Invalid file type',
-        description: 'Please select a JPG, PNG, or GIF image.',
+        title: t('settings.profile.profilePicture.invalidFileType'),
+        description: t('settings.profile.profilePicture.invalidFileTypeMessage'),
         variant: 'destructive'
       })
       return
@@ -161,8 +161,8 @@ export default function CustomerSettingsPage() {
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
       toast({
-        title: 'File too large',
-        description: 'Please select an image smaller than 5MB.',
+        title: t('settings.profile.profilePicture.fileTooLarge'),
+        description: t('settings.profile.profilePicture.fileTooLargeMessage'),
         variant: 'destructive'
       })
       return
@@ -218,8 +218,8 @@ export default function CustomerSettingsPage() {
       setOriginalData(prev => ({ ...prev, avatar_url: data.avatar_url }))
 
       toast({
-        title: 'Profile picture updated',
-        description: data.message || 'Your profile picture has been successfully updated.',
+        title: t('settings.profile.profilePicture.uploadSuccess'),
+        description: data.message || t('settings.profile.profilePicture.uploadSuccessMessage'),
         variant: 'success'
       })
     } catch (error) {
@@ -239,7 +239,7 @@ export default function CustomerSettingsPage() {
       }
 
       toast({
-        title: 'Upload failed',
+        title: t('settings.profile.profilePicture.uploadError'),
         description: errorMessage,
         variant: 'destructive'
       })
@@ -274,8 +274,8 @@ export default function CustomerSettingsPage() {
         setOriginalData(prev => ({ ...prev, is_creator: true }))
 
         toast({
-          title: '🎉 Creator Features Activated!',
-          description: 'You can now access Creator Studio and start earning.',
+          title: t('settings.creator.activationSuccess'),
+          description: t('settings.creator.activationSuccessMessage'),
           variant: 'success'
         })
 
@@ -285,7 +285,7 @@ export default function CustomerSettingsPage() {
         }, 2000)
       } else {
         toast({
-          title: 'Already Activated',
+          title: t('settings.creator.alreadyActivated'),
           description: data.message,
           variant: 'default'
         })
@@ -293,8 +293,8 @@ export default function CustomerSettingsPage() {
     } catch (error) {
       console.error('Error activating creator features:', error)
       toast({
-        title: 'Activation Failed',
-        description: error instanceof Error ? error.message : 'Could not activate creator features',
+        title: t('settings.creator.activationFailed'),
+        description: error instanceof Error ? error.message : t('settings.creator.activationError'),
         variant: 'destructive'
       })
     } finally {
@@ -338,15 +338,15 @@ export default function CustomerSettingsPage() {
       setHasUnsavedChanges(false)
 
       toast({
-        title: 'Profile updated',
-        description: 'Your profile has been successfully updated.',
+        title: t('settings.profile.profileUpdated'),
+        description: t('settings.profile.profileUpdatedMessage'),
         variant: 'success'
       })
     } catch (error) {
       console.error('Error saving profile:', error)
       toast({
-        title: 'Error saving profile',
-        description: 'Could not save your profile. Please try again.',
+        title: t('settings.profile.profileUpdateError'),
+        description: t('settings.profile.profileUpdateErrorMessage'),
         variant: 'destructive'
       })
     } finally {
@@ -371,7 +371,7 @@ export default function CustomerSettingsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-600" />
-          <p className="mt-2 text-gray-600">Loading settings...</p>
+          <p className="mt-2 text-gray-600">{t('settings.loadingSettings')}</p>
         </div>
       </div>
     )
@@ -383,7 +383,7 @@ export default function CustomerSettingsPage() {
         <Alert className="max-w-md">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Please sign in to access your settings.
+            {t('settings.signInRequired')}
           </AlertDescription>
         </Alert>
       </div>
@@ -399,10 +399,10 @@ export default function CustomerSettingsPage() {
             <div>
               <h1 className="text-3xl font-bold flex items-center">
                 <Settings className="mr-3 h-8 w-8" />
-                Settings
+                {t('settings.title')}
               </h1>
               <p className="mt-2 text-purple-100">
-                Manage your account and preferences
+                {t('settings.subtitle')}
               </p>
             </div>
           </div>
@@ -413,16 +413,16 @@ export default function CustomerSettingsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="profile" data-testid="profile-tab">Profile</TabsTrigger>
-            <TabsTrigger value="subscriptions" data-testid="subscriptions-tab">Subscriptions</TabsTrigger>
+            <TabsTrigger value="profile" data-testid="profile-tab">{t('settings.tabs.profile')}</TabsTrigger>
+            <TabsTrigger value="subscriptions" data-testid="subscriptions-tab">{t('settings.tabs.subscriptions')}</TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6" data-testid="profile-tab-content">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your personal information and profile picture</CardDescription>
+                <CardTitle>{t('settings.profile.title')}</CardTitle>
+                <CardDescription>{t('settings.profile.subtitle')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Profile Picture */}
@@ -448,16 +448,16 @@ export default function CustomerSettingsPage() {
                       {isUploadingAvatar ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Uploading...
+                          {t('settings.profile.profilePicture.uploading')}
                         </>
                       ) : (
                         <>
                           <Camera className="h-4 w-4 mr-2" />
-                          Change Photo
+                          {t('settings.profile.profilePicture.changePhoto')}
                         </>
                       )}
                     </Button>
-                    <p className="text-sm text-gray-500">JPG, PNG or GIF. Max size 5MB.</p>
+                    <p className="text-sm text-gray-500">{t('settings.profile.profilePicture.uploadInstructions')}</p>
                   </div>
                 </div>
 
@@ -466,49 +466,49 @@ export default function CustomerSettingsPage() {
                 {/* Personal Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="first_name">First Name</Label>
+                    <Label htmlFor="first_name">{t('settings.profile.fields.firstName')}</Label>
                     <Input
                       id="first_name"
                       value={profileData.first_name}
                       onChange={(e) => handleProfileChange('first_name', e.target.value)}
                       className="mt-2"
-                      placeholder="Enter your first name"
+                      placeholder={t('settings.profile.fields.firstNamePlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="last_name">Last Name</Label>
+                    <Label htmlFor="last_name">{t('settings.profile.fields.lastName')}</Label>
                     <Input
                       id="last_name"
                       value={profileData.last_name}
                       onChange={(e) => handleProfileChange('last_name', e.target.value)}
                       className="mt-2"
-                      placeholder="Enter your last name"
+                      placeholder={t('settings.profile.fields.lastNamePlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">{t('settings.profile.fields.email')}</Label>
                     <Input
                       id="email"
                       type="email"
                       value={profileData.email}
                       className="mt-2"
                       disabled
-                      title="Email cannot be changed"
+                      title={t('settings.profile.fields.emailDisabled')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">{t('settings.profile.fields.phone')}</Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={profileData.phone}
                       onChange={(e) => handleProfileChange('phone', e.target.value)}
                       className="mt-2"
-                      placeholder="Enter your phone number"
+                      placeholder={t('settings.profile.fields.phonePlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="language">Language</Label>
+                    <Label htmlFor="language">{t('settings.profile.fields.language')}</Label>
                     <Select
                       value={profileData.language}
                       onValueChange={(value) => handleProfileChange('language', value)}
@@ -517,14 +517,14 @@ export default function CustomerSettingsPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="fr">Français</SelectItem>
-                        <SelectItem value="ht">Kreyòl Ayisyen</SelectItem>
+                        <SelectItem value="en">{t('settings.profile.languages.english')}</SelectItem>
+                        <SelectItem value="fr">{t('settings.profile.languages.french')}</SelectItem>
+                        <SelectItem value="ht">{t('settings.profile.languages.haitian')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="timezone">Timezone</Label>
+                    <Label htmlFor="timezone">{t('settings.profile.fields.timezone')}</Label>
                     <Select
                       value={profileData.timezone}
                       onValueChange={(value) => handleProfileChange('timezone', value)}
@@ -533,20 +533,20 @@ export default function CustomerSettingsPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                        <SelectItem value="America/Chicago">Central Time</SelectItem>
-                        <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                        <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                        <SelectItem value="America/Port-au-Prince">Haiti Time</SelectItem>
-                        <SelectItem value="Europe/Paris">Paris Time</SelectItem>
+                        <SelectItem value="America/New_York">{t('settings.profile.timezones.eastern')}</SelectItem>
+                        <SelectItem value="America/Chicago">{t('settings.profile.timezones.central')}</SelectItem>
+                        <SelectItem value="America/Denver">{t('settings.profile.timezones.mountain')}</SelectItem>
+                        <SelectItem value="America/Los_Angeles">{t('settings.profile.timezones.pacific')}</SelectItem>
+                        <SelectItem value="America/Port-au-Prince">{t('settings.profile.timezones.haiti')}</SelectItem>
+                        <SelectItem value="Europe/Paris">{t('settings.profile.timezones.paris')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="md:col-span-2">
-                    <Label htmlFor="bio">Bio</Label>
+                    <Label htmlFor="bio">{t('settings.profile.fields.bio')}</Label>
                     <Textarea
                       id="bio"
-                      placeholder="Tell us about yourself..."
+                      placeholder={t('settings.profile.fields.bioPlaceholder')}
                       value={profileData.bio}
                       onChange={(e) => handleProfileChange('bio', e.target.value)}
                       className="mt-2"
@@ -557,7 +557,7 @@ export default function CustomerSettingsPage() {
 
                 <div className="flex justify-between items-center">
                   {hasUnsavedChanges && (
-                    <p className="text-sm text-orange-600">You have unsaved changes</p>
+                    <p className="text-sm text-orange-600">{t('settings.profile.unsavedChanges')}</p>
                   )}
                   <div className="flex gap-2 ml-auto">
                     {hasUnsavedChanges && (
@@ -568,7 +568,7 @@ export default function CustomerSettingsPage() {
                           setHasUnsavedChanges(false)
                         }}
                       >
-                        Cancel
+                        {t('settings.profile.cancel')}
                       </Button>
                     )}
                     <Button
@@ -579,12 +579,12 @@ export default function CustomerSettingsPage() {
                       {isSaving ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Saving...
+                          {t('settings.profile.saving')}
                         </>
                       ) : (
                         <>
                           <Check className="h-4 w-4 mr-2" />
-                          Save Changes
+                          {t('settings.profile.saveChanges')}
                         </>
                       )}
                     </Button>
@@ -598,12 +598,12 @@ export default function CustomerSettingsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-purple-600" />
-                  Creator Tools
+                  {t('settings.creator.title')}
                 </CardTitle>
                 <CardDescription>
                   {profileData.is_creator
-                    ? 'You have access to creator features!'
-                    : 'Unlock creator features while keeping your fan experience'}
+                    ? t('settings.creator.subtitleActivated')
+                    : t('settings.creator.subtitleNotActivated')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -613,29 +613,29 @@ export default function CustomerSettingsPage() {
                       <div className="flex items-start gap-3">
                         <Video className="h-5 w-5 text-purple-600 mt-0.5" />
                         <div>
-                          <p className="font-medium">Create Content</p>
-                          <p className="text-sm text-gray-600">Share personalized videos with your fans</p>
+                          <p className="font-medium">{t('settings.creator.features.createContent')}</p>
+                          <p className="text-sm text-gray-600">{t('settings.creator.features.createContentDescription')}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <DollarSign className="h-5 w-5 text-purple-600 mt-0.5" />
                         <div>
-                          <p className="font-medium">Earn Money</p>
-                          <p className="text-sm text-gray-600">Get paid for your personalized content</p>
+                          <p className="font-medium">{t('settings.creator.features.earnMoney')}</p>
+                          <p className="text-sm text-gray-600">{t('settings.creator.features.earnMoneyDescription')}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <Users className="h-5 w-5 text-purple-600 mt-0.5" />
                         <div>
-                          <p className="font-medium">Build Your Audience</p>
-                          <p className="text-sm text-gray-600">Connect with fans from around the world</p>
+                          <p className="font-medium">{t('settings.creator.features.buildAudience')}</p>
+                          <p className="text-sm text-gray-600">{t('settings.creator.features.buildAudienceDescription')}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <TrendingUp className="h-5 w-5 text-purple-600 mt-0.5" />
                         <div>
-                          <p className="font-medium">Analytics & Insights</p>
-                          <p className="text-sm text-gray-600">Track your performance and growth</p>
+                          <p className="font-medium">{t('settings.creator.features.analytics')}</p>
+                          <p className="text-sm text-gray-600">{t('settings.creator.features.analyticsDescription')}</p>
                         </div>
                       </div>
                     </div>
@@ -648,12 +648,12 @@ export default function CustomerSettingsPage() {
                       {isActivatingCreator ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Activating...
+                          {t('settings.creator.activating')}
                         </>
                       ) : (
                         <>
                           <Sparkles className="h-4 w-4 mr-2" />
-                          Become a Creator
+                          {t('settings.creator.becomeCreator')}
                         </>
                       )}
                     </Button>
@@ -663,7 +663,7 @@ export default function CustomerSettingsPage() {
                     <Alert className="bg-green-50 border-green-200">
                       <Check className="h-4 w-4 text-green-600" />
                       <AlertDescription className="text-green-800">
-                        Creator features are activated! You can now create content and earn money.
+                        {t('settings.creator.activatedMessage')}
                       </AlertDescription>
                     </Alert>
                     <div className="space-y-3">
@@ -673,7 +673,7 @@ export default function CustomerSettingsPage() {
                         variant="default"
                       >
                         <Video className="h-4 w-4 mr-2" />
-                        Go to Creator Studio
+                        {t('settings.creator.goToCreatorStudio')}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
                       <Button
@@ -682,18 +682,18 @@ export default function CustomerSettingsPage() {
                         className="w-full"
                       >
                         <Settings className="h-4 w-4 mr-2" />
-                        Creator Settings
+                        {t('settings.creator.creatorSettings')}
                       </Button>
                     </div>
                     <Separator />
                     <div className="text-sm text-gray-600">
-                      <p className="font-medium mb-1">Current Mode:</p>
+                      <p className="font-medium mb-1">{t('settings.creator.currentMode')}</p>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-md">
-                          {profileData.current_mode === 'creator' ? '🎬 Creator Mode' : '👤 Fan Mode'}
+                          {profileData.current_mode === 'creator' ? t('settings.creator.creatorMode') : t('settings.creator.fanMode')}
                         </span>
                         <span className="text-xs text-gray-500">
-                          Switch modes from the navigation menu
+                          {t('settings.creator.switchModeHint')}
                         </span>
                       </div>
                     </div>
@@ -705,24 +705,24 @@ export default function CustomerSettingsPage() {
             {/* Account Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Account Actions</CardTitle>
-                <CardDescription>Manage your account security and data</CardDescription>
+                <CardTitle>{t('settings.account.title')}</CardTitle>
+                <CardDescription>{t('settings.account.subtitle')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Change Password</p>
-                    <p className="text-sm text-gray-500">Update your password to keep your account secure</p>
+                    <p className="font-medium">{t('settings.account.changePassword')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.account.changePasswordDescription')}</p>
                   </div>
-                  <Button variant="outline">Change Password</Button>
+                  <Button variant="outline">{t('settings.account.changePassword')}</Button>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Download Your Data</p>
-                    <p className="text-sm text-gray-500">Get a copy of your Ann Pale data</p>
+                    <p className="font-medium">{t('settings.account.downloadData')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.account.downloadDataDescription')}</p>
                   </div>
-                  <Button variant="outline" disabled>Coming Soon</Button>
+                  <Button variant="outline" disabled>{t('settings.account.comingSoon')}</Button>
                 </div>
               </CardContent>
             </Card>
@@ -734,14 +734,14 @@ export default function CustomerSettingsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Discover New Creators</CardTitle>
-                <CardDescription>Based on your interests and subscriptions</CardDescription>
+                <CardTitle>{t('settings.subscriptions.discoverTitle')}</CardTitle>
+                <CardDescription>{t('settings.subscriptions.discoverSubtitle')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">Explore new creators to follow</p>
+                  <p className="text-gray-500 mb-4">{t('settings.subscriptions.exploreMessage')}</p>
                   <Button onClick={() => router.push('/browse')}>
-                    Browse Creators
+                    {t('settings.subscriptions.browseCreators')}
                   </Button>
                 </div>
               </CardContent>

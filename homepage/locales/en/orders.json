@@ -1,0 +1,136 @@
+{
+  "title": "Order Details",
+  "orderNumber": "Order #{number}",
+  "backToOrders": "Back to Orders",
+
+  "status": {
+    "pending": "Pending",
+    "pending_payment": "Awaiting Payment",
+    "accepted": "Accepted",
+    "completed": "Completed",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "rejected": "Rejected",
+    "expired": "Expired"
+  },
+
+  "timeline": {
+    "title": "Order Timeline",
+    "estimatedDelivery": "Est. delivery in {time}",
+    "deliveryReached": "Delivery time reached",
+
+    "events": {
+      "placed": {
+        "title": "Order Placed",
+        "description": "Your request has been submitted"
+      },
+      "paymentConfirmed": {
+        "title": "Payment Confirmed",
+        "description": "Payment processed successfully"
+      },
+      "accepted": {
+        "title": "Creator Accepted",
+        "description": "{creator} accepted your request"
+      },
+      "delivered": {
+        "title": "Delivered",
+        "description": "Your video is ready to watch!"
+      },
+      "cancelled": {
+        "title": "Cancelled",
+        "description": "Order was cancelled"
+      },
+      "rejected": {
+        "title": "Rejected",
+        "description": "Creator declined this request"
+      }
+    }
+  },
+
+  "communication": {
+    "title": "Communication",
+    "sendMessage": "Send Message",
+    "messageCreator": "Message Creator",
+    "messagePlaceholder": "Type your message here...",
+    "sending": "Sending...",
+    "send": "Send",
+
+    "systemMessages": {
+      "orderPlaced": "Order placed successfully",
+      "paymentConfirmed": "Payment confirmed",
+      "videoDelivered": "Your video has been delivered"
+    }
+  },
+
+  "details": {
+    "creator": "Creator",
+    "viewProfile": "View Profile",
+
+    "videoDetails": "Video Details",
+    "occasion": "Occasion",
+    "for": "For",
+    "instructions": "Instructions",
+    "rushOrder": "Rush Order",
+    "privateVideo": "Private Video",
+
+    "payment": "Payment",
+    "amount": "Amount",
+    "method": "Method",
+    "paidOn": "Paid on"
+  },
+
+  "actions": {
+    "watchVideo": "Watch Video",
+    "downloadVideo": "Download Video",
+    "shareVideo": "Share Video",
+    "reportProblem": "Report Problem",
+    "requestRefund": "Request Refund",
+    "cancelOrder": "Cancel Order",
+    "keepOrder": "Keep Order",
+    "cancelling": "Cancelling..."
+  },
+
+  "dialogs": {
+    "cancelOrder": {
+      "title": "Cancel Order",
+      "description": "Are you sure you want to cancel this order? This action cannot be undone.",
+      "refundNote": "You will receive a full refund if the creator hasn't started working on your video yet."
+    },
+
+    "sendMessage": {
+      "title": "Send Message to Creator",
+      "description": "Send a message about your video request"
+    }
+  },
+
+  "statusLabels": {
+    "pendingAcceptance": "Pending Acceptance",
+    "accepted": "Accepted",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded",
+    "unknown": "Unknown"
+  },
+
+  "statusDescriptions": {
+    "pendingAcceptance": "Waiting for creator to accept your request",
+    "accepted": "Creator has accepted and will record soon",
+    "delivered": "Your video is ready!",
+    "cancelled": "This order was cancelled",
+    "refunded": "Payment has been refunded",
+    "unknown": "Status unknown"
+  },
+
+  "alerts": {
+    "delivered": "Your video is ready!",
+    "cancelled": "This order was cancelled on {date}",
+    "expired": "This order has expired",
+    "loadingError": "Failed to load order details",
+    "orderNotFound": "Order not found"
+  },
+
+  "loading": "Loading order details...",
+  "error": "Error loading order",
+  "tryAgain": "Try Again",
+  "cancel": "Cancel"
+}

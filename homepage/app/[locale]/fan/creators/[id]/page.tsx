@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -73,7 +74,7 @@ interface CreatorProfile {
 export default function CreatorFeedPage() {
   const router = useRouter()
   const params = useParams()
-  const t = useTranslations()
+  const t = useTranslations('creator')
   const { user, isAuthenticated } = useSupabaseAuth()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [isSubscribed, setIsSubscribed] = useState(false)
@@ -256,7 +257,7 @@ export default function CreatorFeedPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading creator profile...</p>
+          <p className="mt-4 text-gray-600">{t('loading.profile')}</p>
         </div>
       </div>
     )
@@ -267,7 +268,7 @@ export default function CreatorFeedPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50" data-testid="creator-profile">
       {/* Hero Banner with About Section */}
-      <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 h-64 lg:h-80 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 min-h-[400px] lg:min-h-[450px]">
         {/* Cover Image */}
         {creator.coverImage && (
           <img
@@ -277,9 +278,9 @@ export default function CreatorFeedPage() {
           />
         )}
         <div className="absolute inset-0 bg-black/20" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 lg:px-8 py-8 lg:py-12">
-          <div className="grid lg:grid-cols-3 gap-8">
+
+        <div className="relative max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Left: Creator Info */}
             <div className="lg:col-span-2">
               <div className="flex items-start gap-4 lg:gap-6 mb-6">
@@ -293,50 +294,54 @@ export default function CreatorFeedPage() {
                     {creator.isVerified && (
                       <Badge className="bg-blue-500 text-white">
                         <Check className="h-3 w-3 mr-1" />
-                        Verified
+                        {t('profile.verified')}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm lg:text-base opacity-90 mb-3">{creator.category}</p>
+                  <p className="text-sm lg:text-base opacity-90 mb-3">
+                    {t(`profile.categories.${creator.category.toLowerCase()}`) || creator.category}
+                  </p>
                   <div className="flex flex-wrap items-center gap-4 text-sm">
                     <span className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {creator.totalSubscribers.toLocaleString()} fans
+                      {creator.totalSubscribers.toLocaleString()} {t('profile.fans')}
                     </span>
                     <span className="flex items-center gap-1">
                       <Video className="h-4 w-4" />
-                      {creator.totalVideos} videos
+                      {creator.totalVideos} {t('profile.videos')}
                     </span>
                     <span className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-current" />
-                      {creator.rating} rating
+                      {creator.rating} {t('profile.rating')}
                     </span>
                   </div>
                 </div>
               </div>
               
               {/* About Section */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 lg:p-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-h-[200px] lg:max-h-[180px] overflow-hidden">
                 <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
                   <Info className="h-4 w-4" />
-                  About
+                  {t('profile.about')}
                 </h3>
-                <p className="text-white/90 text-sm lg:text-base mb-3">{creator.bio}</p>
-                <div className="flex flex-wrap gap-2">
-                  {creator.languages.map((lang) => (
-                    <Badge key={lang} className="bg-white/20 text-white border-white/30">
-                      <Globe className="h-3 w-3 mr-1" />
-                      {lang}
-                    </Badge>
-                  ))}
+                <div className="overflow-y-auto max-h-[120px] lg:max-h-[100px] pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  <p className="text-white/90 text-sm lg:text-base mb-3">{creator.bio}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {creator.languages.map((lang) => (
+                      <Badge key={lang} className="bg-white/20 text-white border-white/30">
+                        <Globe className="h-3 w-3 mr-1" />
+                        {lang}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
             
             {/* Right: Quick Actions */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Card className="bg-white/95 backdrop-blur">
-                <CardContent className="p-6">
+                <CardContent className="p-4 lg:p-5">
                   <div className="space-y-4">
                     {/* Video Order Button */}
                     <Button
@@ -346,7 +351,7 @@ export default function CreatorFeedPage() {
                       onClick={() => setModalState({ isOpen: true, defaultTab: 'video' })}
                     >
                       <Video className="h-5 w-5 mr-2" />
-                      Request Video Message
+                      {t('actions.requestVideo')}
                     </Button>
 
                     {/* Subscribe Button */}
@@ -358,14 +363,14 @@ export default function CreatorFeedPage() {
                         onClick={() => setModalState({ isOpen: true, defaultTab: 'subscription' })}
                       >
                         <Users className="h-5 w-5 mr-2" />
-                        View Subscription Tiers
+                        {t('actions.viewTiers')}
                       </Button>
                     )}
                     
                     {/* Response Time */}
                     <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                       <Clock className="h-4 w-4" />
-                      <span>Typically responds in {creator.responseTime}</span>
+                      <span>{t('profile.responseTime')} {creator.responseTime}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -375,11 +380,11 @@ export default function CreatorFeedPage() {
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" className="flex-1 bg-white/90">
                   <Share2 className="h-4 w-4 mr-2" />
-                  Share
+                  {t('actions.share')}
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1 bg-white/90">
                   <Heart className="h-4 w-4 mr-2" />
-                  Follow
+                  {t('actions.follow')}
                 </Button>
               </div>
             </div>
@@ -395,15 +400,15 @@ export default function CreatorFeedPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Your current subscription</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('subscription.current')}</p>
                   <h3 className="text-xl font-bold flex items-center gap-2">
                     <Badge className={cn("bg-gradient-to-r text-white", currentTier.color)}>
                       {currentTier.name}
                     </Badge>
-                    <span className="text-gray-700">${currentTier.price}/month</span>
+                    <span className="text-gray-700">${currentTier.price}{t('subscription.perMonth')}</span>
                   </h3>
                 </div>
-                <Button variant="outline">Manage Subscription</Button>
+                <Button variant="outline">{t('subscription.manage')}</Button>
               </div>
             </CardContent>
           </Card>
@@ -413,10 +418,10 @@ export default function CreatorFeedPage() {
         {/* Creator Feed */}
         <div className="space-y-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Creator Feed</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('feed.title')}</h2>
             <Badge variant="outline" className="text-gray-600">
               <MessageSquare className="h-4 w-4 mr-1" />
-              Latest Updates
+              {t('feed.latestUpdates')}
             </Badge>
           </div>
 

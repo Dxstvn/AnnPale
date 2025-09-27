@@ -77,13 +77,25 @@ export async function POST(request: NextRequest) {
         .from('subscription_orders')
         .select('*')
         .eq('id', subscriptionId)
-        .eq('fan_id', user.id)
+        .eq('user_id', user.id) // Fixed: was 'fan_id', should be 'user_id'
         .single()
 
       if (order && !orderError && order.stripe_subscription_id) {
         try {
           const stripeSubscription = await stripe.subscriptions.retrieve(order.stripe_subscription_id)
           stripeCustomerId = stripeSubscription.customer as string
+
+          // Store the customer ID in the database for future use
+          await supabase
+            .from('subscription_orders')
+            .update({ stripe_customer_id: stripeCustomerId })
+            .eq('id', subscriptionId)
+
+          // Also store in user profile
+          await supabase
+            .from('profiles')
+            .update({ stripe_customer_id: stripeCustomerId })
+            .eq('id', user.id)
         } catch (error) {
           console.error('Error retrieving Stripe subscription:', error)
         }
@@ -116,16 +128,36 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
     }
 
-    // Create a Stripe Customer Portal session
-    const session = await stripe.billingPortal.sessions.create({
-      customer: stripeCustomerId,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/fan/settings`,
-    })
+    // Always create a customer-specific portal session for better UX
+    // Generic portal links require email entry and magic link verification
+    try {
+      const session = await stripe.billingPortal.sessions.create({
+        customer: stripeCustomerId,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/fan/settings`,
+      })
 
-    return NextResponse.json({
-      url: session.url,
-      success: true
-    })
+      return NextResponse.json({
+        url: session.url,
+        success: true
+      })
+    } catch (portalError: any) {
+      console.error('Stripe Customer Portal error:', portalError)
+
+      // If portal configuration is missing, provide helpful error with fallback option
+      if (portalError.message?.includes('No configuration provided')) {
+        return NextResponse.json({
+          error: 'Payment portal is not configured',
+          code: 'PORTAL_NOT_CONFIGURED',
+          message: 'The payment portal needs to be set up in Stripe Dashboard. Please contact support.',
+          action: 'CONTACT_SUPPORT',
+          supportMessage: 'Please set up the Customer Portal in your Stripe Dashboard at: https://dashboard.stripe.com/test/settings/billing/portal',
+          fallback: true  // Enable fallback redirect in frontend
+        }, { status: 503 })
+      }
+
+      // For other portal errors, provide generic message
+      throw portalError
+    }
   } catch (error) {
     console.error('Error creating payment portal session:', error)
     return NextResponse.json({

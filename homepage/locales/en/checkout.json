@@ -1,0 +1,135 @@
+{
+  "title": "Checkout",
+  "secureCheckout": "Secure Checkout",
+  "orderSummary": "Order Summary",
+  "paymentDetails": "Payment Details",
+  "loadingPaymentSystem": "Loading payment system...",
+  "loadingSubscription": "Loading subscription checkout...",
+  "loading": "Loading...",
+  "redirecting": "Redirecting you back...",
+  "customerSupport": "Customer Support",
+  "support247": "24/7 help available",
+  "paymentCardDescription": "Enter your card information to complete the payment",
+  "poweredByStripe": "Powered by Stripe",
+  "initializingPayment": "Initializing payment...",
+  "paymentInitFailed": "Failed to initialize payment. Please try again.",
+
+  "orderDetails": {
+    "videoRequest": "Video Request",
+    "subscription": "Subscription",
+    "creator": "Creator",
+    "deliveryTime": "Delivery Time",
+    "standardDelivery": "Standard Delivery",
+    "rushDelivery": "Rush Delivery",
+    "days": "days",
+    "hours": "hours",
+    "recipientName": "Recipient Name",
+    "occasion": "Occasion",
+    "specialInstructions": "Special Instructions",
+    "makeGift": "Make this a gift",
+    "giftFrom": "Gift from",
+    "giftMessage": "Gift message"
+  },
+
+  "pricing": {
+    "basePrice": "Base Price",
+    "rushDeliveryFee": "Rush Delivery Fee",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "processingFee": "Processing Fee",
+    "total": "Total",
+    "discount": "Discount",
+    "promoCode": "Promo Code",
+    "applyPromo": "Apply",
+    "perMonth": "per month",
+    "billedMonthly": "Billed monthly",
+    "billedYearly": "Billed yearly",
+    "billingCycle": "Billing Cycle"
+  },
+
+  "payment": {
+    "paymentMethod": "Payment Method",
+    "cardNumber": "Card Number",
+    "cardholderName": "Cardholder Name",
+    "expiryDate": "Expiry Date",
+    "cvv": "CVV",
+    "billingAddress": "Billing Address",
+    "saveCard": "Save card for future purchases",
+    "useNewCard": "Use a new card",
+    "savedCards": "Saved Cards",
+    "endingIn": "ending in",
+    "expires": "Expires"
+  },
+
+  "customerInfo": {
+    "title": "Customer Information",
+    "email": "Email",
+    "phone": "Phone",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "country": "Country",
+    "address": "Street Address",
+    "city": "City",
+    "state": "State/Province",
+    "zipCode": "ZIP/Postal Code"
+  },
+
+  "actions": {
+    "placeOrder": "Place Order",
+    "processing": "Processing...",
+    "backToCreator": "Back to Creator",
+    "cancel": "Cancel",
+    "continuePayment": "Continue to Payment",
+    "completePurchase": "Complete Purchase",
+    "subscribeNow": "Subscribe Now"
+  },
+
+  "billing": {
+    "nextBilling": "Next billing"
+  },
+
+  "benefits": {
+    "included": "Included Benefits:"
+  },
+
+  "terms": {
+    "agreeToTerms": "I agree to the",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "refundPolicy": "Refund Policy",
+    "subscriptionTerms": "Subscription Terms"
+  },
+
+  "security": {
+    "securePayment": "Secure Payment",
+    "encryptedData": "Your payment information is encrypted",
+    "sslProtected": "SSL Protected",
+    "pciCompliant": "PCI Compliant",
+    "moneyBackGuarantee": "Money-back guarantee",
+    "satisfaction": "100% satisfaction or refund"
+  },
+
+  "errors": {
+    "invalidCheckout": "Invalid checkout parameters",
+    "alreadySubscribed": "You are already subscribed to this creator",
+    "paymentFailed": "Payment failed. Please try again.",
+    "cardDeclined": "Card was declined",
+    "insufficientFunds": "Insufficient funds",
+    "networkError": "Network error. Please check your connection.",
+    "requiredFields": "Please fill in all required fields",
+    "invalidEmail": "Please enter a valid email",
+    "invalidCard": "Please enter a valid card number",
+    "agreeTerms": "Please agree to the terms"
+  },
+
+  "success": {
+    "orderComplete": "Order Complete!",
+    "subscriptionActive": "Subscription Active!",
+    "thankYou": "Thank you for your purchase",
+    "orderNumber": "Order Number",
+    "confirmationSent": "A confirmation has been sent to",
+    "videoDelivery": "Your video will be delivered within",
+    "accessContent": "You now have access to subscriber content"
+  }
+}

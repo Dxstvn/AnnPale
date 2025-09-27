@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 // Comment data types
 export interface Comment {
@@ -103,6 +104,7 @@ function CommentItem({
   const [replyContent, setReplyContent] = React.useState("")
   const [localLikes, setLocalLikes] = React.useState(comment.likes)
   const [hasLiked, setHasLiked] = React.useState(comment.hasLiked)
+  const t = useTranslations('components.commentsSection')
   
   const isAuthor = currentUserId === comment.author.id
   const canModerate = comment.author.isModerator || comment.author.isCreator
@@ -190,7 +192,7 @@ function CommentItem({
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleEdit}>
-                  Save
+                  {t('save', { defaultValue: 'Save' })}
                 </Button>
                 <Button 
                   size="sm" 
@@ -200,7 +202,7 @@ function CommentItem({
                     setEditContent(comment.content)
                   }}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </div>
             </div>
@@ -301,7 +303,7 @@ function CommentItem({
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleReply}>
                   <Send className="h-3 w-3 mr-1" />
-                  Reply
+                  {t('reply')}
                 </Button>
                 <Button 
                   size="sm" 
@@ -311,7 +313,7 @@ function CommentItem({
                     setReplyContent("")
                   }}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </div>
             </motion.div>
@@ -344,8 +346,8 @@ function CommentItem({
 // Comment input form
 function CommentInput({
   onSubmit,
-  placeholder = "Add a comment...",
-  buttonText = "Comment"
+  placeholder,
+  buttonText
 }: {
   onSubmit: (content: string) => void
   placeholder?: string
@@ -353,6 +355,7 @@ function CommentInput({
 }) {
   const [content, setContent] = React.useState("")
   const [isFocused, setIsFocused] = React.useState(false)
+  const t = useTranslations('components.commentsSection')
   
   const handleSubmit = () => {
     if (content.trim()) {
@@ -365,7 +368,7 @@ function CommentInput({
   return (
     <div className="space-y-2">
       <Textarea
-        placeholder={placeholder}
+        placeholder={placeholder || t('placeholder')}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onFocus={() => setIsFocused(true)}
@@ -390,7 +393,7 @@ function CommentInput({
                 setIsFocused(false)
               }}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               size="sm"
@@ -398,7 +401,7 @@ function CommentInput({
               disabled={!content.trim()}
             >
               <Send className="h-3 w-3 mr-1" />
-              {buttonText}
+              {buttonText || t('postButton')}
             </Button>
           </motion.div>
         )}
@@ -417,30 +420,31 @@ function CommentControls({
   onSortChange: (sort: CommentsSectionData['sortBy']) => void
   totalComments: number
 }) {
+  const t = useTranslations('components.commentsSection')
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         <MessageSquare className="h-4 w-4 text-gray-500" />
-        <span className="font-medium">{totalComments} Comments</span>
+        <span className="font-medium">{totalComments} {t('title')}</span>
       </div>
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
             <Filter className="h-3 w-3 mr-1" />
-            Sort by {sortBy}
+            {t('sortBy')} {sortBy}
             <ChevronDown className="h-3 w-3 ml-1" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => onSortChange("newest")}>
-            Newest First
+            {t('newest')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onSortChange("oldest")}>
-            Oldest First
+            {t('oldest')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onSortChange("popular")}>
-            Most Popular
+            {t('popular')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -460,6 +464,7 @@ export function CommentsSection({
   className,
   variant = "full"
 }: CommentsSectionProps) {
+  const t = useTranslations('components.commentsSection')
   const [sortBy, setSortBy] = React.useState<CommentsSectionData['sortBy']>(
     data.sortBy || "newest"
   )
@@ -521,7 +526,7 @@ export function CommentsSection({
       <Card className={className}>
         <CardContent className="p-8 text-center">
           <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Comments are disabled for this video</p>
+          <p className="text-gray-500">{t('disabled')}</p>
         </CardContent>
       </Card>
     )
@@ -533,10 +538,10 @@ export function CommentsSection({
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium">
-              {data.totalComments} Comments
+              {data.totalComments} {t('title')}
             </span>
             <Button variant="outline" size="sm">
-              View All
+              {t('viewAll')}
               <ChevronRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
@@ -565,13 +570,13 @@ export function CommentsSection({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Comments</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Comment input */}
         <CommentInput
           onSubmit={(content) => handleCommentSubmit(content)}
-          placeholder={data.requireApproval ? "Add a comment (requires approval)..." : "Add a comment..."}
+          placeholder={data.requireApproval ? `${t('placeholder')} ${t('requiresApproval')}` : t('placeholder')}
         />
         
         {/* Controls */}
@@ -618,7 +623,7 @@ export function CommentsSection({
           ) : (
             <div className="text-center py-8">
               <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No comments yet. Be the first to comment!</p>
+              <p className="text-gray-500">{t('noComments')} {t('beFirst')}</p>
             </div>
           )}
         </div>

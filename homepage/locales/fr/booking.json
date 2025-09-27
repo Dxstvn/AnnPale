@@ -1,0 +1,72 @@
+{
+  "videoOrder": {
+    "title": "Réserver une vidéo",
+    "requestVideo": "Demander une vidéo",
+    "personalVideo": "Vidéo personnelle",
+    "businessVideo": "Vidéo d'affaires",
+    "startingAt": "À partir de",
+    "deliveredIn": "Livré en",
+    "days": "jours",
+    "hours": "heures",
+    "expressDelivery": "Livraison express",
+    "standardDelivery": "Livraison standard"
+  },
+  "form": {
+    "recipientName": "Nom du destinataire",
+    "recipientEmail": "Email du destinataire",
+    "occasion": "Occasion",
+    "selectOccasion": "Sélectionner une occasion",
+    "birthday": "Anniversaire",
+    "anniversary": "Anniversaire de mariage",
+    "congratulations": "Félicitations",
+    "getWellSoon": "Bon rétablissement",
+    "justBecause": "Juste parce que",
+    "other": "Autre",
+    "message": "Votre message",
+    "messagePlaceholder": "Dites au créateur ce que vous aimeriez qu'il dise...",
+    "instructions": "Instructions spéciales",
+    "instructionsPlaceholder": "Des prononciations ou détails spécifiques?",
+    "makePublic": "Rendre la vidéo publique",
+    "addToCart": "Ajouter au panier",
+    "bookNow": "Réserver maintenant",
+    "processing": "Traitement..."
+  },
+  "pricing": {
+    "basePrice": "Prix de base",
+    "rushDelivery": "Livraison urgente",
+    "additionalOptions": "Options supplémentaires",
+    "subtotal": "Sous-total",
+    "tax": "Taxe",
+    "total": "Total",
+    "discount": "Réduction",
+    "promoCode": "Code promo",
+    "apply": "Appliquer"
+  },
+  "status": {
+    "pending": "En attente",
+    "accepted": "Accepté",
+    "inProgress": "En cours",
+    "completed": "Complété",
+    "delivered": "Livré",
+    "cancelled": "Annulé",
+    "refunded": "Remboursé"
+  },
+  "confirmation": {
+    "orderReceived": "Commande reçue!",
+    "orderNumber": "Numéro de commande",
+    "estimatedDelivery": "Livraison estimée",
+    "trackOrder": "Suivre votre commande",
+    "emailSent": "Email de confirmation envoyé à",
+    "whatNext": "Que se passe-t-il ensuite?",
+    "creatorNotified": "Le créateur a été notifié",
+    "videoCreation": "Il enregistrera votre vidéo",
+    "deliveryNotification": "Vous serez notifié quand elle sera prête"
+  },
+  "errors": {
+    "recipientRequired": "Le nom du destinataire est requis",
+    "emailRequired": "L'email est requis",
+    "messageRequired": "Le message est requis",
+    "paymentFailed": "Échec du paiement",
+    "tryAgain": "Veuillez réessayer"
+  }
+}

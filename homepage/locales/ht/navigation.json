@@ -1,0 +1,73 @@
+{
+  "header": {
+    "browse": "Navige",
+    "howItWorks": "Kijan li fonksyone",
+    "forBusiness": "Pou biznis",
+    "startEarning": "Kòmanse fè lajan",
+    "joinAsCreator": "Vin kreyatè",
+    "login": "Konekte",
+    "signUp": "Enskripsyon",
+    "search": "Chèche",
+    "notifications": "Notifikasyon",
+    "cart": "Panye",
+    "viewAllCategories": "Gade tout kategori",
+    "browseAll": "Navige tout"
+  },
+  "userMenu": {
+    "home": "Akèy",
+    "myOrders": "Kòmand mwen yo",
+    "mySubscriptions": "Abònman mwen yo",
+    "favorites": "Favori yo",
+    "settings": "Paramèt",
+    "dashboard": "Tablo bò",
+    "myVideos": "Videyo mwen yo",
+    "analytics": "Analitik",
+    "earnings": "Revni",
+    "creatorSettings": "Paramèt kreyatè",
+    "switchToFan": "Chanje nan mòd Fan",
+    "switchToCreator": "Chanje nan mòd Kreyatè",
+    "adminPanel": "Panèl admin",
+    "help": "Èd ak sipò",
+    "logout": "Dekonekte",
+    "profile": "Pwofil",
+    "viewProfile": "Gade pwofil",
+    "accountSettings": "Paramèt kont"
+  },
+  "mobileNav": {
+    "menu": "Meni",
+    "close": "Fèmen",
+    "navigation": "Navigasyon",
+    "categories": "Kategori",
+    "account": "Kont"
+  },
+  "categories": {
+    "all": "Tout kategori",
+    "musicians": "Mizisyen",
+    "actors": "Aktè",
+    "comedians": "Komedyen",
+    "athletes": "Atlèt",
+    "influencers": "Enfliyansè",
+    "artists": "Atis",
+    "chefs": "Chef",
+    "authors": "Otè",
+    "educators": "Edikatè",
+    "entrepreneurs": "Antreprenè"
+  },
+  "breadcrumbs": {
+    "home": "Akèy",
+    "browse": "Navige",
+    "creator": "Kreyatè",
+    "fan": "Fan",
+    "admin": "Admin",
+    "settings": "Paramèt",
+    "dashboard": "Tablo bò",
+    "profile": "Pwofil"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Chwazi lang",
+    "english": "English",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen",
+    "currentLanguage": "Lang"
+  }
+}

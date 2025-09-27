@@ -18,6 +18,13 @@
     "searchButton": "Chèche",
     "badge": "Nouvo: Difizyon nan direktè disponib kounye a!"
   },
+  "contentFilter": {
+    "all": "Tout",
+    "videos": "Videyo",
+    "images": "Foto",
+    "posts": "Pòs",
+    "live": "Dirèk"
+  },
   "featured": {
     "title": "Kreyatè ki nan devan yo",
     "verified": "Verifye",
@@ -43,6 +50,12 @@
     "music": "Mizik",
     "comedy": "Komedi",
     "sports": "Espò",
+    "sportsAndFitness": "Espò & Fòm fizik",
+    "entertainment": "Amizman",
+    "media": "Medya",
+    "culinaryArts": "A kilinè",
+    "visualArts": "A vizyèl",
+    "educationAndBusiness": "Edikasyon & Biznis",
     "radio": "Radyo",
     "activists": "Aktivis yo",
     "musicDesc": "Mizisyen ak chantè ki gen talan",
@@ -79,6 +92,10 @@
     "ctaButton": "Gade kreyatè yo"
   },
   "cta": {
+    "readyToStart": "Pare pou kòmanse?",
+    "readyToStartDesc": "Vin jwenn dè milye kliyan ki kontan ki resevwa videyo pèsonalize enkloyab yo",
+    "browseCreators": "Gade kreyatè yo",
+    "becomeCreator": "Vin yon kreyatè",
     "creator": {
       "title": "Èske ou se yon kreyatè ayisyen?",
       "subtitle": "Vin jwenn dè milye zetwal ayisyen k ap fè lajan nan kreye mesaj videyo pèsonalize pou fanatik yo nan tout mond lan.",
@@ -138,7 +155,25 @@
     "termsOfService": "Kondisyon sèvis yo",
     "privacyPolicy": "Politik konfidansyalite",
     "cookiePolicy": "Politik cookie yo",
-    "allRightsReserved": "Tout dwa yo rezève"
+    "allRightsReserved": "Tout dwa yo rezève",
+    "giftCards": "Kat kado yo",
+    "occasions": "Okazyon yo",
+    "faq": "Kesyon ki poze souvan",
+    "creatorGuidelines": "Règleman pou kreyatè yo",
+    "pricingPayments": "Pri ak peman yo",
+    "successStories": "Istwa siksè yo",
+    "resources": "Resous yo",
+    "stayUpdated": "Rete enfòme",
+    "enterEmail": "Antre imel ou an",
+    "forFans": "Pou fanatik yo",
+    "forCreators": "Pou kreyatè yo",
+    "email": "Imel",
+    "phone": "Telefòn",
+    "location": "Kote",
+    "locations": "Miami, FL • Pòtoprens, Ayiti",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "usd": "USD"
   },
   "filters": {
     "title": "Filtè",
@@ -146,6 +181,7 @@
     "allCategories": "Tout kategori yo",
     "priceRange": "Kantite pri",
     "allPrices": "Tout pri yo",
+    "language": "Lang",
     "languages": "Lang",
     "allLanguages": "Tout lang yo",
     "responseTime": "Tan reponn",
@@ -215,7 +251,13 @@
     "responseTime2Days": "2 jou",
     "responseTime3Days": "3 jou",
     "responseTime5Days": "5 jou",
-    "featuredPrefix": "ak"
+    "featuredPrefix": "ak",
+    "noTiersYet": "Pa gen nivo ankò",
+    "viewProfile": "Gade pwofil la",
+    "verified": "Verifye",
+    "tier": "nivo",
+    "tiers": "nivo",
+    "from": "Apati de"
   },
   "search": {
     "placeholder": "Chèche kreyatè yo...",

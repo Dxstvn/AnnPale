@@ -20,15 +20,13 @@ export async function GET(
       )
     }
 
-    // Get order details with related data
+    // Get video request details with related data
     const { data: order, error } = await supabase
-      .from('orders')
+      .from('video_requests')
       .select(`
         *,
-        user:profiles!user_id(id, display_name, avatar_url, email),
-        creator:profiles!creator_id(id, display_name, avatar_url),
-        video_request:video_requests(id, title, description, occasion, recipient_name),
-        video_upload:video_uploads(id, video_url, thumbnail_url, duration, processing_status)
+        fan:profiles!fan_id(id, display_name, avatar_url, email),
+        creator:profiles!creator_id(id, display_name, avatar_url)
       `)
       .eq('id', orderId)
       .single()
@@ -41,7 +39,7 @@ export async function GET(
     }
 
     // Check access permissions
-    if (order.user_id !== user.id && order.creator_id !== user.id) {
+    if (order.fan_id !== user.id && order.creator_id !== user.id) {
       return NextResponse.json(
         { error: 'Access denied' },
         { status: 403 }
@@ -91,17 +89,20 @@ export async function PATCH(
       )
     }
 
-    // Update order status with validation
+    // Update video request status with validation
     const { data: updatedOrder, error: updateError } = await supabase
-      .from('orders')
+      .from('video_requests')
       .update({
         status,
-        metadata: metadata ? JSON.stringify(metadata) : undefined,
         updated_at: new Date().toISOString()
       })
       .eq('id', orderId)
       .eq('creator_id', user.id) // Ensure only creator can update their orders
-      .select()
+      .select(`
+        *,
+        fan:profiles!fan_id(id, display_name, avatar_url, email),
+        creator:profiles!creator_id(id, display_name, avatar_url)
+      `)
       .single()
 
     if (updateError || !updatedOrder) {

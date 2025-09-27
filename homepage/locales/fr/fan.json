@@ -157,5 +157,161 @@
     "switching": "Basculement...",
     "switchToCreatorStudio": "Basculer vers le Studio Créateur",
     "switchToCreatorDescription": "Accédez à votre tableau de bord créateur et gérez le contenu"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez votre compte et vos préférences",
+    "loadingSettings": "Chargement des paramètres...",
+    "signInRequired": "Veuillez vous connecter pour accéder à vos paramètres.",
+    "tabs": {
+      "profile": "Profil",
+      "subscriptions": "Abonnements"
+    },
+    "profile": {
+      "title": "Informations du profil",
+      "subtitle": "Mettez à jour vos informations personnelles et votre photo de profil",
+      "profilePicture": {
+        "changePhoto": "Changer la photo",
+        "uploading": "Téléchargement...",
+        "uploadInstructions": "JPG, PNG ou GIF. Taille max 5MB.",
+        "uploadSuccess": "Photo de profil mise à jour",
+        "uploadSuccessMessage": "Votre photo de profil a été mise à jour avec succès.",
+        "uploadError": "Échec du téléchargement",
+        "invalidFileType": "Type de fichier invalide",
+        "invalidFileTypeMessage": "Veuillez sélectionner une image JPG, PNG ou GIF.",
+        "fileTooLarge": "Fichier trop volumineux",
+        "fileTooLargeMessage": "Veuillez sélectionner une image de moins de 5MB."
+      },
+      "fields": {
+        "firstName": "Prénom",
+        "firstNamePlaceholder": "Entrez votre prénom",
+        "lastName": "Nom de famille",
+        "lastNamePlaceholder": "Entrez votre nom de famille",
+        "email": "Adresse e-mail",
+        "emailDisabled": "L'e-mail ne peut pas être modifié",
+        "phone": "Numéro de téléphone",
+        "phonePlaceholder": "Entrez votre numéro de téléphone",
+        "language": "Langue",
+        "timezone": "Fuseau horaire",
+        "bio": "Bio",
+        "bioPlaceholder": "Parlez-nous de vous..."
+      },
+      "languages": {
+        "english": "Anglais",
+        "french": "Français",
+        "haitian": "Kreyòl Ayisyen"
+      },
+      "timezones": {
+        "eastern": "Heure de l'Est",
+        "central": "Heure du Centre",
+        "mountain": "Heure des Montagnes",
+        "pacific": "Heure du Pacifique",
+        "haiti": "Heure d'Haïti",
+        "paris": "Heure de Paris"
+      },
+      "unsavedChanges": "Vous avez des modifications non sauvegardées",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "saving": "Enregistrement...",
+      "profileUpdated": "Profil mis à jour",
+      "profileUpdatedMessage": "Votre profil a été mis à jour avec succès.",
+      "profileUpdateError": "Erreur lors de l'enregistrement du profil",
+      "profileUpdateErrorMessage": "Impossible d'enregistrer votre profil. Veuillez réessayer."
+    },
+    "creator": {
+      "title": "Outils Créateur",
+      "subtitleNotActivated": "Débloquez les fonctionnalités créateur tout en gardant votre expérience de fan",
+      "subtitleActivated": "Vous avez accès aux fonctionnalités créateur !",
+      "features": {
+        "createContent": "Créer du contenu",
+        "createContentDescription": "Partagez des vidéos personnalisées avec vos fans",
+        "earnMoney": "Gagner de l'argent",
+        "earnMoneyDescription": "Soyez payé pour votre contenu personnalisé",
+        "buildAudience": "Construire votre audience",
+        "buildAudienceDescription": "Connectez-vous avec des fans du monde entier",
+        "analytics": "Analyses et insights",
+        "analyticsDescription": "Suivez vos performances et votre croissance"
+      },
+      "becomeCreator": "Devenir créateur",
+      "activating": "Activation...",
+      "activatedMessage": "Les fonctionnalités créateur sont activées ! Vous pouvez maintenant créer du contenu et gagner de l'argent.",
+      "activationSuccess": "🎉 Fonctionnalités créateur activées !",
+      "activationSuccessMessage": "Vous pouvez maintenant accéder au Studio Créateur et commencer à gagner.",
+      "alreadyActivated": "Déjà activé",
+      "activationFailed": "Échec de l'activation",
+      "activationError": "Impossible d'activer les fonctionnalités créateur",
+      "goToCreatorStudio": "Aller au Studio Créateur",
+      "creatorSettings": "Paramètres créateur",
+      "currentMode": "Mode actuel :",
+      "creatorMode": "🎬 Mode créateur",
+      "fanMode": "👤 Mode fan",
+      "switchModeHint": "Changez de mode depuis le menu de navigation"
+    },
+    "account": {
+      "title": "Actions du compte",
+      "subtitle": "Gérez la sécurité et les données de votre compte",
+      "changePassword": "Changer le mot de passe",
+      "changePasswordDescription": "Mettez à jour votre mot de passe pour sécuriser votre compte",
+      "downloadData": "Télécharger vos données",
+      "downloadDataDescription": "Obtenez une copie de vos données Ann Pale",
+      "comingSoon": "Bientôt disponible"
+    },
+    "subscriptions": {
+      "discoverTitle": "Découvrir de nouveaux créateurs",
+      "discoverSubtitle": "Basé sur vos intérêts et abonnements",
+      "exploreMessage": "Explorez de nouveaux créateurs à suivre",
+      "browseCreators": "Parcourir les créateurs",
+      "management": {
+        "title": "Abonnements actifs",
+        "description": "Gérez vos abonnements créateur",
+        "noSubscriptions": "Vous n'avez pas encore d'abonnements actifs",
+        "browseCreators": "Parcourir les créateurs",
+        "viewCreator": "Voir le créateur",
+        "nextBilling": "Prochaine facturation : {date}",
+        "accessUntil": "Accès jusqu'à : {date}",
+        "month": "mois",
+        "year": "année",
+        "status": {
+          "active": "Actif",
+          "paused": "En pause",
+          "cancelled": "Annulé",
+          "expired": "Expiré"
+        },
+        "actions": {
+          "pauseSubscription": "Mettre en pause l'abonnement",
+          "resumeSubscription": "Reprendre l'abonnement",
+          "cancelSubscription": "Annuler l'abonnement",
+          "updatePaymentMethod": "Modifier le moyen de paiement",
+          "manageSubscription": "Gérer l'abonnement"
+        },
+        "dialogs": {
+          "pause": {
+            "title": "Mettre en pause l'abonnement",
+            "description": "Êtes-vous sûr de vouloir mettre en pause votre abonnement à {creator} ? Vous pouvez le reprendre à tout moment."
+          },
+          "resume": {
+            "title": "Reprendre l'abonnement",
+            "description": "Reprendre votre abonnement à {creator} ? La facturation continuera à partir du prochain cycle."
+          },
+          "cancel": {
+            "title": "Annuler l'abonnement",
+            "description": "Êtes-vous sûr de vouloir annuler votre abonnement à {creator} ? Vous aurez accès jusqu'à {date}.",
+            "warning": "Vous pouvez vous réabonner à tout moment, mais vous pourriez perdre les prix spéciaux ou avantages que vous avez actuellement."
+          }
+        },
+        "messages": {
+          "pauseSuccess": "Abonnement mis en pause avec succès. Vous ne serez pas facturé jusqu'à ce que vous repreniez.",
+          "resumeSuccess": "Abonnement repris avec succès. La facturation continuera normalement.",
+          "cancelSuccess": "Abonnement annulé. Vous aurez accès jusqu'à {date}.",
+          "loadError": "Échec du chargement des abonnements",
+          "updateError": "Échec de la mise à jour de l'abonnement",
+          "paymentError": "Échec de l'ouverture des paramètres de paiement"
+        },
+        "processing": "Traitement...",
+        "cancel": "Annuler",
+        "success": "Succès",
+        "error": "Erreur"
+      }
+    }
   }
 }

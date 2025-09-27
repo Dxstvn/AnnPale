@@ -1,0 +1,139 @@
+{
+  "title": "Détails de la commande",
+  "orderNumber": "Commande #{number}",
+  "backToOrders": "Retour aux commandes",
+
+  "status": {
+    "pending": "En attente",
+    "pending_payment": "En attente de paiement",
+    "accepted": "Acceptée",
+    "completed": "Terminée",
+    "delivered": "Livrée",
+    "cancelled": "Annulée",
+    "rejected": "Refusée",
+    "expired": "Expirée"
+  },
+
+  "timeline": {
+    "title": "Chronologie de la commande",
+    "estimatedDelivery": "Livraison estimée dans {time}",
+    "deliveryReached": "Délai de livraison atteint",
+
+    "events": {
+      "placed": {
+        "title": "Commande passée",
+        "description": "Votre demande a été soumise"
+      },
+      "paymentConfirmed": {
+        "title": "Paiement confirmé",
+        "description": "Paiement traité avec succès"
+      },
+      "accepted": {
+        "title": "Créateur a accepté",
+        "description": "{creator} a accepté votre demande"
+      },
+      "delivered": {
+        "title": "Livrée",
+        "description": "Votre vidéo est prête à regarder!"
+      },
+      "cancelled": {
+        "title": "Annulée",
+        "description": "La commande a été annulée"
+      },
+      "rejected": {
+        "title": "Refusée",
+        "description": "Le créateur a refusé cette demande"
+      }
+    },
+
+    "recordingProgress": "Progression de l'enregistrement"
+  },
+
+  "communication": {
+    "title": "Communication",
+    "sendMessage": "Envoyer un message",
+    "messageCreator": "Envoyer un message au créateur",
+    "messagePlaceholder": "Tapez votre message ici...",
+    "sending": "Envoi...",
+    "send": "Envoyer",
+
+    "systemMessages": {
+      "orderPlaced": "Commande passée avec succès",
+      "paymentConfirmed": "Paiement confirmé",
+      "creatorStartedRecording": "Le créateur a commencé l'enregistrement",
+      "videoDelivered": "Votre vidéo a été livrée"
+    }
+  },
+
+  "details": {
+    "creator": "Créateur",
+    "viewProfile": "Voir le profil",
+
+    "videoDetails": "Détails de la vidéo",
+    "occasion": "Occasion",
+    "for": "Pour",
+    "instructions": "Instructions",
+    "rushOrder": "Commande urgente",
+    "privateVideo": "Vidéo privée",
+
+    "payment": "Paiement",
+    "amount": "Montant",
+    "method": "Méthode",
+    "paidOn": "Payé le"
+  },
+
+  "actions": {
+    "watchVideo": "Regarder la vidéo",
+    "downloadVideo": "Télécharger la vidéo",
+    "shareVideo": "Partager la vidéo",
+    "reportProblem": "Signaler un problème",
+    "requestRefund": "Demander un remboursement",
+    "cancelOrder": "Annuler la commande",
+    "keepOrder": "Garder la commande",
+    "cancelling": "Annulation..."
+  },
+
+  "dialogs": {
+    "cancelOrder": {
+      "title": "Annuler la commande",
+      "description": "Êtes-vous sûr de vouloir annuler cette commande? Cette action est irréversible.",
+      "refundNote": "Vous recevrez un remboursement complet si le créateur n'a pas encore commencé l'enregistrement."
+    },
+
+    "sendMessage": {
+      "title": "Envoyer un message au créateur",
+      "description": "Envoyer un message concernant votre demande de vidéo"
+    }
+  },
+
+  "statusLabels": {
+    "pendingAcceptance": "En attente d'acceptation",
+    "accepted": "Acceptée",
+    "delivered": "Livrée",
+    "cancelled": "Annulée",
+    "refunded": "Remboursée",
+    "unknown": "Inconnu"
+  },
+
+  "statusDescriptions": {
+    "pendingAcceptance": "En attente que le créateur accepte votre demande",
+    "accepted": "Le créateur a accepté et va bientôt enregistrer",
+    "delivered": "Votre vidéo est prête!",
+    "cancelled": "Cette commande a été annulée",
+    "refunded": "Le paiement a été remboursé",
+    "unknown": "Statut inconnu"
+  },
+
+  "alerts": {
+    "delivered": "Votre vidéo est prête!",
+    "cancelled": "Cette commande a été annulée le {date}",
+    "expired": "Cette commande a expiré",
+    "loadingError": "Échec du chargement des détails de la commande",
+    "orderNotFound": "Commande introuvable"
+  },
+
+  "loading": "Chargement des détails de la commande...",
+  "error": "Erreur lors du chargement de la commande",
+  "tryAgain": "Réessayer",
+  "cancel": "Annuler"
+}

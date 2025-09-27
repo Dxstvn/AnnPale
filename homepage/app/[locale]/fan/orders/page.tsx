@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { 
   Package, Clock, CheckCircle, XCircle, Download, MessageSquare,
   Calendar, CreditCard, Video, Gift, Star, Filter, Search,
-  ChevronRight, AlertCircle, Truck, RefreshCw, Play, Eye
+  AlertCircle, Truck, RefreshCw, Play, Eye
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,13 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { VideoPlayerModal } from '@/components/video/video-player'
 import { useSupabaseAuth } from '@/contexts/supabase-auth-compat'
 import { createClient } from '@/lib/supabase/client'
@@ -68,12 +62,13 @@ interface Order {
 }
 
 export default function CustomerOrdersPage() {
+  const router = useRouter()
+  const params = useParams()
   const t = useTranslations('fan')
   const { user, isLoading: authLoading } = useSupabaseAuth()
   const [selectedTab, setSelectedTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState('all')
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -87,6 +82,16 @@ export default function CustomerOrdersPage() {
   }>({ isOpen: false, videoUrl: '' })
   const [isLoadingVideo, setIsLoadingVideo] = useState(false)
   const supabase = createClient()
+
+  // Handle order card click navigation
+  const handleOrderClick = (order: Order) => {
+    // Use payment_intent_id if available, otherwise use video_request_id
+    const orderId = order.payment_intent_id || order.video_request_id || order.id
+    const locale = params.locale || 'en'
+
+    // Navigate to detailed order tracking page
+    router.push(`/${locale}/fan/orders/${orderId}`)
+  }
 
   // Fetch orders from database - now using video_requests table for accurate status
   const fetchOrders = async () => {
@@ -284,9 +289,9 @@ export default function CustomerOrdersPage() {
   }
 
   const OrderCard = ({ order }: { order: Order }) => (
-    <Card 
+    <Card
       className="hover:shadow-lg transition-all cursor-pointer border-gray-200"
-      onClick={() => setSelectedOrder(order)}
+      onClick={() => handleOrderClick(order)}
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
@@ -367,10 +372,6 @@ export default function CustomerOrdersPage() {
               </Button>
             )}
           </div>
-          <Button size="sm" variant="ghost">
-            {t('orders.viewDetails')}
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
         </div>
       </CardContent>
     </Card>
@@ -582,137 +583,6 @@ export default function CustomerOrdersPage() {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Order Details Dialog */}
-      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-2xl !bg-white !text-gray-900 dark:!bg-white dark:!text-gray-900">
-          <DialogHeader>
-            <DialogTitle className="!text-gray-900 dark:!text-gray-900">{t('orders.orderDetails')}</DialogTitle>
-            <DialogDescription className="!text-gray-600 dark:!text-gray-600">
-              {t('orders.orderNumber')}{selectedOrder?.id.slice(0, 8)}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={selectedOrder.creator?.avatar_url} />
-                  <AvatarFallback>{selectedOrder.creator?.display_name?.[0] || 'C'}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-lg !text-gray-900 dark:!text-gray-900">{selectedOrder.creator?.display_name || 'Creator'}</h3>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <Badge variant="outline" className="capitalize !text-gray-700 !border-gray-300 dark:!text-gray-700 dark:!border-gray-300">
-                      Video Request
-                    </Badge>
-                    <Badge className={getStatusColor(selectedOrder.status)}>
-                      {selectedOrder.status.replace('_', ' ')}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm !text-gray-500 dark:!text-gray-500">{t('orders.orderDate')}</p>
-                  <p className="font-semibold !text-gray-900 dark:!text-gray-900">{format(new Date(selectedOrder.created_at), 'PPP')}</p>
-                </div>
-                <div>
-                  <p className="text-sm !text-gray-500 dark:!text-gray-500">{t('orders.amountPaid')}</p>
-                  <p className="font-semibold !text-gray-900 dark:!text-gray-900">${selectedOrder.amount.toFixed(2)}</p>
-                </div>
-                {selectedOrder.completed_at && (
-                  <div>
-                    <p className="text-sm !text-gray-500 dark:!text-gray-500">{t('orders.completedDate')}</p>
-                    <p className="font-semibold !text-gray-900 dark:!text-gray-900">{format(new Date(selectedOrder.completed_at), 'PPP')}</p>
-                  </div>
-                )}
-                {selectedOrder.occasion && (
-                  <div>
-                    <p className="text-sm !text-gray-500 dark:!text-gray-500">{t('orders.occasion')}</p>
-                    <p className="font-semibold !text-gray-900 dark:!text-gray-900">{selectedOrder.occasion}</p>
-                  </div>
-                )}
-              </div>
-
-              {selectedOrder.instructions && (
-                <div>
-                  <p className="text-sm !text-gray-500 dark:!text-gray-500 mb-2">{t('orders.instructions')}</p>
-                  <p className="p-3 !bg-gray-50 dark:!bg-gray-50 rounded-lg !text-gray-800 dark:!text-gray-800">{selectedOrder.instructions}</p>
-                </div>
-              )}
-
-
-              <div className="flex justify-end space-x-2 pt-4">
-                {selectedOrder.status === 'completed' && selectedOrder.video_url && (
-                  <>
-                    <Button 
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                      disabled={isLoadingVideo}
-                      onClick={() => {
-                        // Since video is stored in public Supabase Storage, use URL directly
-                        if (selectedOrder.video_url) {
-                          setVideoPlayer({
-                            isOpen: true,
-                            videoUrl: selectedOrder.video_url,
-                            title: `${selectedOrder.occasion} video for ${selectedOrder.recipient_name || 'you'}`,
-                            creatorName: selectedOrder.creator?.display_name || 'Creator',
-                            creatorAvatar: selectedOrder.creator?.avatar_url
-                          })
-                        } else {
-                          alert(t('orders.videoNotAvailable'))
-                        }
-                      }}
-                    >
-                      <Play className="h-4 w-4 mr-2" />
-                      {isLoadingVideo ? t('orders.loading') : t('orders.watchVideo')}
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      disabled={isLoadingVideo}
-                      onClick={() => {
-                        if (selectedOrder.video_url) {
-                          // Create download link for the video
-                          const link = document.createElement('a')
-                          link.href = selectedOrder.video_url
-                          link.download = `${selectedOrder.occasion}-video-${selectedOrder.id.slice(0, 8)}.webm`
-                          link.target = '_blank'
-                          link.click()
-                        } else {
-                          alert(t('orders.videoNotAvailable'))
-                        }
-                      }}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      {t('orders.download')}
-                    </Button>
-                    <Button variant="outline">
-                      <Star className="h-4 w-4 mr-2" />
-                      {t('orders.rate')}
-                    </Button>
-                  </>
-                )}
-                {['pending', 'accepted', 'recording', 'in_progress'].includes(selectedOrder.status) && (
-                  <>
-                    <Button variant="outline">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      {t('orders.contactCreator')}
-                    </Button>
-                    <Button variant="outline" className="text-red-600 border-red-600">
-                      {t('orders.cancelOrder')}
-                    </Button>
-                  </>
-                )}
-                {selectedOrder.status === 'cancelled' && (
-                  <Button variant="outline">
-                    {t('orders.requestRefund')}
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Video Player Modal */}
       <VideoPlayerModal

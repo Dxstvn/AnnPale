@@ -1,0 +1,72 @@
+{
+  "videoOrder": {
+    "title": "Rezève yon videyo",
+    "requestVideo": "Mande yon videyo",
+    "personalVideo": "Videyo pèsonèl",
+    "businessVideo": "Videyo biznis",
+    "startingAt": "Apati de",
+    "deliveredIn": "Livre nan",
+    "days": "jou",
+    "hours": "èdtan",
+    "expressDelivery": "Livrezon rapid",
+    "standardDelivery": "Livrezon nòmal"
+  },
+  "form": {
+    "recipientName": "Non moun k ap resevwa a",
+    "recipientEmail": "Imèl moun k ap resevwa a",
+    "occasion": "Okazyon",
+    "selectOccasion": "Chwazi yon okazyon",
+    "birthday": "Anivèsè",
+    "anniversary": "Anivèsè maryaj",
+    "congratulations": "Felisitasyon",
+    "getWellSoon": "Rekipere vit",
+    "justBecause": "Jis konsa",
+    "other": "Lòt",
+    "message": "Mesaj ou",
+    "messagePlaceholder": "Di kreyatè a sa ou ta renmen li di...",
+    "instructions": "Enstriksyon espesyal",
+    "instructionsPlaceholder": "Gen pwononsyasyon oswa detay espesifik?",
+    "makePublic": "Fè videyo a piblik",
+    "addToCart": "Ajoute nan panye",
+    "bookNow": "Rezève kounye a",
+    "processing": "Ap trete..."
+  },
+  "pricing": {
+    "basePrice": "Pri debaz",
+    "rushDelivery": "Livrezon ijan",
+    "additionalOptions": "Opsyon anplis",
+    "subtotal": "Sou-total",
+    "tax": "Taks",
+    "total": "Total",
+    "discount": "Rabè",
+    "promoCode": "Kòd pwomo",
+    "apply": "Aplike"
+  },
+  "status": {
+    "pending": "An atant",
+    "accepted": "Aksepte",
+    "inProgress": "Ap fè",
+    "completed": "Fini",
+    "delivered": "Livre",
+    "cancelled": "Anile",
+    "refunded": "Ranbouse"
+  },
+  "confirmation": {
+    "orderReceived": "Kòmand resevwa!",
+    "orderNumber": "Nimewo kòmand",
+    "estimatedDelivery": "Livrezon estime",
+    "trackOrder": "Swiv kòmand ou",
+    "emailSent": "Imèl konfimasyon voye bay",
+    "whatNext": "Kisa k ap pase apre sa?",
+    "creatorNotified": "Kreyatè a resevwa notifikasyon",
+    "videoCreation": "L ap anrejistre videyo ou a",
+    "deliveryNotification": "N ap fè ou konnen lè l pare"
+  },
+  "errors": {
+    "recipientRequired": "Non moun k ap resevwa a obligatwa",
+    "emailRequired": "Imèl obligatwa",
+    "messageRequired": "Mesaj obligatwa",
+    "paymentFailed": "Peman echwe",
+    "tryAgain": "Tanpri eseye ankò"
+  }
+}

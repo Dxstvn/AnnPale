@@ -1,0 +1,73 @@
+{
+  "header": {
+    "browse": "Parcourir",
+    "howItWorks": "Comment ça marche",
+    "forBusiness": "Pour les entreprises",
+    "startEarning": "Commencer à gagner",
+    "joinAsCreator": "Devenir créateur",
+    "login": "Connexion",
+    "signUp": "S'inscrire",
+    "search": "Rechercher",
+    "notifications": "Notifications",
+    "cart": "Panier",
+    "viewAllCategories": "Voir toutes les catégories",
+    "browseAll": "Tout parcourir"
+  },
+  "userMenu": {
+    "home": "Accueil",
+    "myOrders": "Mes commandes",
+    "mySubscriptions": "Mes abonnements",
+    "favorites": "Favoris",
+    "settings": "Paramètres",
+    "dashboard": "Tableau de bord",
+    "myVideos": "Mes vidéos",
+    "analytics": "Analytiques",
+    "earnings": "Revenus",
+    "creatorSettings": "Paramètres créateur",
+    "switchToFan": "Passer en mode Fan",
+    "switchToCreator": "Passer en mode Créateur",
+    "adminPanel": "Panneau admin",
+    "help": "Aide et support",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "viewProfile": "Voir le profil",
+    "accountSettings": "Paramètres du compte"
+  },
+  "mobileNav": {
+    "menu": "Menu",
+    "close": "Fermer",
+    "navigation": "Navigation",
+    "categories": "Catégories",
+    "account": "Compte"
+  },
+  "categories": {
+    "all": "Toutes les catégories",
+    "musicians": "Musiciens",
+    "actors": "Acteurs",
+    "comedians": "Humoristes",
+    "athletes": "Athlètes",
+    "influencers": "Influenceurs",
+    "artists": "Artistes",
+    "chefs": "Chefs",
+    "authors": "Auteurs",
+    "educators": "Éducateurs",
+    "entrepreneurs": "Entrepreneurs"
+  },
+  "breadcrumbs": {
+    "home": "Accueil",
+    "browse": "Parcourir",
+    "creator": "Créateur",
+    "fan": "Fan",
+    "admin": "Admin",
+    "settings": "Paramètres",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Sélectionner la langue",
+    "english": "English",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen",
+    "currentLanguage": "Langue"
+  }
+}

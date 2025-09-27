@@ -4,10 +4,10 @@ import * as React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { 
-  Star, 
-  Clock, 
-  Globe, 
+import {
+  Star,
+  Clock,
+  Globe,
   CheckCircle,
   MessageSquare,
   DollarSign,
@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 export interface Creator {
   id: string
@@ -51,6 +52,7 @@ export function CreatorCard({
 }: CreatorCardProps) {
   const [imageLoaded, setImageLoaded] = React.useState(false)
   const [isHovered, setIsHovered] = React.useState(false)
+  const t = useTranslations('components.creatorCard')
 
   const cardContent = (
     <Card 
@@ -90,19 +92,19 @@ export function CreatorCard({
           {creator.verified && (
             <Badge variant="info" className="bg-blue-500/90 backdrop-blur">
               <CheckCircle className="h-3 w-3 mr-1" />
-              Verified
+              {t('verified')}
             </Badge>
           )}
           {creator.trending && (
             <Badge variant="warning" className="bg-yellow-500/90 backdrop-blur">
               <TrendingUp className="h-3 w-3 mr-1" />
-              Trending
+              {t('trending')}
             </Badge>
           )}
           {creator.featured && (
             <Badge variant="success" className="bg-green-500/90 backdrop-blur">
               <Star className="h-3 w-3 mr-1" />
-              Featured
+              {t('featured')}
             </Badge>
           )}
         </div>
@@ -120,7 +122,7 @@ export function CreatorCard({
           <div className="absolute bottom-3 right-3">
             <Badge variant="secondary" className="bg-white/90 dark:bg-gray-900/90 backdrop-blur">
               <Globe className="h-3 w-3 mr-1" />
-              {creator.languages.length} {creator.languages.length === 1 ? "language" : "languages"}
+              {creator.languages.length} {creator.languages.length === 1 ? t('language') : t('languages')}
             </Badge>
           </div>
         )}
@@ -177,10 +179,10 @@ export function CreatorCard({
             <div className="flex items-center justify-between text-xs text-gray-500">
               <div className="flex items-center gap-1">
                 <MessageSquare className="h-3 w-3" />
-                <span>{creator.reviewCount} reviews</span>
+                <span>{creator.reviewCount} {t('reviews')}</span>
               </div>
               {creator.videoCount && (
-                <span>{creator.videoCount} videos</span>
+                <span>{creator.videoCount} {t('videos')}</span>
               )}
             </div>
           </div>

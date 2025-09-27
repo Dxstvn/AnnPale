@@ -46,6 +46,7 @@ import {
 import { Post, SubscriptionTier } from "@/types/posts"
 import { useToast } from "@/hooks/use-toast"
 import { formatDistanceToNow } from "date-fns"
+import { useTranslations } from "next-intl"
 
 interface RealContentFeedProps {
   isAuthenticated: boolean
@@ -56,6 +57,7 @@ interface RealContentFeedProps {
 }
 
 export function RealContentFeed({ isAuthenticated, userId, userSubscriptions = [], excludeLockedContent = false, className }: RealContentFeedProps) {
+  const t = useTranslations('common.contentFilter')
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -241,11 +243,11 @@ export function RealContentFeed({ isAuthenticated, userId, userSubscriptions = [
         <div className="flex items-center gap-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="video">Videos</TabsTrigger>
-              <TabsTrigger value="image">Images</TabsTrigger>
-              <TabsTrigger value="text">Posts</TabsTrigger>
-              <TabsTrigger value="live">Live</TabsTrigger>
+              <TabsTrigger value="all">{t('all')}</TabsTrigger>
+              <TabsTrigger value="video">{t('videos')}</TabsTrigger>
+              <TabsTrigger value="image">{t('images')}</TabsTrigger>
+              <TabsTrigger value="text">{t('posts')}</TabsTrigger>
+              <TabsTrigger value="live">{t('live')}</TabsTrigger>
             </TabsList>
           </Tabs>
           

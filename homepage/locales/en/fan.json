@@ -157,5 +157,161 @@
     "switching": "Switching...",
     "switchToCreatorStudio": "Switch to Creator Studio",
     "switchToCreatorDescription": "Access your creator dashboard and manage content"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "loadingSettings": "Loading settings...",
+    "signInRequired": "Please sign in to access your settings.",
+    "tabs": {
+      "profile": "Profile",
+      "subscriptions": "Subscriptions"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "subtitle": "Update your personal information and profile picture",
+      "profilePicture": {
+        "changePhoto": "Change Photo",
+        "uploading": "Uploading...",
+        "uploadInstructions": "JPG, PNG or GIF. Max size 5MB.",
+        "uploadSuccess": "Profile picture updated",
+        "uploadSuccessMessage": "Your profile picture has been successfully updated.",
+        "uploadError": "Upload failed",
+        "invalidFileType": "Invalid file type",
+        "invalidFileTypeMessage": "Please select a JPG, PNG, or GIF image.",
+        "fileTooLarge": "File too large",
+        "fileTooLargeMessage": "Please select an image smaller than 5MB."
+      },
+      "fields": {
+        "firstName": "First Name",
+        "firstNamePlaceholder": "Enter your first name",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Enter your last name",
+        "email": "Email Address",
+        "emailDisabled": "Email cannot be changed",
+        "phone": "Phone Number",
+        "phonePlaceholder": "Enter your phone number",
+        "language": "Language",
+        "timezone": "Timezone",
+        "bio": "Bio",
+        "bioPlaceholder": "Tell us about yourself..."
+      },
+      "languages": {
+        "english": "English",
+        "french": "Français",
+        "haitian": "Kreyòl Ayisyen"
+      },
+      "timezones": {
+        "eastern": "Eastern Time",
+        "central": "Central Time",
+        "mountain": "Mountain Time",
+        "pacific": "Pacific Time",
+        "haiti": "Haiti Time",
+        "paris": "Paris Time"
+      },
+      "unsavedChanges": "You have unsaved changes",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "profileUpdated": "Profile updated",
+      "profileUpdatedMessage": "Your profile has been successfully updated.",
+      "profileUpdateError": "Error saving profile",
+      "profileUpdateErrorMessage": "Could not save your profile. Please try again."
+    },
+    "creator": {
+      "title": "Creator Tools",
+      "subtitleNotActivated": "Unlock creator features while keeping your fan experience",
+      "subtitleActivated": "You have access to creator features!",
+      "features": {
+        "createContent": "Create Content",
+        "createContentDescription": "Share personalized videos with your fans",
+        "earnMoney": "Earn Money",
+        "earnMoneyDescription": "Get paid for your personalized content",
+        "buildAudience": "Build Your Audience",
+        "buildAudienceDescription": "Connect with fans from around the world",
+        "analytics": "Analytics & Insights",
+        "analyticsDescription": "Track your performance and growth"
+      },
+      "becomeCreator": "Become a Creator",
+      "activating": "Activating...",
+      "activatedMessage": "Creator features are activated! You can now create content and earn money.",
+      "activationSuccess": "🎉 Creator Features Activated!",
+      "activationSuccessMessage": "You can now access Creator Studio and start earning.",
+      "alreadyActivated": "Already Activated",
+      "activationFailed": "Activation Failed",
+      "activationError": "Could not activate creator features",
+      "goToCreatorStudio": "Go to Creator Studio",
+      "creatorSettings": "Creator Settings",
+      "currentMode": "Current Mode:",
+      "creatorMode": "🎬 Creator Mode",
+      "fanMode": "👤 Fan Mode",
+      "switchModeHint": "Switch modes from the navigation menu"
+    },
+    "account": {
+      "title": "Account Actions",
+      "subtitle": "Manage your account security and data",
+      "changePassword": "Change Password",
+      "changePasswordDescription": "Update your password to keep your account secure",
+      "downloadData": "Download Your Data",
+      "downloadDataDescription": "Get a copy of your Ann Pale data",
+      "comingSoon": "Coming Soon"
+    },
+    "subscriptions": {
+      "discoverTitle": "Discover New Creators",
+      "discoverSubtitle": "Based on your interests and subscriptions",
+      "exploreMessage": "Explore new creators to follow",
+      "browseCreators": "Browse Creators",
+      "management": {
+        "title": "Active Subscriptions",
+        "description": "Manage your creator subscriptions",
+        "noSubscriptions": "You don't have any active subscriptions yet",
+        "browseCreators": "Browse Creators",
+        "viewCreator": "View Creator",
+        "nextBilling": "Next billing: {date}",
+        "accessUntil": "Access until: {date}",
+        "month": "month",
+        "year": "year",
+        "status": {
+          "active": "Active",
+          "paused": "Paused",
+          "cancelled": "Cancelled",
+          "expired": "Expired"
+        },
+        "actions": {
+          "pauseSubscription": "Pause Subscription",
+          "resumeSubscription": "Resume Subscription",
+          "cancelSubscription": "Cancel Subscription",
+          "updatePaymentMethod": "Update Payment Method",
+          "manageSubscription": "Manage Subscription"
+        },
+        "dialogs": {
+          "pause": {
+            "title": "Pause Subscription",
+            "description": "Are you sure you want to pause your subscription to {creator}? You can resume it anytime."
+          },
+          "resume": {
+            "title": "Resume Subscription",
+            "description": "Resume your subscription to {creator}? Billing will continue from the next cycle."
+          },
+          "cancel": {
+            "title": "Cancel Subscription",
+            "description": "Are you sure you want to cancel your subscription to {creator}? You'll have access until {date}.",
+            "warning": "You can resubscribe anytime, but you may lose any special pricing or perks you currently have."
+          }
+        },
+        "messages": {
+          "pauseSuccess": "Subscription paused successfully. You will not be billed until you resume.",
+          "resumeSuccess": "Subscription resumed successfully. Billing will continue normally.",
+          "cancelSuccess": "Subscription cancelled. You'll have access until {date}.",
+          "loadError": "Failed to load subscriptions",
+          "updateError": "Failed to update subscription",
+          "paymentError": "Failed to open payment settings"
+        },
+        "processing": "Processing...",
+        "cancel": "Cancel",
+        "success": "Success",
+        "error": "Error"
+      }
+    }
   }
 }

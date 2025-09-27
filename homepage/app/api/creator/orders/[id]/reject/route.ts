@@ -44,9 +44,9 @@ export async function POST(
       )
     }
 
-    // Get order details first to access payment information
+    // Get video request details first to access payment information
     const { data: order, error: fetchError } = await supabase
-      .from('orders')
+      .from('video_requests')
       .select('*')
       .eq('id', orderId)
       .eq('creator_id', user.id)
@@ -76,10 +76,10 @@ export async function POST(
         // Process Connect refund with proper account splits
         const refundResult = await processConnectRefund({
           paymentIntentId: order.payment_intent_id,
-          refundAmount: parseFloat(order.amount), // Full refund for rejection
-          originalAmount: parseFloat(order.amount),
-          creatorAmount: parseFloat(order.creator_earnings),
-          platformFee: parseFloat(order.platform_fee),
+          refundAmount: parseFloat(order.price.toString()), // Full refund for rejection
+          originalAmount: parseFloat(order.price.toString()),
+          creatorAmount: parseFloat(order.price.toString()) * 0.85, // Assuming 85% goes to creator
+          platformFee: parseFloat(order.price.toString()) * 0.15, // Assuming 15% platform fee
           reason: 'requested_by_customer',
           metadata: {
             order_id: orderId,
@@ -147,22 +147,20 @@ export async function POST(
       }
     }
 
-    // Update order status with refund information
+    // Update video request status with refund information
     const { data: updatedOrder, error: updateError } = await serviceClient
-      .from('orders')
+      .from('video_requests')
       .update({
         status: 'rejected',
-        metadata: {
-          rejectionReason: reason,
-          rejectionNotes: notes || '',
-          rejectedAt: new Date().toISOString(),
-          refund: refundData,
-          refundError: refundError
-        },
+        rejection_reason: reason,
         updated_at: new Date().toISOString()
       })
       .eq('id', orderId)
-      .select()
+      .select(`
+        *,
+        fan:profiles!fan_id(id, display_name, avatar_url, email),
+        creator:profiles!creator_id(id, display_name, avatar_url)
+      `)
       .single()
 
     if (updateError || !updatedOrder) {
@@ -172,21 +170,7 @@ export async function POST(
       )
     }
 
-    // Also update the corresponding video_request status for synchronization
-    if (order.video_request_id) {
-      const { error: videoRequestError } = await serviceClient
-        .from('video_requests')
-        .update({
-          status: 'rejected',
-          rejection_reason: reason,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', order.video_request_id)
-      
-      if (videoRequestError) {
-        console.error('❌ Failed to update video_request status:', videoRequestError)
-      }
-    }
+    // No need to sync video_request since we're updating it directly
 
     console.log(`✅ Order ${orderId} rejected successfully${refundData ? ' with refund processed' : refundError ? ' (refund failed)' : ''}`)
 

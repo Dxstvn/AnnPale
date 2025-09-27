@@ -1,0 +1,102 @@
+{
+  "tiers": {
+    "title": "Subscription Tiers",
+    "chooseYourPlan": "Choose Your Plan",
+    "basic": "Basic",
+    "premium": "Premium",
+    "vip": "VIP",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "save": "Save",
+    "mostPopular": "Most Popular",
+    "bestValue": "Best Value",
+    "currentPlan": "Current Plan"
+  },
+  "features": {
+    "unlimitedAccess": "Unlimited access",
+    "exclusiveContent": "Exclusive content",
+    "prioritySupport": "Priority support",
+    "earlyAccess": "Early access",
+    "customRequests": "Custom requests",
+    "directMessaging": "Direct messaging",
+    "liveStreams": "Live streams",
+    "behindTheScenes": "Behind the scenes",
+    "monthlyVideos": "Monthly videos",
+    "discounts": "Discounts on videos",
+    "badges": "Special badges",
+    "communityAccess": "Community access"
+  },
+  "actions": {
+    "subscribe": "Subscribe",
+    "subscribeNow": "Subscribe Now",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "cancel": "Cancel Subscription",
+    "pause": "Pause Subscription",
+    "resume": "Resume Subscription",
+    "manage": "Manage Subscription",
+    "changePlan": "Change Plan",
+    "updatePayment": "Update Payment Method",
+    "viewBilling": "View Billing History",
+    "confirmCancel": "Confirm Cancellation"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "paused": "Paused",
+    "cancelled": "Cancelled",
+    "expired": "Expired",
+    "pending": "Pending",
+    "trial": "Trial",
+    "pastDue": "Past Due"
+  },
+  "billing": {
+    "nextBilling": "Next billing date",
+    "lastPayment": "Last payment",
+    "paymentMethod": "Payment method",
+    "updateCard": "Update card",
+    "addPaymentMethod": "Add payment method",
+    "billingHistory": "Billing history",
+    "invoice": "Invoice",
+    "receipt": "Receipt",
+    "download": "Download",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status"
+  },
+  "messages": {
+    "subscribeSuccess": "Successfully subscribed!",
+    "upgradeSuccess": "Successfully upgraded!",
+    "downgradeSuccess": "Successfully downgraded!",
+    "cancelSuccess": "Subscription cancelled",
+    "pauseSuccess": "Subscription paused",
+    "resumeSuccess": "Subscription resumed",
+    "paymentUpdated": "Payment method updated",
+    "subscriptionRequired": "Subscription required",
+    "confirmCancelMessage": "Are you sure you want to cancel your subscription?",
+    "cancelWarning": "You will lose access to all benefits at the end of your billing period.",
+    "keepSubscription": "Keep Subscription",
+    "processingPayment": "Processing payment...",
+    "paymentFailed": "Payment failed. Please try again.",
+    "trialEnding": "Your trial ends in {days} days"
+  },
+  "benefits": {
+    "title": "Subscription Benefits",
+    "exclusiveAccess": "Exclusive Access",
+    "memberOnly": "Member-only content",
+    "priorityBooking": "Priority booking",
+    "specialPricing": "Special pricing",
+    "monthlyPerks": "Monthly perks",
+    "supportCreator": "Support your favorite creator"
+  },
+  "comparison": {
+    "comparePlans": "Compare Plans",
+    "feature": "Feature",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "unlimited": "Unlimited",
+    "limited": "Limited"
+  }
+}

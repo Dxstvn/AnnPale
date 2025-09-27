@@ -1,0 +1,137 @@
+{
+  "title": "Peye",
+  "secureCheckout": "Peman sekirize",
+  "orderSummary": "Rezime kòmand",
+  "paymentDetails": "Detay peman",
+  "loadingPaymentSystem": "Ap chaje sistèm peman an...",
+  "loadingSubscription": "Ap chaje peman abònman an...",
+  "loading": "Ap chaje...",
+  "redirecting": "Ap voye ou tounen...",
+  "videoDetails": "Detay videyo",
+  "customerSupport": "Sèvis kliyan",
+  "support247": "Èd disponib 24/7",
+  "paymentCardDescription": "Antre enfòmasyon kat ou pou fè peman an",
+  "poweredByStripe": "Pwodwi pa Stripe",
+  "initializingPayment": "Ap prepare peman an...",
+  "paymentInitFailed": "Echwe pou prepare peman an. Tanpri eseye ankò.",
+
+  "orderDetails": {
+    "videoRequest": "Demann videyo",
+    "subscription": "Abònman",
+    "creator": "Kreyatè",
+    "deliveryTime": "Tan livrezon",
+    "standardDelivery": "Livrezon nòmal",
+    "rushDelivery": "Livrezon rapid",
+    "days": "jou",
+    "hours": "èdtan",
+    "recipientName": "Non moun k ap resevwa a",
+    "occasion": "Okazyon",
+    "specialInstructions": "Enstriksyon espesyal",
+    "makeGift": "Fè sa yon kado",
+    "giftFrom": "Kado soti nan",
+    "giftMessage": "Mesaj kado",
+    "rushDeliveryDesc": "Resevwa videyo ou nan 24 èdtan"
+  },
+
+  "pricing": {
+    "basePrice": "Pri debaz",
+    "rushDeliveryFee": "Frè livrezon rapid",
+    "subtotal": "Sou-total",
+    "tax": "Taks",
+    "processingFee": "Frè pwosesis",
+    "total": "Total",
+    "discount": "Rabè",
+    "promoCode": "Kòd pwomo",
+    "applyPromo": "Aplike",
+    "perMonth": "chak mwa",
+    "billedMonthly": "Faktire chak mwa",
+    "billedYearly": "Faktire chak ane",
+    "billingCycle": "Sik faktirasyon"
+  },
+
+  "payment": {
+    "paymentMethod": "Metòd peman",
+    "cardNumber": "Nimewo kat",
+    "cardholderName": "Non pwopryetè kat",
+    "expiryDate": "Dat ekspirasyon",
+    "cvv": "CVV",
+    "billingAddress": "Adrès faktirasyon",
+    "saveCard": "Sovgade kat pou acha pwochèn",
+    "useNewCard": "Itilize yon nouvo kat",
+    "savedCards": "Kat ki sovgade",
+    "endingIn": "ki fini ak",
+    "expires": "Ekspire"
+  },
+
+  "customerInfo": {
+    "title": "Enfòmasyon kliyan",
+    "email": "Imèl",
+    "phone": "Telefòn",
+    "firstName": "Premye non",
+    "lastName": "Siyati",
+    "country": "Peyi",
+    "address": "Adrès",
+    "city": "Vil",
+    "state": "Eta/Pwovens",
+    "zipCode": "Kòd postal"
+  },
+
+  "actions": {
+    "placeOrder": "Pase kòmand",
+    "processing": "Ap trete...",
+    "backToCreator": "Retounen kote kreyatè a",
+    "cancel": "Anile",
+    "continuePayment": "Kontinye nan peman",
+    "completePurchase": "Fini acha",
+    "subscribeNow": "Abòne kounye a"
+  },
+
+  "billing": {
+    "nextBilling": "Pwochen faktirasyon"
+  },
+
+  "benefits": {
+    "included": "Avantaj ki gen ladan:"
+  },
+
+  "terms": {
+    "agreeToTerms": "Mwen dakò ak",
+    "termsOfService": "Kondisyon sèvis",
+    "and": "ak",
+    "privacyPolicy": "Politik konfidansyalite",
+    "refundPolicy": "Politik ranbousman",
+    "subscriptionTerms": "Kondisyon abònman"
+  },
+
+  "security": {
+    "securePayment": "Peman sekirize",
+    "encryptedData": "Enfòmasyon peman ou yo ankripte",
+    "sslProtected": "Pwoteje SSL",
+    "pciCompliant": "Konfòm PCI",
+    "moneyBackGuarantee": "Garanti lajan retounen",
+    "satisfaction": "100% satisfaksyon oswa ranbousman"
+  },
+
+  "errors": {
+    "invalidCheckout": "Paramèt peman pa valab",
+    "alreadySubscribed": "Ou deja abòne ak kreyatè sa a",
+    "paymentFailed": "Peman echwe. Tanpri eseye ankò.",
+    "cardDeclined": "Kat refize",
+    "insufficientFunds": "Lajan pa ase",
+    "networkError": "Erè rezo. Tanpri verifye koneksyon ou.",
+    "requiredFields": "Tanpri ranpli tout chan obligatwa yo",
+    "invalidEmail": "Tanpri antre yon imèl valab",
+    "invalidCard": "Tanpri antre yon nimewo kat valab",
+    "agreeTerms": "Tanpri aksepte kondisyon yo"
+  },
+
+  "success": {
+    "orderComplete": "Kòmand fini!",
+    "subscriptionActive": "Abònman aktif!",
+    "thankYou": "Mèsi pou acha ou",
+    "orderNumber": "Nimewo kòmand",
+    "confirmationSent": "Yon konfimasyon voye bay",
+    "videoDelivery": "Videyo ou ap livre nan",
+    "accessContent": "Ou gen aksè nan kontni abòne kounye a"
+  }
+}

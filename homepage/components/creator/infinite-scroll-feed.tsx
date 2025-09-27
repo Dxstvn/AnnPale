@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -96,6 +97,7 @@ export function InfiniteScrollFeed({
   const supabase = createClient()
   const router = useRouter()
   const { toast } = useToast()
+  const t = useTranslations('creator')
 
   // Check subscription status
   useEffect(() => {
@@ -106,19 +108,29 @@ export function InfiniteScrollFeed({
         return
       }
       
-      const { data: subscription } = await supabase
+      // Try without foreign key joins first to avoid 406 errors
+      const { data: subscriptions, error: subError } = await supabase
         .from('subscription_orders')
-        .select('tier_id, status, tier:creator_subscription_tiers!subscription_orders_tier_id_fkey(tier_name, price)')
+        .select('*')
         .eq('user_id', userId)
         .eq('creator_id', creatorId)
         .eq('status', 'active')
-        .single()
-      
+
+      if (subError) {
+        console.error('❌ Subscription query error:', {
+          code: subError.code,
+          message: subError.message,
+          details: subError.details,
+          hint: subError.hint
+        })
+      }
+
+      const subscription = subscriptions && subscriptions.length > 0 ? subscriptions[0] : null
+
       if (subscription) {
         console.log('🔍 Subscription found:', {
           tier_id: subscription.tier_id,
-          status: subscription.status,
-          tier_details: subscription.tier
+          status: subscription.status
         })
         setIsSubscribed(true)
         setUserSubscriptionTier(subscription.tier_id)
@@ -326,8 +338,8 @@ export function InfiniteScrollFeed({
     if (!content || !userId) {
       if (!userId) {
         toast({
-          title: "Authentication required",
-          description: "Please log in to comment",
+          title: t('content.authRequired'),
+          description: t('content.loginToComment'),
           variant: "destructive"
         })
       }
@@ -355,7 +367,7 @@ export function InfiniteScrollFeed({
           )
         )
         toast({
-          title: "Comment posted!",
+          title: t('content.commentPosted'),
           variant: "success"
         })
       } else {
@@ -364,8 +376,8 @@ export function InfiniteScrollFeed({
     } catch (error) {
       console.error('Error posting comment:', error)
       toast({
-        title: "Failed to post comment",
-        description: "Please try again later",
+        title: t('content.failedToPostComment'),
+        description: t('content.tryAgainLater'),
         variant: "destructive"
       })
     } finally {
@@ -416,7 +428,7 @@ export function InfiniteScrollFeed({
                 variant={post.has_access ? "default" : "secondary"}
                 className="text-xs"
               >
-                {post.access_tier_ids?.length ? "Premium" : "Subscribers"}
+                {post.access_tier_ids?.length ? t('content.premium') : t('content.subscribers')}
               </Badge>
             )}
           </div>
@@ -443,13 +455,13 @@ export function InfiniteScrollFeed({
                 {post.content_type === 'image' && (
                   <>
                     <ImageIcon className="h-4 w-4" />
-                    <Badge variant="secondary" className="text-xs">image</Badge>
+                    <Badge variant="secondary" className="text-xs">{t('content.image').toLowerCase()}</Badge>
                   </>
                 )}
                 {post.content_type === 'video' && (
                   <>
                     <Video className="h-4 w-4" />
-                    <Badge variant="secondary" className="text-xs">video</Badge>
+                    <Badge variant="secondary" className="text-xs">{t('content.video').toLowerCase()}</Badge>
                   </>
                 )}
                 {!post.is_public && (
@@ -466,9 +478,9 @@ export function InfiniteScrollFeed({
                 <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
                   <div className="text-center p-4">
                     <Lock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                    <p className="text-sm font-semibold text-purple-900">Premium Content</p>
+                    <p className="text-sm font-semibold text-purple-900">{t('content.premiumContent')}</p>
                     <p className="text-xs text-purple-700 mt-1">
-                      Subscribe to view
+                      {t('content.subscribeToView')}
                     </p>
                   </div>
                 </div>
@@ -488,7 +500,7 @@ export function InfiniteScrollFeed({
                             className="bg-white/90 text-black hover:bg-white"
                           >
                             <Play className="h-5 w-5 mr-2" />
-                            Play
+                            {t('content.play')}
                           </Button>
                         </div>
                       )}
@@ -506,12 +518,12 @@ export function InfiniteScrollFeed({
                           className="bg-white/90 text-black hover:bg-white"
                         >
                           <Play className="h-5 w-5 mr-2" />
-                          Play
+                          {t('content.play')}
                         </Button>
                       </div>
                       <Badge className="absolute top-2 right-2 bg-black/70">
                         <Video className="h-3 w-3 mr-1" />
-                        Video
+                        {t('content.video')}
                       </Badge>
                     </div>
                   ) : post.images && post.images.length > 0 ? (
@@ -526,7 +538,7 @@ export function InfiniteScrollFeed({
                       ))}
                       {post.images.length > 4 && (
                         <div className="text-center py-2 text-sm text-muted-foreground">
-                          +{post.images.length - 4} more images
+                          {t('content.moreImages', { count: post.images.length - 4 })}
                         </div>
                       )}
                     </div>
@@ -621,7 +633,7 @@ export function InfiniteScrollFeed({
               {userId && (
                 <div className="flex gap-2 pt-4 border-t">
                   <Textarea
-                    placeholder="Write a comment..."
+                    placeholder={t('content.writeComment')}
                     value={commentInputs[post.id] || ''}
                     onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
                     className="flex-1 min-h-[60px] resize-none"
@@ -683,7 +695,7 @@ export function InfiniteScrollFeed({
         <div className="flex justify-end mb-6">
           <Badge variant="outline" className="text-xs">
             <Lock className="h-3 w-3 mr-1" />
-            Subscribe for full access
+            {t('content.subscribeForAccess')}
           </Badge>
         </div>
       )}
@@ -703,7 +715,7 @@ export function InfiniteScrollFeed({
           {loadingMore ? (
             <div className="flex items-center justify-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600" />
-              <span className="text-sm text-muted-foreground">Loading more posts...</span>
+              <span className="text-sm text-muted-foreground">{t('content.loadingMore')}</span>
             </div>
           ) : (
             <Button
@@ -712,7 +724,7 @@ export function InfiniteScrollFeed({
               className="w-full max-w-xs"
             >
               <ChevronDown className="h-4 w-4 mr-2" />
-              Load More
+              {t('content.loadMore')}
             </Button>
           )}
         </div>
@@ -720,7 +732,7 @@ export function InfiniteScrollFeed({
 
       {!hasMore && posts.length > 0 && (
         <p className="text-center text-sm text-muted-foreground py-8">
-          You've reached the end of the feed
+          {t('content.endOfFeed')}
         </p>
       )}
 
@@ -728,9 +740,9 @@ export function InfiniteScrollFeed({
         <Card className="py-12">
           <CardContent className="text-center">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="font-semibold mb-2">No posts yet</h3>
+            <h3 className="font-semibold mb-2">{t('feed.noPosts')}</h3>
             <p className="text-sm text-muted-foreground">
-              {creatorName} hasn't posted any content yet. Check back later!
+              {creatorName} {t('content.noPostsYet')}
             </p>
           </CardContent>
         </Card>

@@ -20,22 +20,15 @@ export async function GET(
       )
     }
 
-    // Get order details directly from database
+    // Get video request details directly from database
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('video_requests')
       .select(`
         *,
-        creator:profiles!orders_creator_id_fkey(
+        creator:profiles!creator_id(
           id,
           display_name,
           avatar_url
-        ),
-        video_upload:video_uploads(
-          id,
-          video_url,
-          thumbnail_url,
-          duration,
-          processing_status
         )
       `)
       .eq('id', orderId)
@@ -49,18 +42,8 @@ export async function GET(
       )
     }
 
-    // Get video if available
-    if (order.video_upload) {
-      // Check if video is ready for viewing
-      const canView = order.status === 'completed' && 
-                     order.video_upload.processing_status === 'completed' &&
-                     order.video_upload.video_url
-
-      // Hide video URL if not ready or not completed
-      if (!canView) {
-        order.video_upload.video_url = undefined
-      }
-    }
+    // Video URL will be added when video is completed and uploaded
+    // For now, we don't have a separate video_uploads table integration
 
     return NextResponse.json({
       success: true,

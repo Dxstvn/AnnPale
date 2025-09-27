@@ -121,8 +121,88 @@ export async function POST(request: NextRequest) {
       requestOptions
     )
 
-    // Skip storing payment intent in database due to RLS policy issues
-    // This will be handled via webhook processing instead
+    // Update video_request with payment_intent_id if this is a video request
+    console.log('🔍 Checking requestDetails for video request ID:', {
+      requestDetails: requestDetails,
+      requestId: requestDetails?.requestId,
+      hasRequestId: !!requestDetails?.requestId
+    })
+
+    if (requestDetails?.requestId) {
+      console.log('🔄 Attempting to update video request with payment intent ID:', {
+        videoRequestId: requestDetails.requestId,
+        paymentIntentId: paymentIntent.id,
+        userId: user.id,
+        userEmail: user.email
+      })
+
+      // First, verify the video request exists and belongs to the user
+      const { data: existingRequest, error: checkError } = await supabase
+        .from('video_requests')
+        .select('id, fan_id, status, payment_intent_id, created_at')
+        .eq('id', requestDetails.requestId)
+        .single()
+
+      console.log('🔍 Pre-update check:', {
+        requestExists: !!existingRequest,
+        checkError: checkError?.message,
+        existingRequest: existingRequest
+      })
+
+      if (checkError) {
+        console.error('❌ Video request verification failed:', checkError)
+      } else if (!existingRequest) {
+        console.error('❌ Video request not found:', requestDetails.requestId)
+      } else if (existingRequest.fan_id !== user.id) {
+        console.error('❌ Video request does not belong to user:', {
+          requestFanId: existingRequest.fan_id,
+          currentUserId: user.id
+        })
+      } else if (existingRequest.payment_intent_id) {
+        console.warn('⚠️ Video request already has a payment intent:', existingRequest.payment_intent_id)
+      } else {
+        // Proceed with update
+        console.log('✅ Video request verification passed, proceeding with update')
+
+        const { data: updateResult, error: updateError } = await supabase
+          .from('video_requests')
+          .update({
+            payment_intent_id: paymentIntent.id,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', requestDetails.requestId)
+          .eq('fan_id', user.id) // Double-check user ownership
+          .select()
+
+        if (updateError) {
+          console.error('❌ Failed to update video request with payment intent ID:', updateError)
+          console.error('Update error details:', {
+            message: updateError.message,
+            code: updateError.code,
+            details: updateError.details,
+            hint: updateError.hint,
+            requestId: requestDetails.requestId,
+            userId: user.id,
+            paymentIntentId: paymentIntent.id
+          })
+          // Don't fail the payment, just log the error
+        } else if (updateResult && updateResult.length > 0) {
+          console.log('✅ Successfully updated video request with payment intent ID:', paymentIntent.id)
+          console.log('Updated record:', updateResult[0])
+        } else {
+          console.error('❌ Update succeeded but no records were affected - this indicates a potential RLS or constraint issue')
+          console.error('Debug info:', {
+            requestId: requestDetails.requestId,
+            userId: user.id,
+            paymentIntentId: paymentIntent.id
+          })
+        }
+      }
+    } else {
+      console.warn('⚠️ No requestId found in requestDetails - payment intent will not be linked to video request')
+      console.warn('RequestDetails received:', requestDetails)
+    }
+
     console.log('✅ Payment intent created with Stripe Connect destination charge + application fee')
     console.log(`   Payment ID: ${paymentIntent.id}`)
     console.log(`   Amount: $${paymentIntent.amount / 100}`)

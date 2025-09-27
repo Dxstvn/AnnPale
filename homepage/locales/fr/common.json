@@ -18,6 +18,13 @@
     "searchButton": "Rechercher",
     "badge": "Nouveau : Diffusion en direct maintenant disponible !"
   },
+  "contentFilter": {
+    "all": "Tout",
+    "videos": "Vidéos",
+    "images": "Images",
+    "posts": "Publications",
+    "live": "En direct"
+  },
   "featured": {
     "title": "Créateurs en vedette",
     "verified": "Vérifié",
@@ -43,6 +50,12 @@
     "music": "Musique",
     "comedy": "Comédie",
     "sports": "Sports",
+    "sportsAndFitness": "Sports & Fitness",
+    "entertainment": "Divertissement",
+    "media": "Médias",
+    "culinaryArts": "Arts culinaires",
+    "visualArts": "Arts visuels",
+    "educationAndBusiness": "Éducation & Affaires",
     "radio": "Radio",
     "activists": "Activistes",
     "musicDesc": "Musiciens et chanteurs talentueux",
@@ -63,12 +76,6 @@
     "makeSomeoneSmile": "Faire sourire quelqu'un",
     "makeSomeoneSmileDesc": "Partagez la joie avec des amis, la famille, ou gardez-la pour vous"
   },
-  "cta": {
-    "readyToStart": "Prêt à commencer?",
-    "readyToStartDesc": "Rejoignez des milliers de clients satisfaits qui ont reçu des vidéos personnalisées incroyables",
-    "browseCreators": "Parcourir les créateurs",
-    "becomeCreator": "Devenir créateur"
-  },
   "footer": {
     "aboutAnnPale": "Connectez-vous avec vos créateurs haïtiens préférés grâce à des messages vidéo personnalisés.",
     "company": "Entreprise",
@@ -85,14 +92,42 @@
     "termsOfService": "Conditions d'utilisation",
     "privacyPolicy": "Politique de confidentialité",
     "cookiePolicy": "Politique des cookies",
-    "allRightsReserved": "Tous droits réservés"
+    "allRightsReserved": "Tous droits réservés",
+    "giftCards": "Cartes-cadeaux",
+    "occasions": "Occasions",
+    "faq": "FAQ",
+    "creatorGuidelines": "Directives pour créateurs",
+    "pricingPayments": "Tarification et paiements",
+    "successStories": "Histoires de succès",
+    "resources": "Ressources",
+    "stayUpdated": "Restez informé",
+    "enterEmail": "Entrez votre e-mail",
+    "forFans": "Pour les fans",
+    "forCreators": "Pour les créateurs",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "location": "Localisation",
+    "locations": "Miami, FL • Port-au-Prince, Haïti",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "usd": "USD"
   },
   "filters": {
+    "title": "Filtres",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "priceRange": "Gamme de prix",
+    "allPrices": "Tous les prix",
+    "language": "Langue",
+    "allLanguages": "Toutes les langues",
+    "verifiedOnly": "Vérifié uniquement",
     "noCreatorsFound": "Aucun créateur trouvé",
     "tryAdjustingFilters": "Essayez d'ajuster vos filtres ou votre recherche",
     "clearFilters": "Effacer tous les filtres",
+    "reset": "Réinitialiser",
     "showing": "Affichage de",
-    "results": "résultats"
+    "results": "résultats",
+    "creatorsFound": "créateurs trouvés"
   },
   "sort": {
     "mostPopular": "Plus populaire",
@@ -163,6 +198,10 @@
     "ctaButton": "Parcourir les créateurs"
   },
   "cta": {
+    "readyToStart": "Prêt à commencer?",
+    "readyToStartDesc": "Rejoignez des milliers de clients satisfaits qui ont reçu des vidéos personnalisées incroyables",
+    "browseCreators": "Parcourir les créateurs",
+    "becomeCreator": "Devenir créateur",
     "creator": {
       "title": "Êtes-vous un créateur haïtien?",
       "subtitle": "Rejoignez des milliers de célébrités haïtiennes qui gagnent de l'argent en créant des messages vidéo personnalisés pour les fans du monde entier.",
@@ -215,7 +254,13 @@
     "responseTime2Days": "2 jours",
     "responseTime3Days": "3 jours",
     "responseTime5Days": "5 jours",
-    "featuredPrefix": "avec"
+    "featuredPrefix": "avec",
+    "noTiersYet": "Pas encore de niveaux",
+    "viewProfile": "Voir le profil",
+    "verified": "Vérifié",
+    "tier": "niveau",
+    "tiers": "niveaux",
+    "from": "À partir de"
   },
   "filters": {
     "title": "Filtres",
@@ -223,6 +268,7 @@
     "allCategories": "Toutes les catégories",
     "priceRange": "Gamme de prix",
     "allPrices": "Tous les prix",
+    "language": "Langue",
     "languages": "Langue",
     "allLanguages": "Toutes les langues",
     "responseTime": "Temps de réponse",

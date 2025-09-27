@@ -1,0 +1,73 @@
+{
+  "header": {
+    "browse": "Browse",
+    "howItWorks": "How It Works",
+    "forBusiness": "For Business",
+    "startEarning": "Start Earning",
+    "joinAsCreator": "Join as Creator",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "search": "Search",
+    "notifications": "Notifications",
+    "cart": "Cart",
+    "viewAllCategories": "View All Categories",
+    "browseAll": "Browse All"
+  },
+  "userMenu": {
+    "home": "Home",
+    "myOrders": "My Orders",
+    "mySubscriptions": "My Subscriptions",
+    "favorites": "Favorites",
+    "settings": "Settings",
+    "dashboard": "Dashboard",
+    "myVideos": "My Videos",
+    "analytics": "Analytics",
+    "earnings": "Earnings",
+    "creatorSettings": "Creator Settings",
+    "switchToFan": "Switch to Fan Mode",
+    "switchToCreator": "Switch to Creator Mode",
+    "adminPanel": "Admin Panel",
+    "help": "Help & Support",
+    "logout": "Logout",
+    "profile": "Profile",
+    "viewProfile": "View Profile",
+    "accountSettings": "Account Settings"
+  },
+  "mobileNav": {
+    "menu": "Menu",
+    "close": "Close",
+    "navigation": "Navigation",
+    "categories": "Categories",
+    "account": "Account"
+  },
+  "categories": {
+    "all": "All Categories",
+    "musicians": "Musicians",
+    "actors": "Actors",
+    "comedians": "Comedians",
+    "athletes": "Athletes",
+    "influencers": "Influencers",
+    "artists": "Artists",
+    "chefs": "Chefs",
+    "authors": "Authors",
+    "educators": "Educators",
+    "entrepreneurs": "Entrepreneurs"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "browse": "Browse",
+    "creator": "Creator",
+    "fan": "Fan",
+    "admin": "Admin",
+    "settings": "Settings",
+    "dashboard": "Dashboard",
+    "profile": "Profile"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Select Language",
+    "english": "English",
+    "french": "Français",
+    "creole": "Kreyòl Ayisyen",
+    "currentLanguage": "Language"
+  }
+}

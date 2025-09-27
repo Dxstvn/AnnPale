@@ -407,7 +407,7 @@ export default function BrowsePage() {
             {creator.verified && (
               <Badge className="border-0 bg-blue-600/90 text-white backdrop-blur-sm">
                 <CheckCircle className="mr-1 h-3 w-3" />
-                Verified
+                {t('common.featured.verified', { defaultValue: 'Verified' })}
               </Badge>
             )}
           </div>
@@ -456,7 +456,7 @@ export default function BrowsePage() {
 
           {/* View profile button - visual only, card handles click */}
           <div className="w-full rounded-lg bg-gray-100 px-4 py-2.5 text-center text-sm font-medium text-gray-700 transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:text-white">
-            Quick View
+            {t('browse.quickView')}
           </div>
         </div>
       </div>

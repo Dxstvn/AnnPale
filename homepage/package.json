@@ -159,6 +159,7 @@
     "@types/glob": "^8.1.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22",
+    "@types/node-fetch": "^2.6.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/supertest": "^6.0.3",
@@ -178,6 +179,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "lightningcss": "^1.28.2",
     "msw": "^2.10.5",
+    "node-fetch": "^3.3.2",
     "playwright": "^1.55.0",
     "postcss": "^8.5",
     "prettier": "^3.0.0",
@@ -186,6 +188,7 @@
     "storybook": "^8.0.0",
     "supertest": "^7.1.4",
     "tailwindcss": "^4.1.9",
+    "tsx": "^4.20.5",
     "tw-animate-css": "1.3.3",
     "typescript": "^5",
     "vitest": "^3.2.4"

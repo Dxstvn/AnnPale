@@ -18,6 +18,13 @@
     "searchButton": "Search",
     "badge": "New: Live streaming now available!"
   },
+  "contentFilter": {
+    "all": "All",
+    "videos": "Videos",
+    "images": "Images",
+    "posts": "Posts",
+    "live": "Live"
+  },
   "featured": {
     "title": "Featured Creators",
     "verified": "Verified",
@@ -43,6 +50,12 @@
     "music": "Music",
     "comedy": "Comedy",
     "sports": "Sports",
+    "sportsAndFitness": "Sports & Fitness",
+    "entertainment": "Entertainment",
+    "media": "Media",
+    "culinaryArts": "Culinary Arts",
+    "visualArts": "Visual Arts",
+    "educationAndBusiness": "Education & Business",
     "radio": "Radio",
     "activists": "Activists",
     "musicDesc": "Talented musicians and singers",
@@ -63,12 +76,6 @@
     "makeSomeoneSmile": "Make someone smile",
     "makeSomeoneSmileDesc": "Share the joy with friends, family, or keep it for yourself"
   },
-  "cta": {
-    "readyToStart": "Ready to get started?",
-    "readyToStartDesc": "Join thousands of happy customers who've received amazing personalized videos",
-    "browseCreators": "Browse creators",
-    "becomeCreator": "Become a creator"
-  },
   "footer": {
     "aboutAnnPale": "Connect with your favorite Haitian creators through personalized video messages.",
     "company": "Company",
@@ -85,14 +92,42 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "cookiePolicy": "Cookie Policy",
-    "allRightsReserved": "All rights reserved"
+    "allRightsReserved": "All rights reserved",
+    "giftCards": "Gift Cards",
+    "occasions": "Occasions",
+    "faq": "FAQ",
+    "creatorGuidelines": "Creator Guidelines",
+    "pricingPayments": "Pricing & Payments",
+    "successStories": "Success Stories",
+    "resources": "Resources",
+    "stayUpdated": "Stay Updated",
+    "enterEmail": "Enter your email",
+    "forFans": "For Fans",
+    "forCreators": "For Creators",
+    "email": "Email",
+    "phone": "Phone",
+    "location": "Location",
+    "locations": "Miami, FL • Port-au-Prince, Haiti",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "usd": "USD"
   },
   "filters": {
+    "title": "Filters",
+    "category": "Category",
+    "allCategories": "All Categories",
+    "priceRange": "Price Range",
+    "allPrices": "All Prices",
+    "language": "Language",
+    "allLanguages": "All Languages",
+    "verifiedOnly": "Verified Only",
     "noCreatorsFound": "No creators found",
     "tryAdjustingFilters": "Try adjusting your filters or search",
     "clearFilters": "Clear all filters",
+    "reset": "Reset",
     "showing": "Showing",
-    "results": "results"
+    "results": "results",
+    "creatorsFound": "creators found"
   },
   "sort": {
     "mostPopular": "Most Popular",
@@ -163,6 +198,10 @@
     "ctaButton": "Browse Creators"
   },
   "cta": {
+    "readyToStart": "Ready to get started?",
+    "readyToStartDesc": "Join thousands of happy customers who've received amazing personalized videos",
+    "browseCreators": "Browse creators",
+    "becomeCreator": "Become a creator",
     "creator": {
       "title": "Are You a Haitian Creator?",
       "subtitle": "Join thousands of Haitian celebrities earning money by creating personalized video messages for fans worldwide.",
@@ -215,7 +254,13 @@
     "responseTime2Days": "2 days",
     "responseTime3Days": "3 days",
     "responseTime5Days": "5 days",
-    "featuredPrefix": "feat."
+    "featuredPrefix": "feat.",
+    "noTiersYet": "No tiers yet",
+    "viewProfile": "View Profile",
+    "verified": "Verified",
+    "tier": "tier",
+    "tiers": "tiers",
+    "from": "From"
   },
   "filters": {
     "title": "Filters",
@@ -223,7 +268,7 @@
     "allCategories": "All Categories",
     "priceRange": "Price Range",
     "allPrices": "All Prices",
-    "languages": "Language",
+    "language": "Language",
     "allLanguages": "All Languages",
     "responseTime": "Response Time",
     "minimumRating": "Minimum Rating",

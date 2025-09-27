@@ -1,0 +1,102 @@
+{
+  "tiers": {
+    "title": "Nivo abònman",
+    "chooseYourPlan": "Chwazi plan ou",
+    "basic": "Debaz",
+    "premium": "Premium",
+    "vip": "VIP",
+    "monthly": "Chak mwa",
+    "yearly": "Chak ane",
+    "perMonth": "chak mwa",
+    "perYear": "chak ane",
+    "save": "Ekonomize",
+    "mostPopular": "Pi popilè",
+    "bestValue": "Pi bon valè",
+    "currentPlan": "Plan aktyèl"
+  },
+  "features": {
+    "unlimitedAccess": "Aksè san limit",
+    "exclusiveContent": "Kontni eksklizif",
+    "prioritySupport": "Sipò priyoritè",
+    "earlyAccess": "Aksè bonè",
+    "customRequests": "Demann pèsonalize",
+    "directMessaging": "Mesaj dirèk",
+    "liveStreams": "Difizyon an dirèk",
+    "behindTheScenes": "Dèyè sèn nan",
+    "monthlyVideos": "Videyo chak mwa",
+    "discounts": "Rabè sou videyo",
+    "badges": "Badj espesyal",
+    "communityAccess": "Aksè nan kominote"
+  },
+  "actions": {
+    "subscribe": "Abòne",
+    "subscribeNow": "Abòne kounye a",
+    "upgrade": "Amelyore",
+    "downgrade": "Diminye",
+    "cancel": "Anile abònman",
+    "pause": "Pran yon ti pòz abònman",
+    "resume": "Rekòmanse abònman",
+    "manage": "Jere abònman",
+    "changePlan": "Chanje plan",
+    "updatePayment": "Mete ajou mòd peman",
+    "viewBilling": "Gade istwa faktir",
+    "confirmCancel": "Konfime anilasyon"
+  },
+  "status": {
+    "active": "Aktif",
+    "inactive": "Pa aktif",
+    "paused": "Pòz",
+    "cancelled": "Anile",
+    "expired": "Ekspire",
+    "pending": "An atant",
+    "trial": "Esè",
+    "pastDue": "An reta"
+  },
+  "billing": {
+    "nextBilling": "Pwochen dat faktir",
+    "lastPayment": "Dènye peman",
+    "paymentMethod": "Mòd peman",
+    "updateCard": "Mete ajou kat",
+    "addPaymentMethod": "Ajoute mòd peman",
+    "billingHistory": "Istwa faktir",
+    "invoice": "Faktir",
+    "receipt": "Resi",
+    "download": "Telechaje",
+    "amount": "Montan",
+    "date": "Dat",
+    "status": "Stati"
+  },
+  "messages": {
+    "subscribeSuccess": "Abònman reyisi!",
+    "upgradeSuccess": "Amelyorasyon reyisi!",
+    "downgradeSuccess": "Diminisyon reyisi!",
+    "cancelSuccess": "Abònman anile",
+    "pauseSuccess": "Abònman pran pòz",
+    "resumeSuccess": "Abònman rekòmanse",
+    "paymentUpdated": "Mòd peman mete ajou",
+    "subscriptionRequired": "Abònman obligatwa",
+    "confirmCancelMessage": "Èske ou sèten ou vle anile abònman ou?",
+    "cancelWarning": "Ou ap pèdi aksè nan tout benefis yo nan fen peryòd faktir ou.",
+    "keepSubscription": "Kenbe abònman",
+    "processingPayment": "Ap trete peman...",
+    "paymentFailed": "Peman echwe. Tanpri eseye ankò.",
+    "trialEnding": "Esè ou ap fini nan {days} jou"
+  },
+  "benefits": {
+    "title": "Benefis abònman",
+    "exclusiveAccess": "Aksè eksklizif",
+    "memberOnly": "Kontni rezève pou manm",
+    "priorityBooking": "Rezèvasyon priyoritè",
+    "specialPricing": "Pri espesyal",
+    "monthlyPerks": "Benefis chak mwa",
+    "supportCreator": "Sipòte kreyatè ou renmen an"
+  },
+  "comparison": {
+    "comparePlans": "Konpare plan yo",
+    "feature": "Fonksyonalite",
+    "included": "Enkli",
+    "notIncluded": "Pa enkli",
+    "unlimited": "San limit",
+    "limited": "Limite"
+  }
+}

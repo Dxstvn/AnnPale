@@ -1,0 +1,141 @@
+{
+  "title": "Detay kòmand",
+  "orderNumber": "Kòmand #{number}",
+  "backToOrders": "Retounen nan kòmand yo",
+
+  "status": {
+    "pending": "Annatant",
+    "pending_payment": "Ap tann peman",
+    "accepted": "Aksepte",
+    "completed": "Fini",
+    "delivered": "Livre",
+    "cancelled": "Anile",
+    "rejected": "Refize",
+    "expired": "Ekspire"
+  },
+
+  "timeline": {
+    "title": "Istwa kòmand lan",
+    "estimatedDelivery": "Livrezon estime nan {time}",
+    "deliveryReached": "Tan livrezon rive",
+
+    "events": {
+      "placed": {
+        "title": "Kòmand pase",
+        "description": "Demann ou an soumèt"
+      },
+      "paymentConfirmed": {
+        "title": "Peman konfime",
+        "description": "Peman trete avèk siksè"
+      },
+      "accepted": {
+        "title": "Kreyatè aksepte",
+        "description": "{creator} aksepte demann ou an"
+      },
+      "delivered": {
+        "title": "Livre",
+        "description": "Videyo ou pare pou gade!"
+      },
+      "cancelled": {
+        "title": "Anile",
+        "description": "Kòmand lan te anile"
+      },
+      "rejected": {
+        "title": "Refize",
+        "description": "Kreyatè a refize demann sa a"
+      }
+    },
+
+    "recordingProgress": "Pwogrè anrejistreman"
+  },
+
+  "communication": {
+    "title": "Kominikasyon",
+    "sendMessage": "Voye mesaj",
+    "messageCreator": "Voye mesaj bay kreyatè",
+    "messagePlaceholder": "Ekri mesaj ou la...",
+    "sending": "Ap voye...",
+    "send": "Voye",
+
+    "systemMessages": {
+      "orderPlaced": "Kòmand pase avèk siksè",
+      "paymentConfirmed": "Peman konfime",
+      "creatorStartedRecording": "Kreyatè a kòmanse anrejistre",
+      "videoDelivered": "Videyo ou an livre"
+    }
+  },
+
+  "details": {
+    "creator": "Kreyatè",
+    "viewProfile": "Gade pwofil",
+
+    "videoDetails": "Detay videyo",
+    "occasion": "Okazyon",
+    "for": "Pou",
+    "instructions": "Enstriksyon",
+    "rushOrder": "Kòmand rapid",
+    "privateVideo": "Videyo prive",
+
+    "payment": "Peman",
+    "amount": "Kantite",
+    "method": "Metòd",
+    "paidOn": "Peye sou"
+  },
+
+  "actions": {
+    "watchVideo": "Gade videyo",
+    "downloadVideo": "Telechaje videyo",
+    "shareVideo": "Pataje videyo",
+    "reportProblem": "Rapòte pwoblèm",
+    "requestRefund": "Mande ranbousman",
+    "cancelOrder": "Anile kòmand",
+    "keepOrder": "Kenbe kòmand",
+    "cancelling": "Ap anile..."
+  },
+
+  "dialogs": {
+    "cancelOrder": {
+      "title": "Anile kòmand",
+      "description": "Èske ou sèten ou vle anile kòmand sa a? Aksyon sa a pa ka defèt.",
+      "refundNote": "W ap resevwa yon ranbousman konplè si kreyatè a poko kòmanse anrejistre."
+    },
+
+    "sendMessage": {
+      "title": "Voye mesaj bay kreyatè",
+      "description": "Voye yon mesaj sou demann videyo ou"
+    }
+  },
+
+  "statusLabels": {
+    "pendingAcceptance": "Annatant akseptasyon",
+    "accepted": "Aksepte",
+    "delivered": "Livre",
+    "cancelled": "Anile",
+    "refunded": "Ranbouse",
+    "unknown": "Pa konnen"
+  },
+
+  "statusDescriptions": {
+    "pendingAcceptance": "Ap tann kreyatè a aksepte demann ou an",
+    "accepted": "Kreyatè a aksepte e pral anrejistre nan tan pa twò lwen",
+    "delivered": "Videyo ou pare!",
+    "cancelled": "Yo anile kòmand sa a",
+    "refunded": "Yo ranbouse peman an",
+    "unknown": "Estati pa konnen"
+  },
+
+  "alerts": {
+    "recording": "Kreyatè a ap anrejistre videyo ou",
+    "processing": "Videyo a ap trete",
+    "delivered": "Videyo ou pare!",
+    "cancelled": "Kòmand sa a te anile sou {date}",
+    "expired": "Kòmand sa a ekspire",
+    "loadingError": "Echwe pou chaje detay kòmand",
+    "orderNotFound": "Kòmand pa jwenn"
+  },
+
+  "loading": "Ap chaje detay kòmand...",
+  "error": "Erè pandan chajman kòmand",
+  "tryAgain": "Eseye ankò",
+  "cancel": "Anile"
+}

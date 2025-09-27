@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations, useLocale } from "next-intl"
 import {
   Dialog,
   DialogContent,
@@ -63,19 +64,7 @@ interface CreatorServicesModalProps {
   defaultTab?: "video" | "subscription"
 }
 
-const occasions = [
-  { value: "birthday", label: "Birthday", icon: Cake },
-  { value: "anniversary", label: "Anniversary", icon: Heart },
-  { value: "congratulations", label: "Congratulations", icon: Trophy },
-  { value: "graduation", label: "Graduation", icon: GraduationCap },
-  { value: "wedding", label: "Wedding", icon: Heart },
-  { value: "baby_shower", label: "Baby Shower", icon: Baby },
-  { value: "retirement", label: "Retirement", icon: Briefcase },
-  { value: "holiday", label: "Holiday Greeting", icon: PartyPopper },
-  { value: "encouragement", label: "Encouragement", icon: Smile },
-  { value: "just_because", label: "Just Because", icon: Sparkles },
-  { value: "other", label: "Other", icon: MessageSquare }
-]
+// Occasions array moved inside component to use translations
 
 export function CreatorServicesModal({
   creator,
@@ -85,6 +74,8 @@ export function CreatorServicesModal({
 }: CreatorServicesModalProps) {
   const router = useRouter()
   const { isAuthenticated } = useSupabaseAuth()
+  const t = useTranslations('creator')
+  const locale = useLocale()
   const [activeTab, setActiveTab] = useState(defaultTab)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -100,6 +91,21 @@ export function CreatorServicesModal({
   const [touched, setTouched] = useState<{[key: string]: boolean}>({})
 
   const videoPrice = creator.price || 50
+
+  // Define occasions array using translations
+  const occasions = [
+    { value: "birthday", label: t('occasions.birthday'), icon: Cake },
+    { value: "anniversary", label: t('occasions.anniversary'), icon: Heart },
+    { value: "congratulations", label: t('occasions.congratulations'), icon: Trophy },
+    { value: "graduation", label: t('occasions.graduation'), icon: GraduationCap },
+    { value: "wedding", label: t('occasions.wedding'), icon: Heart },
+    { value: "baby_shower", label: t('occasions.babyShower'), icon: Baby },
+    { value: "retirement", label: t('occasions.retirement'), icon: Briefcase },
+    { value: "holiday", label: t('occasions.holiday'), icon: PartyPopper },
+    { value: "encouragement", label: t('occasions.encouragement'), icon: Smile },
+    { value: "just_because", label: t('occasions.justBecause'), icon: Sparkles },
+    { value: "other", label: t('occasions.other'), icon: MessageSquare }
+  ]
 
   // Update active tab when defaultTab prop changes
   useEffect(() => {
@@ -131,21 +137,21 @@ export function CreatorServicesModal({
 
     switch(field) {
       case "occasion":
-        if (!value) error = "Please select an occasion"
+        if (!value) error = t('validation.occasionRequired')
         break
       case "recipientName":
-        if (!value) error = "Recipient name is required"
-        else if (value.length < 2) error = "Name must be at least 2 characters"
+        if (!value) error = t('validation.nameRequired')
+        else if (value.length < 2) error = t('validation.nameMinLength')
         break
       case "instructions":
-        if (!value) error = "Instructions are required"
-        else if (value.length < 10) error = "Please provide at least 10 characters of instructions"
-        else if (value.length > 500) error = "Instructions must be less than 500 characters"
+        if (!value) error = t('validation.instructionsRequired')
+        else if (value.length < 10) error = t('validation.instructionsMinLength')
+        else if (value.length > 500) error = t('validation.instructionsMaxLength')
         break
       case "recipientEmail":
         if (formData.isGift && value) {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-          if (!emailRegex.test(value)) error = "Please enter a valid email address"
+          if (!emailRegex.test(value)) error = t('validation.emailInvalid')
         }
         break
     }
@@ -175,8 +181,8 @@ export function CreatorServicesModal({
       // Save form data to sessionStorage
       sessionStorage.setItem('videoRequestForm', JSON.stringify(formData))
       // Redirect to signup with return URL
-      const returnUrl = `/fan/creators/${creator.id}?openBooking=true`
-      router.push(`/signup?returnTo=${encodeURIComponent(returnUrl)}`)
+      const returnUrl = `/${locale}/fan/creators/${creator.id}?openBooking=true`
+      router.push(`/${locale}/signup?returnTo=${encodeURIComponent(returnUrl)}`)
       handleOpenChange(false)
       return
     }
@@ -204,7 +210,7 @@ export function CreatorServicesModal({
     setErrors(newErrors)
 
     if (hasErrors) {
-      toast.error("Please correct the errors before submitting")
+      toast.error(t('validation.correctErrors'))
       return
     }
 
@@ -217,7 +223,7 @@ export function CreatorServicesModal({
       const { data: { user }, error: userError } = await supabase.auth.getUser()
 
       if (userError || !user) {
-        throw new Error("You must be logged in to create a video request")
+        throw new Error(t('validation.loginRequired'))
       }
 
       // Create video request in database
@@ -229,7 +235,7 @@ export function CreatorServicesModal({
         recipient_name: formData.recipientName || '',
         instructions: formData.instructions || '',
         price: videoPrice,
-        status: 'pending' as const
+        status: 'pending_payment' as const
       }
 
       const { data, error } = await supabase
@@ -250,12 +256,12 @@ export function CreatorServicesModal({
         // SECURITY: Price removed - will be fetched from database
       })
 
-      router.push(`/checkout?${checkoutParams.toString()}`)
+      router.push(`/${locale}/checkout?${checkoutParams.toString()}`)
       handleOpenChange(false)
 
     } catch (error: any) {
       console.error('Error creating video request:', error)
-      toast.error(error?.message || "Failed to create video request")
+      toast.error(error?.message || t('validation.failedToCreate'))
     } finally {
       setLoading(false)
     }
@@ -270,20 +276,20 @@ export function CreatorServicesModal({
       }))
       // Redirect to signup with return URL
       const returnUrl = `/fan/creators/${creator.id}?openSubscription=true`
-      router.push(`/signup?returnTo=${encodeURIComponent(returnUrl)}`)
+      router.push(`/${locale}/signup?returnTo=${encodeURIComponent(returnUrl)}`)
       handleOpenChange(false)
       return
     }
 
     // Navigate to subscription checkout
     toast({
-      title: "Redirecting to checkout...",
-      description: `Subscribe to ${creator.name}'s ${tierName} tier for $${price}/month`,
+      title: t('modal.redirectingToCheckout'),
+      description: t('modal.subscribeToTier', { name: creator.name, tier: tierName, price }),
     })
 
     handleOpenChange(false)
     // SECURITY: Price and name are now fetched server-side to prevent manipulation
-    router.push(`/checkout?type=subscription&creator=${creator.id}&tier=${tierId}`)
+    router.push(`/${locale}/checkout?type=subscription&creator=${creator.id}&tier=${tierId}`)
   }
 
   // Load saved form data if returning from auth
@@ -302,7 +308,7 @@ export function CreatorServicesModal({
         const { tierId } = JSON.parse(savedSelection)
         sessionStorage.removeItem('subscriptionSelection')
         // Auto-navigate to checkout with only tierId - price and name fetched server-side
-        router.push(`/checkout?type=subscription&creator=${creator.id}&tier=${tierId}`)
+        router.push(`/${locale}/checkout?type=subscription&creator=${creator.id}&tier=${tierId}`)
         handleOpenChange(false)
       }
     }
@@ -324,11 +330,11 @@ export function CreatorServicesModal({
           <TabsList className="grid w-full grid-cols-2 mx-6" style={{ width: 'calc(100% - 3rem)' }}>
             <TabsTrigger value="video" className="flex items-center gap-2">
               <Video className="h-4 w-4" />
-              Request Video
+              {t('modal.requestVideoTab')}
             </TabsTrigger>
             <TabsTrigger value="subscription" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Subscribe
+              {t('modal.subscribeTab')}
             </TabsTrigger>
           </TabsList>
 
@@ -365,7 +371,7 @@ export function CreatorServicesModal({
                     <p className="text-2xl font-bold text-purple-600">
                       ${videoPrice}
                     </p>
-                    <p className="text-xs text-gray-500">per video</p>
+                    <p className="text-xs text-gray-500">{t('modal.perVideo')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -375,7 +381,7 @@ export function CreatorServicesModal({
             <div className="space-y-2">
               <Label htmlFor="occasion" className="flex items-center gap-2 text-gray-900">
                 <Calendar className="h-4 w-4" />
-                What's the occasion? <span className="text-red-500 ml-1">*</span>
+                {t('modal.whatsTheOccasion')} <span className="text-red-500 ml-1">*</span>
               </Label>
               <Select
                 value={formData.occasion}
@@ -386,7 +392,7 @@ export function CreatorServicesModal({
                   data-testid="occasion-select"
                   className={errors.occasion ? "border-red-500" : ""}
                 >
-                  <SelectValue placeholder="Select an occasion" />
+                  <SelectValue placeholder={t('videoRequest.selectOccasion')} />
                 </SelectTrigger>
                 <SelectContent>
                   {occasions.map((occasion) => (
@@ -411,12 +417,12 @@ export function CreatorServicesModal({
             <div className="space-y-2">
               <Label htmlFor="recipientName" className="flex items-center gap-2 text-gray-900">
                 <User className="h-4 w-4" />
-                Who is this video for? <span className="text-red-500 ml-1">*</span>
+                {t('modal.whoIsThisFor')} <span className="text-red-500 ml-1">*</span>
               </Label>
               <Input
                 id="recipientName"
                 data-testid="recipient-name-input"
-                placeholder="Enter recipient's name"
+                placeholder={t('videoRequest.recipientNamePlaceholder')}
                 value={formData.recipientName}
                 onChange={(e) => handleFieldChange('recipientName', e.target.value)}
                 onBlur={() => handleFieldBlur('recipientName')}
@@ -444,7 +450,7 @@ export function CreatorServicesModal({
                 className="flex items-center gap-2 cursor-pointer select-none font-medium text-gray-900"
               >
                 <Gift className="h-4 w-4" />
-                This is a gift for someone else
+                {t('modal.thisIsAGift')}
               </Label>
             </div>
 
@@ -452,13 +458,13 @@ export function CreatorServicesModal({
             <div className="space-y-2">
               <Label htmlFor="instructions" className="flex items-center gap-2 text-gray-900">
                 <MessageSquare className="h-4 w-4" />
-                Instructions for {creator.name} <span className="text-red-500 ml-1">*</span>
+                {t('videoRequest.instructions', { name: creator.name })} <span className="text-red-500 ml-1">*</span>
               </Label>
               <div className="relative">
                 <Textarea
                   id="instructions"
                   data-testid="instructions-textarea"
-                  placeholder="Tell the creator what you'd like them to say, any inside jokes, pronunciation guides, etc."
+                  placeholder={t('modal.instructionsPlaceholder')}
                   className={`min-h-[120px] resize-y ${
                     errors.instructions && touched.instructions ? "border-red-500" : ""
                   }`}
@@ -476,7 +482,7 @@ export function CreatorServicesModal({
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                Be specific! The more details you provide, the better the video will be.
+                {t('modal.beSpecific')}
               </p>
               {errors.instructions && touched.instructions && (
                 <p className="text-xs text-red-500 flex items-center gap-1">
@@ -491,24 +497,24 @@ export function CreatorServicesModal({
               <CardContent className="pt-4">
                 <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-900">
                   <Info className="h-4 w-4 text-blue-600" />
-                  What's Included
+                  {t('modal.whatsIncluded')}
                 </h4>
                 <ul className="space-y-1 text-sm text-gray-700">
                   <li className="flex items-center gap-2">
                     <CircleCheckBig className="h-3 w-3 text-green-600" />
-                    Personalized video message (30-90 seconds)
+                    {t('modal.personalizedVideo')}
                   </li>
                   <li className="flex items-center gap-2">
                     <CircleCheckBig className="h-3 w-3 text-green-600" />
-                    HD quality video
+                    {t('modal.hdQuality')}
                   </li>
                   <li className="flex items-center gap-2">
                     <CircleCheckBig className="h-3 w-3 text-green-600" />
-                    Downloadable file
+                    {t('modal.downloadableFile')}
                   </li>
                   <li className="flex items-center gap-2">
                     <CircleCheckBig className="h-3 w-3 text-green-600" />
-                    Shareable link
+                    {t('modal.shareableLink')}
                   </li>
                 </ul>
               </CardContent>
@@ -524,12 +530,12 @@ export function CreatorServicesModal({
                 disabled={loading}
                 className="min-h-[44px] min-w-[100px]"
               >
-                Cancel
+                {t('actions.cancel')}
               </Button>
 
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-sm text-gray-500">{t('modal.total')}</p>
                   <p className="text-2xl font-bold text-purple-600">${videoPrice}</p>
                 </div>
                 <Button
@@ -541,12 +547,12 @@ export function CreatorServicesModal({
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
+                      {t('actions.processing')}
                     </>
                   ) : (
                     <>
                       <DollarSign className="h-4 w-4 mr-2" />
-                      {isAuthenticated ? "Continue to Checkout" : "Sign up to Continue"}
+                      {isAuthenticated ? t('actions.continueToCheckout') : t('actions.signUpToContinue')}
                     </>
                   )}
                 </Button>
@@ -559,7 +565,7 @@ export function CreatorServicesModal({
             <div className="w-full">
               <div className="text-center mb-4">
                 <p className="text-gray-600 text-sm sm:text-base">
-                  Get exclusive content, early access, and more perks from {creator.name}
+                  {t('modal.exclusiveContent', { name: creator.name })}
                 </p>
               </div>
 
@@ -573,17 +579,17 @@ export function CreatorServicesModal({
               {!isAuthenticated && (
                 <div className="text-center mt-6 p-4 bg-purple-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-2">
-                    Sign up to subscribe and support {creator.name}
+                    {t('modal.signUpToSupport', { name: creator.name })}
                   </p>
                   <Button
                     onClick={() => {
                       const returnUrl = `/fan/creators/${creator.id}?openSubscription=true`
-                      router.push(`/signup?returnTo=${encodeURIComponent(returnUrl)}`)
+                      router.push(`/${locale}/signup?returnTo=${encodeURIComponent(returnUrl)}`)
                       handleOpenChange(false)
                     }}
                     className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                   >
-                    Sign up to Subscribe
+                    {t('actions.signUpToSubscribe')}
                   </Button>
                 </div>
               )}

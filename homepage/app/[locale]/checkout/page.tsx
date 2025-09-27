@@ -37,36 +37,48 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { CreatorAvatar } from "@/components/ui/avatar-with-fallback"
-// TODO: Convert to next-intl translations
+import { useTranslations, useLocale } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
+
+// Loading components
+function PaymentLoading() {
+  const t = useTranslations('checkout')
+  return (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-pulse">{t('loadingPaymentSystem')}</div>
+    </div>
+  )
+}
+
+function SubscriptionLoading() {
+  const t = useTranslations('checkout')
+  return (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-pulse">{t('loadingSubscription')}</div>
+    </div>
+  )
+}
 
 // Dynamically import Stripe components to avoid SSR issues
 const StripePaymentForm = dynamic(
-  () => import("@/components/payment/stripe-payment-form"),
-  { 
+  () => import("@/components/payment/stripe-payment-form").then(mod => ({ default: mod.default })),
+  {
     ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-pulse">Loading payment system...</div>
-      </div>
-    )
+    loading: PaymentLoading
   }
 )
 
 const StripeSubscriptionCheckout = dynamic(
-  () => import("@/components/payment/stripe-subscription-checkout"),
-  { 
+  () => import("@/components/payment/stripe-subscription-checkout").then(mod => ({ default: mod.default })),
+  {
     ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-pulse">Loading subscription checkout...</div>
-      </div>
-    )
+    loading: SubscriptionLoading
   }
 )
 
 function CheckoutContent() {
-  // TODO: Add useTranslations hook
+  const t = useTranslations('checkout')
+  const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -196,7 +208,7 @@ function CheckoutContent() {
   // Video order data (use actual data if available, otherwise fallback)
   const videoOrderData = videoRequestData ? {
     creator: {
-      name: creatorInfo?.display_name || creatorInfo?.username || "Creator",
+      name: creatorInfo?.display_name || creatorInfo?.username || t('orderDetails.creator'),
       image: creatorInfo?.avatar_url || "/images/default-creator.png",
       price: basePrice,
       responseTime: rushDelivery ? "24hr" : "24-48hr",
@@ -207,7 +219,7 @@ function CheckoutContent() {
     recipientName: videoRequestData.recipient_name,
     instructions: videoRequestData.instructions,
     requestType: videoRequestData.request_type,
-    package: "Standard",
+    package: t('orderDetails.standardDelivery'),
     subtotal: basePrice,
     serviceFee: serviceFee,
     rushFee: rushFee,
@@ -215,14 +227,14 @@ function CheckoutContent() {
     total: calculatedTotal
   } : {
     creator: {
-      name: "Loading...",
+      name: t('loading', { defaultValue: 'Loading...' }),
       image: "/images/default-creator.png",
       price: 50,
       responseTime: rushDelivery ? "24hr" : "24-48hr",
       rating: 4.9,
       verified: true
     },
-    package: "Standard",
+    package: t('orderDetails.standardDelivery'),
     subtotal: 50,
     serviceFee: 0,
     rushFee: rushFee,
@@ -258,7 +270,7 @@ function CheckoutContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!agreedToTerms) {
-      alert("Please agree to the terms and conditions")
+      alert(t('errors.agreeTerms'))
       return
     }
     
@@ -278,9 +290,9 @@ function CheckoutContent() {
           <CardContent className="pt-6">
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Invalid Checkout</h2>
+              <h2 className="text-xl font-semibold mb-2">{t('errors.invalidCheckout')}</h2>
               <p className="text-gray-600 mb-4">{validationError}</p>
-              <p className="text-sm text-gray-500">Redirecting you back...</p>
+              <p className="text-sm text-gray-500">{t('redirecting', { defaultValue: 'Redirecting you back...' })}</p>
             </div>
           </CardContent>
         </Card>
@@ -296,8 +308,8 @@ function CheckoutContent() {
           <CardContent className="pt-6">
             <div className="text-center">
               <Loader2 className="h-12 w-12 text-purple-600 animate-spin mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Validating Checkout</h2>
-              <p className="text-gray-600">Please wait while we verify your checkout details...</p>
+              <h2 className="text-xl font-semibold mb-2">{t('title')}</h2>
+              <p className="text-gray-600">{t('loadingPaymentSystem')}</p>
             </div>
           </CardContent>
         </Card>
@@ -313,16 +325,16 @@ function CheckoutContent() {
           <Button variant="ghost" asChild className="mb-4">
             <Link href={checkoutType === 'subscription' ? `/fan/creators/${creatorId}` : "/browse"}>
               <ChevronLeft className="h-4 w-4 mr-2" />
-              Back to {checkoutType === 'subscription' ? 'Creator' : 'Browse'}
+              {t('actions.backToCreator')}
             </Link>
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">
-            {checkoutType === 'subscription' ? `Subscribe to ${creatorData.name}` : 'Complete Your Order'}
+            {checkoutType === 'subscription' ? `${t('actions.subscribeNow')} ${creatorData.name}` : t('title')}
           </h1>
           <p className="text-gray-600 mt-2">
             {checkoutType === 'subscription'
-              ? `Start your ${subscriptionOrderData.tier} subscription`
-              : 'Secure checkout powered by Stripe'}
+              ? `${t('orderDetails.subscription')} - ${subscriptionOrderData.tier}`
+              : t('secureCheckout')}
           </p>
         </div>
 
@@ -332,7 +344,7 @@ function CheckoutContent() {
             {/* Order Summary Card */}
             <Card className="border-0 shadow-lg" data-testid="checkout-order-details">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <CardTitle>{checkoutType === 'subscription' ? 'Subscription Details' : 'Order Details'}</CardTitle>
+                <CardTitle>{checkoutType === 'subscription' ? t('orderDetails.subscription') : t('orderSummary')}</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
@@ -355,24 +367,24 @@ function CheckoutContent() {
                           <div className="flex items-center gap-1">
                             <RefreshCw className="h-4 w-4 text-gray-400" />
                             <span data-testid="checkout-billing-cycle">
-                              Billed {subscriptionOrderData.billingCycle}
+                              {subscriptionOrderData.billingCycle === 'monthly' ? t('pricing.billedMonthly') : t('pricing.billedYearly')}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4 text-gray-400" />
                             <span data-testid="checkout-next-billing">
-                              Next: {subscriptionOrderData.nextBilling}
+                              {t('billing.nextBilling')}: {subscriptionOrderData.nextBilling}
                             </span>
                           </div>
                         </div>
                       </>
                     ) : (
                       <>
-                        <p className="text-gray-600">Personalized Video Message</p>
+                        <p className="text-gray-600">{t('orderDetails.videoRequest')}</p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4 text-gray-400" />
-                            <span>{videoOrderData.creator.responseTime} delivery</span>
+                            <span>{videoOrderData.creator.responseTime} {t('orderDetails.deliveryTime')}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -390,14 +402,14 @@ function CheckoutContent() {
                           {subscriptionOrderData.tier}
                         </Badge>
                         <p className="text-2xl font-bold mt-2" data-testid="checkout-price">
-                          ${subscriptionOrderData.price}/mo
+                          ${subscriptionOrderData.price}/{t('pricing.perMonth')}
                         </p>
                       </>
                     ) : (
                       <>
                         {videoOrderData.requestType && (
                           <Badge className="bg-purple-600 text-white">
-                            {videoOrderData.requestType === 'myself' ? 'For Me' : 'For Someone Else'}
+                            {videoOrderData.requestType === 'myself' ? t('orderDetails.forMe', { defaultValue: 'For Me' }) : t('orderDetails.giftMessage')}
                           </Badge>
                         )}
                         <p className="text-2xl font-bold mt-2">${videoOrderData.total}</p>
@@ -409,7 +421,7 @@ function CheckoutContent() {
                 {/* Subscription Features or Video Details Summary */}
                 {checkoutType === 'subscription' ? (
                   <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Included Benefits:</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('benefits.included', { defaultValue: 'Included Benefits:' })}</p>
                     <div className="space-y-2">
                       {subscriptionOrderData.features.map((feature, index) => (
                         <div key={index} className="flex items-center gap-2" data-testid={`checkout-feature-${index}`}>
@@ -424,21 +436,21 @@ function CheckoutContent() {
                     {/* Video Order Details */}
                     {videoOrderData.occasion && (
                       <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Video Details:</p>
+                        <p className="text-sm font-medium text-gray-700 mb-2">{t('videoDetails', { defaultValue: 'Video Details:' })}</p>
                         <div className="space-y-2 text-sm text-gray-600">
                           {videoOrderData.recipientName && (
                             <div>
-                              <span className="font-medium">For:</span> {videoOrderData.recipientName}
+                              <span className="font-medium">{t('for', { defaultValue: 'For:' })}</span> {videoOrderData.recipientName}
                             </div>
                           )}
                           {videoOrderData.occasion && (
                             <div>
-                              <span className="font-medium">Occasion:</span> {videoOrderData.occasion}
+                              <span className="font-medium">{t('orderDetails.occasion')}:</span> {videoOrderData.occasion}
                             </div>
                           )}
                           {videoOrderData.instructions && (
                             <div>
-                              <span className="font-medium">Instructions:</span> {videoOrderData.instructions}
+                              <span className="font-medium">{t('orderDetails.specialInstructions')}:</span> {videoOrderData.instructions}
                             </div>
                           )}
                         </div>
@@ -458,9 +470,9 @@ function CheckoutContent() {
                             <div>
                               <div className="flex items-center gap-2">
                                 <Zap className="h-4 w-4 text-yellow-500" />
-                                <span className="font-medium">Rush Delivery</span>
+                                <span className="font-medium">{t('orderDetails.rushDelivery')}</span>
                               </div>
-                              <span className="text-sm text-gray-600">Get your video within 24 hours</span>
+                              <span className="text-sm text-gray-600">{t('orderDetails.rushDeliveryDesc', { defaultValue: 'Get your video within 24 hours' })}</span>
                             </div>
                           </div>
                           <span className="font-semibold text-purple-600">+${rushFee}</span>
@@ -484,7 +496,7 @@ function CheckoutContent() {
                 }}
                 onError={(error) => {
                   console.error('Subscription checkout error:', error)
-                  alert(`Subscription failed: ${error}`)
+                  alert(`${t('errors.paymentFailed')}: ${error}`)
                 }}
               />
             ) : (
@@ -501,11 +513,11 @@ function CheckoutContent() {
                   requestId,
                 }}
                 onSuccess={(paymentIntentId) => {
-                  router.push(`/fan/orders/${paymentIntentId}`)
+                  router.push(`/${locale}/fan/orders/${paymentIntentId}`)
                 }}
                 onError={(error) => {
                   console.error('Payment error:', error)
-                  alert(`Payment failed: ${error}`)
+                  alert(`${t('errors.paymentFailed')}: ${error}`)
                 }}
               />
             )}
@@ -518,36 +530,36 @@ function CheckoutContent() {
               {/* Price Breakdown */}
               <Card className="border-0 shadow-lg">
                 <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle>{t('orderSummary')}</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-3">
                   {checkoutType === 'subscription' ? (
                     <>
                       <div className="flex justify-between text-sm">
-                        <span>Subscription ({subscriptionOrderData.tier})</span>
-                        <span>${subscriptionOrderData.price}/mo</span>
+                        <span>{t('orderDetails.subscription')} ({subscriptionOrderData.tier})</span>
+                        <span>${subscriptionOrderData.price}/{t('pricing.perMonth')}</span>
                       </div>
                       <div className="flex justify-between text-sm text-gray-500">
-                        <span>Billing Cycle</span>
-                        <span>Monthly</span>
+                        <span>{t('pricing.billingCycle', { defaultValue: 'Billing Cycle' })}</span>
+                        <span>{t('pricing.billedMonthly')}</span>
                       </div>
                       
                       <Separator />
                       
                       <div className="flex justify-between font-semibold text-lg">
-                        <span>Total Due Today</span>
+                        <span>{t('pricing.total')}</span>
                         <span className="text-purple-600">${subscriptionOrderData.price}</span>
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="flex justify-between text-sm">
-                        <span>Video Message ({videoOrderData.package})</span>
+                        <span>{t('orderDetails.videoRequest')} ({videoOrderData.package})</span>
                         <span>${videoOrderData.subtotal}</span>
                       </div>
                       {videoOrderData.rushDelivery && (
                         <div className="flex justify-between text-sm">
-                          <span>Rush Delivery</span>
+                          <span>{t('orderDetails.rushDelivery')}</span>
                           <span>+${videoOrderData.rushFee}</span>
                         </div>
                       )}
@@ -555,7 +567,7 @@ function CheckoutContent() {
                       <Separator />
                       
                       <div className="flex justify-between font-semibold text-lg">
-                        <span>Total</span>
+                        <span>{t('pricing.total')}</span>
                         <span className="text-purple-600">${videoOrderData.total}</span>
                       </div>
                     </>
@@ -563,7 +575,7 @@ function CheckoutContent() {
 
                   <div className="text-center text-sm text-gray-600">
                     <Lock className="h-4 w-4 inline mr-1" />
-                    Secure payment powered by Stripe
+                    {t('security.securePayment')}
                   </div>
                 </CardContent>
               </Card>
@@ -575,22 +587,22 @@ function CheckoutContent() {
                     <div className="flex items-center gap-3">
                       <Shield className="h-5 w-5 text-green-600" />
                       <div className="text-sm">
-                        <p className="font-medium">Secure Payment</p>
-                        <p className="text-gray-600">256-bit SSL encryption</p>
+                        <p className="font-medium">{t('security.securePayment')}</p>
+                        <p className="text-gray-600">{t('security.sslProtected')}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="h-5 w-5 text-blue-600" />
                       <div className="text-sm">
-                        <p className="font-medium">Money-Back Guarantee</p>
-                        <p className="text-gray-600">100% satisfaction or refund</p>
+                        <p className="font-medium">{t('security.moneyBackGuarantee')}</p>
+                        <p className="text-gray-600">{t('security.satisfaction', { defaultValue: '100% satisfaction or refund' })}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <AlertCircle className="h-5 w-5 text-purple-600" />
                       <div className="text-sm">
-                        <p className="font-medium">Customer Support</p>
-                        <p className="text-gray-600">24/7 help available</p>
+                        <p className="font-medium">{t('customerSupport', { defaultValue: 'Customer Support' })}</p>
+                        <p className="text-gray-600">{t('support247', { defaultValue: '24/7 help available' })}</p>
                       </div>
                     </div>
                   </div>
@@ -608,7 +620,7 @@ export default function CheckoutPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">Loading checkout...</div>
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     }>
       <CheckoutContent />

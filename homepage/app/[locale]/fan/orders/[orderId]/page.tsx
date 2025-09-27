@@ -46,10 +46,14 @@ import {
   Shield,
   Phone,
   Mail,
-  Info
+  Info,
+  X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
+import { useTranslations } from "next-intl"
+import { useNotificationStream } from "@/hooks/use-notification-stream"
+import { useNotificationStore } from "@/stores/notification-store"
 
 // Types
 interface OrderTimeline {
@@ -61,6 +65,8 @@ interface OrderTimeline {
   icon: any
   completed: boolean
   current: boolean
+  rejected?: boolean
+  disabled?: boolean
 }
 
 interface OrderDetails {
@@ -153,25 +159,325 @@ const mockOrder: OrderDetails = {
 export default function OrderTrackingPage() {
   const params = useParams()
   const router = useRouter()
-  const t = useTranslations()
+  const t = useTranslations('orders')
   const { user, isLoading: authLoading, isAuthenticated } = useSupabaseAuth()
-  
-  const [order, setOrder] = useState<OrderDetails>(mockOrder)
+
+  const [order, setOrder] = useState<OrderDetails | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showMessageDialog, setShowMessageDialog] = useState(false)
   const [message, setMessage] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState("")
-  
+
+  // Real-time notifications
+  useNotificationStream()
+  const notifications = useNotificationStore(state => state.notifications)
+
+  // Fetch order data from database
+  useEffect(() => {
+    const fetchOrderData = async () => {
+      console.log('=== Starting order fetch ===')
+      console.log('User ID:', user?.id)
+      console.log('Order ID:', params.orderId)
+      console.log('Locale:', params.locale)
+
+      if (!user?.id || !params.orderId) {
+        console.error('Missing user ID or order ID')
+        setError(t('alerts.orderNotFound'))
+        setLoading(false)
+        return
+      }
+
+      try {
+        const { createClient } = await import('@/lib/supabase/client')
+        const supabase = createClient()
+
+        // First try to fetch by payment_intent_id, then by video_request id as fallback
+        let videoRequest = null
+        let fetchError = null
+
+        // Check if orderId looks like a payment intent ID (starts with pi_)
+        if (params.orderId.startsWith('pi_')) {
+          console.log('Attempting to fetch by payment_intent_id:', params.orderId)
+
+          // Try fetching by payment_intent_id
+          const { data, error } = await supabase
+            .from('video_requests')
+            .select(`
+              *,
+              creator:creator_id (
+                id,
+                display_name,
+                username,
+                avatar_url
+              )
+            `)
+            .eq('payment_intent_id', params.orderId)
+            .eq('fan_id', user.id)
+            .maybeSingle()
+
+          console.log('Payment intent query result:')
+          console.log('Data:', data)
+          console.log('Error:', error)
+
+          videoRequest = data
+          fetchError = error
+
+          // If not found by payment_intent_id, also try as regular ID
+          if (!videoRequest && !error) {
+            console.log('No data found by payment_intent_id, trying as regular ID')
+            const { data: altData, error: altError } = await supabase
+              .from('video_requests')
+              .select(`
+                *,
+                creator:creator_id (
+                  id,
+                  display_name,
+                  username,
+                  avatar_url
+                )
+              `)
+              .eq('id', params.orderId)
+              .eq('fan_id', user.id)
+              .maybeSingle()
+
+            console.log('Alternative query result:')
+            console.log('Data:', altData)
+            console.log('Error:', altError)
+
+            if (altData) {
+              videoRequest = altData
+              fetchError = null
+            }
+          }
+        } else {
+          console.log('Attempting to fetch by video_request ID:', params.orderId)
+
+          // Try by video_request id
+          const { data, error } = await supabase
+            .from('video_requests')
+            .select(`
+              *,
+              creator:creator_id (
+                id,
+                display_name,
+                username,
+                avatar_url
+              )
+            `)
+            .eq('id', params.orderId)
+            .eq('fan_id', user.id)
+            .maybeSingle()
+
+          console.log('Video request query result:')
+          console.log('Data:', data)
+          console.log('Error:', error)
+
+          videoRequest = data
+          fetchError = error
+        }
+
+        if (fetchError) {
+          console.error('Database query error:')
+          console.error('  Message:', fetchError.message || 'Unknown error')
+          console.error('  Code:', fetchError.code || 'N/A')
+          console.error('  Details:', fetchError.details || 'N/A')
+          console.error('  Hint:', fetchError.hint || 'N/A')
+          setError(t('alerts.loadingError'))
+          setLoading(false)
+          return
+        }
+
+        if (!videoRequest) {
+          console.error('No video request found for ID:', params.orderId)
+
+          // For payment intent IDs, try automatic recovery
+          if (params.orderId.startsWith('pi_')) {
+            console.log('🔄 Attempting automatic recovery for orphaned payment intent:', params.orderId)
+
+            try {
+              const recoveryResponse = await fetch('/api/payments/recover-orphaned-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentIntentId: params.orderId
+                })
+              })
+
+              if (recoveryResponse.ok) {
+                const recoveryData = await recoveryResponse.json()
+
+                if (recoveryData.success && recoveryData.videoRequestId) {
+                  console.log('✅ Automatic recovery successful, redirecting to proper order URL')
+                  // Redirect to the proper video request ID URL
+                  window.location.replace(`/${params.locale}/fan/orders/${recoveryData.videoRequestId}`)
+                  return
+                } else {
+                  console.warn('⚠️ Automatic recovery failed:', recoveryData.error)
+                }
+              } else {
+                console.warn('⚠️ Recovery API request failed')
+              }
+            } catch (recoveryError) {
+              console.error('❌ Error during automatic recovery:', recoveryError)
+            }
+          }
+
+          setError(t('alerts.orderNotFound'))
+          setLoading(false)
+          return
+        }
+
+        console.log('Successfully fetched video request:', videoRequest)
+
+        // Map database fields to OrderDetails interface
+        const orderDetails: OrderDetails = {
+          id: videoRequest.id,
+          orderNumber: `ORD-${new Date(videoRequest.created_at).getFullYear()}-${videoRequest.id.slice(0, 8).toUpperCase()}`,
+          creatorName: videoRequest.creator?.display_name || videoRequest.creator?.username || 'Creator',
+          creatorAvatar: videoRequest.creator?.avatar_url || '/placeholder.svg',
+          creatorId: videoRequest.creator_id,
+          occasion: videoRequest.occasion || '',
+          recipientName: videoRequest.recipient_name || '',
+          recipientRelation: '', // Not in database, could be added
+          instructions: videoRequest.instructions || '',
+          amount: videoRequest.price,
+          currency: 'USD',
+          paymentMethod: 'Stripe',
+          status: mapDatabaseStatus(videoRequest.status),
+          orderedAt: videoRequest.created_at,
+          acceptedAt: videoRequest.accepted_at || undefined,
+          recordingStartedAt: videoRequest.recording_started_at || undefined,
+          processingStartedAt: undefined, // Could be added to database
+          completedAt: videoRequest.delivered_at || undefined,
+          cancelledAt: undefined, // Could be added to database
+          expectedDelivery: calculateExpectedDelivery(videoRequest.created_at, videoRequest.rush_delivery),
+          actualDelivery: videoRequest.delivered_at || undefined,
+          videoUrl: videoRequest.video_url || undefined,
+          videoDuration: undefined,
+          rushOrder: videoRequest.rush_delivery || false,
+          privateVideo: false, // Could be added to database
+          allowDownload: true, // Could be added to database
+          progress: calculateProgress(videoRequest.status),
+          communicationLog: []
+        }
+
+        console.log('Mapped order details:', orderDetails)
+
+        setOrder(orderDetails)
+        setLoading(false)
+      } catch (err) {
+        console.error('Unexpected error fetching order:', err)
+        setError(t('alerts.loadingError'))
+        setLoading(false)
+      }
+    }
+
+    if (user?.id && params.orderId) {
+      fetchOrderData()
+    } else {
+      console.log('Waiting for user or orderId...')
+      if (!user?.id) console.log('No user ID yet')
+      if (!params.orderId) console.log('No order ID yet')
+    }
+  }, [user?.id, params.orderId, t])
+
+  // Listen for real-time order status updates via notifications
+  useEffect(() => {
+    if (!order || !notifications) return
+
+    const orderNotifications = notifications.filter(notification =>
+      notification.metadata?.order_id === order.id &&
+      (notification.type === 'order_accepted' ||
+       notification.type === 'order_completed' ||
+       notification.type === 'order_cancelled')
+    )
+
+    if (orderNotifications.length > 0) {
+      const latestNotification = orderNotifications[0] // Most recent first
+
+      // Update order status based on notification
+      if (latestNotification.type === 'order_accepted' && order.status !== 'accepted') {
+        console.log('📡 Real-time update: Order accepted')
+        setOrder(prev => prev ? {
+          ...prev,
+          status: 'accepted',
+          acceptedAt: new Date().toISOString()
+        } : null)
+      } else if (latestNotification.type === 'order_completed' && order.status !== 'completed') {
+        console.log('📡 Real-time update: Order completed')
+        setOrder(prev => prev ? {
+          ...prev,
+          status: 'completed',
+          completedAt: new Date().toISOString()
+        } : null)
+      } else if (latestNotification.type === 'order_cancelled' && order.status !== 'cancelled') {
+        console.log('📡 Real-time update: Order cancelled')
+        setOrder(prev => prev ? {
+          ...prev,
+          status: 'cancelled',
+          cancelledAt: new Date().toISOString()
+        } : null)
+      }
+    }
+  }, [notifications, order])
+
+  // Helper function to map database status to UI status
+  const mapDatabaseStatus = (dbStatus: string): OrderDetails['status'] => {
+    const statusMap: Record<string, OrderDetails['status']> = {
+      'pending': 'pending',
+      'pending_payment': 'pending',
+      'accepted': 'accepted',
+      'in_progress': 'recording',
+      'recording': 'recording',
+      'processing': 'processing',
+      'completed': 'completed',
+      'delivered': 'completed',
+      'cancelled': 'cancelled',
+      'rejected': 'rejected',
+      'expired': 'expired'
+    }
+    return statusMap[dbStatus] || 'pending'
+  }
+
+  // Calculate expected delivery based on creation date and rush status
+  const calculateExpectedDelivery = (createdAt: string, isRush: boolean) => {
+    const created = new Date(createdAt)
+    const deliveryDays = isRush ? 1 : 3
+    created.setDate(created.getDate() + deliveryDays)
+    return created.toISOString()
+  }
+
+  // Calculate progress percentage based on simplified 4-step flow
+  const calculateProgress = (status: string): number => {
+    const progressMap: Record<string, number> = {
+      'pending': 50,           // Order Placed (25%) + Payment Confirmed (25%) = 50%
+      'pending_payment': 25,   // Only Order Placed = 25%
+      'accepted': 75,          // Order + Payment + Creator Accepted = 75%
+      'recording': 75,         // Same as accepted (we no longer track recording separately)
+      'in_progress': 75,       // Same as accepted
+      'processing': 75,        // Same as accepted
+      'completed': 100,        // All 4 steps completed
+      'delivered': 100,        // Same as completed
+      'rejected': 75,          // Order + Payment + Rejection = 75% (but shows X icon)
+      'cancelled': 75          // Same as rejected
+    }
+    return progressMap[status] || 50  // Default to 50% (Order + Payment) for unknown status
+  }
+
   // Calculate time remaining
   useEffect(() => {
+    if (!order?.expectedDelivery) return
+
     const calculateTimeRemaining = () => {
       const now = new Date()
       const delivery = new Date(order.expectedDelivery)
       const diff = delivery.getTime() - now.getTime()
-      
+
       if (diff <= 0) {
-        setTimeRemaining("Delivery time reached")
+        setTimeRemaining(t('timeline.deliveryReached'))
         return
       }
       
@@ -192,17 +498,22 @@ export default function OrderTrackingPage() {
     const interval = setInterval(calculateTimeRemaining, 60000) // Update every minute
     
     return () => clearInterval(interval)
-  }, [order.expectedDelivery])
+  }, [order?.expectedDelivery, t])
   
-  // Generate timeline based on order status
+  // Generate timeline based on order status (Simplified 4-step flow)
   const generateTimeline = (): OrderTimeline[] => {
+    if (!order || !order.orderedAt) return []
+
+    // Check if order is rejected/cancelled
+    const isRejected = order.status === 'rejected' || order.status === 'cancelled'
+
     const timeline: OrderTimeline[] = [
       {
         id: "placed",
         status: "placed",
-        title: "Order Placed",
-        description: "Your request has been submitted",
-        timestamp: order.orderedAt,
+        title: t('timeline.events.placed.title'),
+        description: t('timeline.events.placed.description'),
+        timestamp: order.orderedAt || "",
         icon: Package,
         completed: true,
         current: false
@@ -210,9 +521,9 @@ export default function OrderTrackingPage() {
       {
         id: "payment",
         status: "payment",
-        title: "Payment Confirmed",
-        description: "Payment processed successfully",
-        timestamp: order.orderedAt,
+        title: t('timeline.events.paymentConfirmed.title'),
+        description: t('timeline.events.paymentConfirmed.description'),
+        timestamp: order.orderedAt || "",
         icon: CreditCard,
         completed: true,
         current: false
@@ -220,124 +531,117 @@ export default function OrderTrackingPage() {
       {
         id: "accepted",
         status: "accepted",
-        title: "Creator Accepted",
-        description: `${order.creatorName} accepted your request`,
-        timestamp: order.acceptedAt || "",
-        icon: CheckCircle,
-        completed: !!order.acceptedAt,
-        current: order.status === "accepted"
-      },
-      {
-        id: "recording",
-        status: "recording",
-        title: "Recording Video",
-        description: "Creator is recording your personalized video",
-        timestamp: order.recordingStartedAt || "",
-        icon: Video,
-        completed: !!order.recordingStartedAt,
-        current: order.status === "recording"
-      },
-      {
-        id: "processing",
-        status: "processing",
-        title: "Processing",
-        description: "Video is being processed and prepared",
-        timestamp: order.processingStartedAt || "",
-        icon: RefreshCw,
-        completed: !!order.processingStartedAt,
-        current: order.status === "processing"
+        title: isRejected ? t('timeline.events.rejected.title') : t('timeline.events.accepted.title'),
+        description: isRejected
+          ? t('timeline.events.rejected.description', { creator: order.creatorName || 'Creator' })
+          : t('timeline.events.accepted.description', { creator: order.creatorName || 'Creator' }),
+        timestamp: order.acceptedAt || order.cancelledAt || "",
+        icon: isRejected ? X : CheckCircle,
+        completed: !!order.acceptedAt || isRejected || order.status === "completed",
+        current: order.status === "accepted",
+        rejected: isRejected
       },
       {
         id: "completed",
         status: "completed",
-        title: "Delivered",
-        description: "Your video is ready to watch!",
+        title: t('timeline.events.delivered.title'),
+        description: t('timeline.events.delivered.description'),
         timestamp: order.completedAt || "",
         icon: PlayCircle,
         completed: order.status === "completed",
-        current: order.status === "completed"
+        current: order.status === "completed",
+        disabled: isRejected // Don't show as achievable if order was rejected
       }
     ]
-    
+
     return timeline
   }
   
-  const timeline = generateTimeline()
+  const timeline = order ? generateTimeline() : []
   
   // Get status configuration
   const getStatusConfig = () => {
+    if (!order) return {
+      label: "",
+      color: "bg-gray-500",
+      textColor: "text-gray-700",
+      bgColor: "bg-gray-100",
+      icon: AlertCircle,
+      description: ""
+    }
+
     switch (order.status) {
       case 'pending':
         return {
-          label: "Pending Acceptance",
+          label: t('statusLabels.pendingAcceptance'),
           color: "bg-yellow-500",
           textColor: "text-yellow-700",
           bgColor: "bg-yellow-100",
           icon: Clock,
-          description: "Waiting for creator to accept your request"
+          description: t('statusDescriptions.pendingAcceptance')
         }
       case 'accepted':
         return {
-          label: "Accepted",
+          label: t('statusLabels.accepted'),
           color: "bg-blue-500",
           textColor: "text-blue-700",
           bgColor: "bg-blue-100",
           icon: CheckCircle,
-          description: "Creator has accepted and will record soon"
+          description: t('statusDescriptions.accepted')
         }
       case 'recording':
         return {
-          label: "Recording",
+          label: t('statusLabels.recording'),
           color: "bg-purple-500",
           textColor: "text-purple-700",
           bgColor: "bg-purple-100",
           icon: Video,
-          description: "Creator is recording your video"
+          description: t('statusDescriptions.recording')
         }
       case 'processing':
         return {
-          label: "Processing",
+          label: t('statusLabels.processing'),
           color: "bg-indigo-500",
           textColor: "text-indigo-700",
           bgColor: "bg-indigo-100",
           icon: RefreshCw,
-          description: "Video is being processed"
+          description: t('statusDescriptions.processing')
         }
       case 'completed':
         return {
-          label: "Delivered",
+          label: t('statusLabels.delivered'),
           color: "bg-green-500",
           textColor: "text-green-700",
           bgColor: "bg-green-100",
           icon: CheckCircle,
-          description: "Your video is ready!"
+          description: t('statusDescriptions.delivered')
         }
       case 'cancelled':
         return {
-          label: "Cancelled",
+          label: t('statusLabels.cancelled'),
           color: "bg-gray-500",
           textColor: "text-gray-700",
           bgColor: "bg-gray-100",
           icon: XCircle,
-          description: "This order was cancelled"
+          description: t('statusDescriptions.cancelled')
         }
       case 'refunded':
         return {
-          label: "Refunded",
+          label: t('statusLabels.refunded'),
           color: "bg-purple-500",
           textColor: "text-purple-700",
           bgColor: "bg-purple-100",
           icon: RefreshCw,
-          description: "Payment has been refunded"
+          description: t('statusDescriptions.refunded')
         }
       default:
         return {
-          label: "Unknown",
+          label: t('statusLabels.unknown'),
           color: "bg-gray-500",
           textColor: "text-gray-700",
           bgColor: "bg-gray-100",
           icon: AlertCircle,
-          description: "Status unknown"
+          description: t('statusDescriptions.unknown')
         }
     }
   }
@@ -386,10 +690,30 @@ export default function OrderTrackingPage() {
     }
   }, [authLoading, isAuthenticated, router])
   
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600 mx-auto mb-4" />
+          <p className="text-gray-600">{t('loading')}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !order) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">{t('error')}</h2>
+            <p className="text-gray-600 mb-4">{error || t('alerts.orderNotFound')}</p>
+            <Button onClick={() => router.push('/fan/orders')}>
+              {t('backToOrders')}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -405,13 +729,13 @@ export default function OrderTrackingPage() {
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Orders
+            {t('backToOrders')}
           </Button>
           
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Order Details</h1>
-              <p className="text-gray-600 mt-1">Order #{order.orderNumber}</p>
+              <h1 className="text-3xl font-bold">{t('title')}</h1>
+              <p className="text-gray-600 mt-1">{t('orderNumber', { number: order.orderNumber })}</p>
             </div>
             <Badge className={cn("px-3 py-1", statusConfig.bgColor, statusConfig.textColor)}>
               <StatusIcon className="h-4 w-4 mr-1" />
@@ -428,7 +752,7 @@ export default function OrderTrackingPage() {
             {order.status === 'recording' && order.progress > 0 && (
               <div className="mt-2">
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Recording Progress</span>
+                  <span>{t('timeline.recordingProgress')}</span>
                   <span>{order.progress}%</span>
                 </div>
                 <Progress value={order.progress} className="h-2" />
@@ -445,11 +769,11 @@ export default function OrderTrackingPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Order Timeline</span>
+                  <span>{t('timeline.title')}</span>
                   {order.status !== 'completed' && order.status !== 'cancelled' && (
                     <div className="flex items-center gap-2 text-sm">
                       <Clock className="h-4 w-4" />
-                      <span className="font-normal">Est. delivery in {timeRemaining}</span>
+                      <span className="font-normal">{t('timeline.estimatedDelivery', { time: timeRemaining })}</span>
                     </div>
                   )}
                 </CardTitle>
@@ -468,20 +792,29 @@ export default function OrderTrackingPage() {
                         {/* Icon */}
                         <div className={cn(
                           "relative z-10 flex h-10 w-10 items-center justify-center rounded-full",
-                          item.completed
-                            ? "bg-purple-600 text-white"
-                            : "bg-gray-200 text-gray-400",
-                          item.current && "ring-4 ring-purple-100"
+                          item.rejected
+                            ? "bg-red-600 text-white"  // Red for rejection
+                            : item.completed && !item.disabled
+                              ? "bg-purple-600 text-white"
+                              : "bg-gray-200 text-gray-400",
+                          item.current && !item.rejected && "ring-4 ring-purple-100",
+                          item.rejected && "ring-4 ring-red-100"
                         )}>
                           <Icon className="h-5 w-5" />
                         </div>
-                        
+
                         {/* Content */}
                         <div className="flex-1 pt-1">
                           <div className="flex items-center justify-between">
                             <h3 className={cn(
                               "font-semibold",
-                              !item.completed && "text-gray-400"
+                              item.rejected
+                                ? "text-red-600"  // Red text for rejection
+                                : item.disabled
+                                  ? "text-gray-400"  // Gray for disabled steps
+                                  : !item.completed
+                                    ? "text-gray-400"
+                                    : "text-gray-900"  // Normal completed color
                             )}>
                               {item.title}
                             </h3>
@@ -493,7 +826,13 @@ export default function OrderTrackingPage() {
                           </div>
                           <p className={cn(
                             "text-sm mt-1",
-                            item.completed ? "text-gray-600" : "text-gray-400"
+                            item.rejected
+                              ? "text-red-500"  // Red description for rejection
+                              : item.disabled
+                                ? "text-gray-400"  // Gray for disabled steps
+                                : item.completed
+                                  ? "text-gray-600"
+                                  : "text-gray-400"
                           )}>
                             {item.description}
                           </p>
@@ -509,14 +848,14 @@ export default function OrderTrackingPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Communication</span>
+                  <span>{t('communication.title')}</span>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setShowMessageDialog(true)}
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
-                    Send Message
+                    {t('communication.sendMessage')}
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -573,7 +912,7 @@ export default function OrderTrackingPage() {
             {/* Creator Info */}
             <Card>
               <CardHeader>
-                <CardTitle>Creator</CardTitle>
+                <CardTitle>{t('details.creator')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
@@ -588,7 +927,7 @@ export default function OrderTrackingPage() {
                     >
                       {order.creatorName}
                     </Link>
-                    <p className="text-sm text-gray-600">View Profile</p>
+                    <p className="text-sm text-gray-600">{t('details.viewProfile')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -597,33 +936,33 @@ export default function OrderTrackingPage() {
             {/* Video Details */}
             <Card>
               <CardHeader>
-                <CardTitle>Video Details</CardTitle>
+                <CardTitle>{t('details.videoDetails')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Occasion</p>
+                  <p className="text-sm text-gray-600">{t('details.occasion')}</p>
                   <p className="font-medium">{order.occasion}</p>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-gray-600">For</p>
+                  <p className="text-sm text-gray-600">{t('details.for')}</p>
                   <p className="font-medium">{order.recipientName}</p>
                   <p className="text-sm text-gray-500">({order.recipientRelation})</p>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Instructions</p>
+                  <p className="text-sm text-gray-600 mb-2">{t('details.instructions')}</p>
                   <p className="text-sm bg-gray-50 p-3 rounded-lg">{order.instructions}</p>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Rush Order</span>
+                  <span className="text-sm text-gray-600">{t('details.rushOrder')}</span>
                   <Badge variant={order.rushOrder ? "default" : "secondary"}>
                     {order.rushOrder ? "Yes" : "No"}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Private Video</span>
+                  <span className="text-sm text-gray-600">{t('details.privateVideo')}</span>
                   <Badge variant={order.privateVideo ? "default" : "secondary"}>
                     {order.privateVideo ? "Yes" : "No"}
                   </Badge>
@@ -634,19 +973,19 @@ export default function OrderTrackingPage() {
             {/* Payment Info */}
             <Card>
               <CardHeader>
-                <CardTitle>Payment</CardTitle>
+                <CardTitle>{t('details.payment')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Amount</span>
+                  <span className="text-sm text-gray-600">{t('details.amount')}</span>
                   <span className="font-semibold">${order.amount} {order.currency}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Method</span>
+                  <span className="text-sm text-gray-600">{t('details.method')}</span>
                   <span className="font-medium">{order.paymentMethod}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Paid on</span>
+                  <span className="text-sm text-gray-600">{t('details.paidOn')}</span>
                   <span className="font-medium">
                     {new Date(order.orderedAt).toLocaleDateString()}
                   </span>
@@ -661,18 +1000,18 @@ export default function OrderTrackingPage() {
                   <>
                     <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white">
                       <PlayCircle className="h-4 w-4 mr-2" />
-                      Watch Video
+                      {t('actions.watchVideo')}
                     </Button>
                     {order.allowDownload && (
                       <Button variant="outline" className="w-full">
                         <Download className="h-4 w-4 mr-2" />
-                        Download Video
+                        {t('actions.downloadVideo')}
                       </Button>
                     )}
                     {!order.privateVideo && (
                       <Button variant="outline" className="w-full">
                         <Share2 className="h-4 w-4 mr-2" />
-                        Share Video
+                        {t('actions.shareVideo')}
                       </Button>
                     )}
                   </>
@@ -686,7 +1025,7 @@ export default function OrderTrackingPage() {
                       onClick={() => setShowMessageDialog(true)}
                     >
                       <MessageSquare className="h-4 w-4 mr-2" />
-                      Message Creator
+                      {t('communication.messageCreator')}
                     </Button>
                     <Button
                       variant="outline"
@@ -694,7 +1033,7 @@ export default function OrderTrackingPage() {
                       onClick={() => setShowCancelDialog(true)}
                     >
                       <XCircle className="h-4 w-4 mr-2" />
-                      Cancel Order
+                      {t('actions.cancelOrder')}
                     </Button>
                   </>
                 )}
@@ -716,14 +1055,14 @@ export default function OrderTrackingPage() {
         <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Cancel Order</DialogTitle>
+              <DialogTitle>{t('dialogs.cancelOrder.title')}</DialogTitle>
               <DialogDescription>
-                Are you sure you want to cancel this order? This action cannot be undone.
+                {t('dialogs.cancelOrder.description')}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
-                Keep Order
+                {t('actions.keepOrder')}
               </Button>
               <Button
                 variant="destructive"
@@ -733,12 +1072,12 @@ export default function OrderTrackingPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Cancelling...
+                    {t('actions.cancelling')}
                   </>
                 ) : (
                   <>
                     <XCircle className="h-4 w-4 mr-2" />
-                    Cancel Order
+                    {t('actions.cancelOrder')}
                   </>
                 )}
               </Button>
@@ -750,14 +1089,14 @@ export default function OrderTrackingPage() {
         <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Send Message to {order.creatorName}</DialogTitle>
+              <DialogTitle>{t('dialogs.sendMessage.title')}</DialogTitle>
               <DialogDescription>
-                Send a message about your video request
+                {t('dialogs.sendMessage.description')}
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
               <Textarea
-                placeholder="Type your message here..."
+                placeholder={t('communication.messagePlaceholder')}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
@@ -765,7 +1104,7 @@ export default function OrderTrackingPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowMessageDialog(false)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 onClick={handleSendMessage}
@@ -775,12 +1114,12 @@ export default function OrderTrackingPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Sending...
+                    {t('communication.sending')}
                   </>
                 ) : (
                   <>
                     <MessageSquare className="h-4 w-4 mr-2" />
-                    Send Message
+                    {t('communication.send')}
                   </>
                 )}
               </Button>

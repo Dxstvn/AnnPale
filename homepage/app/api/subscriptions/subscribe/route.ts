@@ -24,18 +24,18 @@ export async function POST(request: NextRequest) {
 
     // Check if user already has an active subscription to this creator
     const { data: existingSubscription } = await supabase
-      .from('creator_subscriptions')
+      .from('subscription_orders')
       .select('id, status')
-      .eq('subscriber_id', user.id)
+      .eq('user_id', user.id)
       .eq('creator_id', creatorId)
-      .eq('status', 'active')
+      .in('status', ['active', 'trialing'])
       .single()
 
     if (existingSubscription) {
       return NextResponse.json(
-        { 
+        {
           error: 'You already have an active subscription to this creator',
-          existingSubscriptionId: existingSubscription.id 
+          existingSubscriptionId: existingSubscription.id
         },
         { status: 400 }
       )
@@ -56,21 +56,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create new subscription
+    // Create new subscription order
+    const now = new Date()
     const expiresAt = new Date()
     expiresAt.setMonth(expiresAt.getMonth() + 1) // Default to 1 month
 
+    // Calculate fees (30% platform, 70% creator)
+    const totalAmount = tier.price || 0
+    const platformFee = Math.round(totalAmount * 0.30)
+    const creatorEarnings = totalAmount - platformFee
+
     const { data: newSubscription, error: subError } = await supabase
-      .from('creator_subscriptions')
+      .from('subscription_orders')
       .insert({
-        subscriber_id: user.id,
+        user_id: user.id,
         creator_id: creatorId,
         tier_id: tierId,
+        total_amount: totalAmount,
+        platform_fee: platformFee,
+        creator_earnings: creatorEarnings,
+        currency: 'USD',
         status: 'active',
-        started_at: new Date().toISOString(),
-        expires_at: expiresAt.toISOString(),
+        billing_period: tier.billing_period || 'monthly',
+        current_period_start: now.toISOString(),
+        current_period_end: expiresAt.toISOString(),
+        next_billing_date: expiresAt.toISOString(),
         // For demo/testing, we're not using Stripe yet
-        stripe_subscription_id: `demo_${Date.now()}`
+        stripe_subscription_id: `demo_${Date.now()}`,
+        created_at: now.toISOString(),
+        activated_at: now.toISOString()
       })
       .select()
       .single()
@@ -120,13 +134,13 @@ export async function DELETE(request: NextRequest) {
 
     // Cancel subscription (set status to cancelled and update cancelled_at)
     const { error } = await supabase
-      .from('creator_subscriptions')
+      .from('subscription_orders')
       .update({
         status: 'cancelled',
         cancelled_at: new Date().toISOString()
       })
       .eq('id', subscriptionId)
-      .eq('subscriber_id', user.id) // Ensure user can only cancel their own subscriptions
+      .eq('user_id', user.id) // Ensure user can only cancel their own subscriptions
 
     if (error) {
       console.error('Cancel subscription error:', error)

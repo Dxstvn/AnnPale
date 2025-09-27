@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -39,15 +40,15 @@ interface Creator {
   created_at?: string
 }
 
-// Category definitions with icons
-const categories = [
-  { value: 'Music', label: 'Music', icon: Music, subcategories: ['Konpa', 'Rap', 'R&B', 'Gospel'] },
-  { value: 'Entertainment', label: 'Entertainment', icon: Theater, subcategories: ['Comedy', 'Dance', 'Theater'] },
-  { value: 'Media', label: 'Media', icon: Radio, subcategories: ['Radio', 'TV', 'Podcast'] },
-  { value: 'Sports', label: 'Sports & Fitness', icon: Dumbbell, subcategories: [] },
-  { value: 'Culinary', label: 'Culinary Arts', icon: ChefHat, subcategories: [] },
-  { value: 'Visual Arts', label: 'Visual Arts', icon: Palette, subcategories: [] },
-  { value: 'Education', label: 'Education & Business', icon: BookOpen, subcategories: [] }
+// Category definitions with icons - labels will be translated dynamically
+const categoryDefinitions = [
+  { value: 'Music', key: 'music', icon: Music, subcategories: ['Konpa', 'Rap', 'R&B', 'Gospel'] },
+  { value: 'Entertainment', key: 'entertainment', icon: Theater, subcategories: ['Comedy', 'Dance', 'Theater'] },
+  { value: 'Media', key: 'media', icon: Radio, subcategories: ['Radio', 'TV', 'Podcast'] },
+  { value: 'Sports', key: 'sportsAndFitness', icon: Dumbbell, subcategories: [] },
+  { value: 'Culinary', key: 'culinaryArts', icon: ChefHat, subcategories: [] },
+  { value: 'Visual Arts', key: 'visualArts', icon: Palette, subcategories: [] },
+  { value: 'Education', key: 'educationAndBusiness', icon: BookOpen, subcategories: [] }
 ]
 
 // Language options
@@ -60,6 +61,10 @@ const languageOptions = [
 
 export default function FanExplorePage() {
   const router = useRouter()
+  const t = useTranslations('common')
+  const tCategories = useTranslations('common.categories')
+  const tLanguages = useTranslations('common.languages')
+  const tCreators = useTranslations('common.creators')
   const [creators, setCreators] = useState<Creator[]>([])
   const [filteredCreators, setFilteredCreators] = useState<Creator[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -312,7 +317,7 @@ export default function FanExplorePage() {
   }
 
   const getCategoryIcon = (category?: string) => {
-    const cat = categories.find(c => c.value === category)
+    const cat = categoryDefinitions.find(c => c.value === category)
     return cat?.icon || Sparkles
   }
 
@@ -435,7 +440,7 @@ export default function FanExplorePage() {
                   <CardContent className="p-4 space-y-6">
                     {/* Category Filter */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-semibold">Category</Label>
+                      <Label className="text-sm font-semibold">{t('filters.category')}</Label>
                       <div className="max-h-80 overflow-y-auto pr-2">
                         <div className="space-y-2" data-testid="filter-category">
                           <Button
@@ -444,9 +449,9 @@ export default function FanExplorePage() {
                             className="w-full justify-start text-left"
                             onClick={() => setCategoryFilter('all')}
                           >
-                            All Categories
+                            {t('filters.allCategories')}
                           </Button>
-                          {categories.map(cat => {
+                          {categoryDefinitions.map(cat => {
                             const Icon = cat.icon
                             return (
                               <Button
@@ -458,7 +463,7 @@ export default function FanExplorePage() {
                                 data-testid={`category-${cat.value.toLowerCase()}`}
                               >
                                 <Icon className="h-4 w-4 mr-2 flex-shrink-0" />
-                                <span className="truncate">{cat.label}</span>
+                                <span className="truncate">{tCategories(cat.key)}</span>
                               </Button>
                             )
                           })}
@@ -470,13 +475,13 @@ export default function FanExplorePage() {
 
                     {/* Price Range */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-semibold">Price Range</Label>
+                      <Label className="text-sm font-semibold">{t('filters.priceRange')}</Label>
                       <Select value={priceFilter} onValueChange={setPriceFilter}>
                         <SelectTrigger data-testid="filter-price">
-                          <SelectValue placeholder="All Prices" />
+                          <SelectValue placeholder={t('filters.allPrices')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Prices</SelectItem>
+                          <SelectItem value="all">{t('filters.allPrices')}</SelectItem>
                           <SelectItem value="0-20">Under $20</SelectItem>
                           <SelectItem value="20-50">$20 - $50</SelectItem>
                           <SelectItem value="50-100">$50 - $100</SelectItem>
@@ -489,7 +494,7 @@ export default function FanExplorePage() {
 
                     {/* Language Filter */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-semibold">Language</Label>
+                      <Label className="text-sm font-semibold">{t('filters.language')}</Label>
                       <div className="space-y-2" data-testid="filter-language">
                         <Button
                           variant={languageFilter === 'all' ? 'default' : 'outline'}
@@ -497,7 +502,7 @@ export default function FanExplorePage() {
                           className="w-full justify-start"
                           onClick={() => setLanguageFilter('all')}
                         >
-                          All Languages
+                          {t('filters.allLanguages')}
                         </Button>
                         {languageOptions.map(lang => (
                           <Button
@@ -521,7 +526,7 @@ export default function FanExplorePage() {
                     <div className="flex items-center justify-between">
                       <Label htmlFor="verified" className="text-sm font-semibold flex items-center gap-2">
                         <Shield className="h-4 w-4" />
-                        Verified Only
+                        {t('filters.verifiedOnly')}
                       </Label>
                       <Switch
                         id="verified"
@@ -648,9 +653,9 @@ export default function FanExplorePage() {
                 {verifiedOnly && (
                   <Badge variant="secondary" className="gap-1" data-testid="active-filter-verified">
                     <Shield className="h-3 w-3" />
-                    Verified Only
-                    <X 
-                      className="h-3 w-3 ml-1 cursor-pointer" 
+                    {t('filters.verifiedOnly')}
+                    <X
+                      className="h-3 w-3 ml-1 cursor-pointer"
                       onClick={() => setVerifiedOnly(false)}
                     />
                   </Badge>
@@ -737,17 +742,17 @@ export default function FanExplorePage() {
                                 {creator.verified && (
                                   <Badge variant="secondary" className="gap-1" data-testid="verified-badge">
                                     <Shield className="h-3 w-3" />
-                                    Verified
+                                    {tCreators('verified')}
                                   </Badge>
                                 )}
                               </CardTitle>
                               {creator.tier_count ? (
                                 <Badge variant="outline" className="mt-2">
                                   <Users className="h-3 w-3 mr-1" />
-                                  {creator.tier_count} tier{creator.tier_count !== 1 ? 's' : ''}
+                                  {creator.tier_count} {creator.tier_count !== 1 ? tCreators('tiers') : tCreators('tier')}
                                 </Badge>
                               ) : (
-                                <span className="text-sm text-gray-500">No tiers yet</span>
+                                <span className="text-sm text-gray-500">{tCreators('noTiersYet')}</span>
                               )}
                             </div>
                           </div>
@@ -787,7 +792,7 @@ export default function FanExplorePage() {
                             }}
                             data-testid="view-creator-profile-btn"
                           >
-                            View Profile
+                            {tCreators('viewProfile')}
                             <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                           </Button>
                         </CardContent>
@@ -815,7 +820,7 @@ export default function FanExplorePage() {
                                 {creator.verified && (
                                   <Badge variant="secondary" data-testid="verified-badge">
                                     <Shield className="h-3 w-3 mr-1" />
-                                    Verified
+                                    {tCreators('verified')}
                                   </Badge>
                                 )}
                                 {creator.category && (
@@ -831,7 +836,7 @@ export default function FanExplorePage() {
                               
                               <div className="flex items-center gap-4">
                                 <Badge variant="outline">
-                                  {creator.tier_count || 0} tiers
+                                  {creator.tier_count || 0} {tCreators('tiers')}
                                 </Badge>
                                 {creator.languages?.map(lang => (
                                   <Badge key={lang} variant="secondary" data-testid="language-badge">
@@ -845,7 +850,7 @@ export default function FanExplorePage() {
                               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
                               data-testid="view-creator-profile-btn"
                             >
-                              View Profile
+                              {tCreators('viewProfile')}
                               <ChevronRight className="h-4 w-4 ml-2" />
                             </Button>
                           </div>
@@ -872,7 +877,7 @@ export default function FanExplorePage() {
                           )}
                           {creator.min_price && (
                             <p className="text-xs text-gray-600 mt-1">
-                              From ${creator.min_price}/mo
+                              {tCreators('from')} ${creator.min_price}/mo
                             </p>
                           )}
                         </CardContent>

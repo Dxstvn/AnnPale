@@ -157,5 +157,161 @@
     "switching": "K ap chanje...",
     "switchToCreatorStudio": "Chanje pou Studio Kreyatè",
     "switchToCreatorDescription": "Jwenn akè nan tablo jesyon kreyatè ou epi jere kontni"
+  },
+  "settings": {
+    "title": "Paramèt",
+    "subtitle": "Jere kont ou ak preferans yo",
+    "loadingSettings": "K ap chaje paramèt yo...",
+    "signInRequired": "Tanpri konekte pou jwenn akè nan paramèt ou yo.",
+    "tabs": {
+      "profile": "Pwofil",
+      "subscriptions": "Abònman yo"
+    },
+    "profile": {
+      "title": "Enfomasyon pwofil",
+      "subtitle": "Mizajou enfomasyon pèsonèl ou ak foto pwofil",
+      "profilePicture": {
+        "changePhoto": "Chanje foto a",
+        "uploading": "K ap telechaje...",
+        "uploadInstructions": "JPG, PNG oswa GIF. Gwosè maksimòm 5MB.",
+        "uploadSuccess": "Foto pwofil la mizajou",
+        "uploadSuccessMessage": "Foto pwofil ou an mizajou ak siksè.",
+        "uploadError": "Echèk telechajman",
+        "invalidFileType": "Tip fichye pa valid",
+        "invalidFileTypeMessage": "Tanpri chwazi yon imaj JPG, PNG, oswa GIF.",
+        "fileTooLarge": "Fichye a twò gwo",
+        "fileTooLargeMessage": "Tanpri chwazi yon imaj ki pi piti pase 5MB."
+      },
+      "fields": {
+        "firstName": "Premye non",
+        "firstNamePlaceholder": "Antre premye non ou",
+        "lastName": "Non fanmi",
+        "lastNamePlaceholder": "Antre non fanmi ou",
+        "email": "Adrès imel",
+        "emailDisabled": "Imel la pa ka chanje",
+        "phone": "Nimewo telefòn",
+        "phonePlaceholder": "Antre nimewo telefòn ou",
+        "language": "Lang",
+        "timezone": "Zòn orè",
+        "bio": "Bio",
+        "bioPlaceholder": "Pale nou sou ou..."
+      },
+      "languages": {
+        "english": "Anglè",
+        "french": "Fransè",
+        "haitian": "Kreyòl Ayisyen"
+      },
+      "timezones": {
+        "eastern": "Orè Lès",
+        "central": "Orè Mitan",
+        "mountain": "Orè Mòn yo",
+        "pacific": "Orè Pasifik",
+        "haiti": "Orè Ayiti",
+        "paris": "Orè Paris"
+      },
+      "unsavedChanges": "Ou gen chanjman ki pa anrejistre",
+      "cancel": "Anile",
+      "saveChanges": "Sove chanjman yo",
+      "saving": "K ap sove...",
+      "profileUpdated": "Pwofil mizajou",
+      "profileUpdatedMessage": "Pwofil ou an mizajou ak siksè.",
+      "profileUpdateError": "Erè pandan anrejistreman pwofil la",
+      "profileUpdateErrorMessage": "Pa t kapab sove pwofil ou an. Tanpri esèye ankò."
+    },
+    "creator": {
+      "title": "Zouti Kreyatè",
+      "subtitleNotActivated": "Debloke fonksyon kreyatè yo toujou konsèvè eksperyans fanatik ou",
+      "subtitleActivated": "Ou gen aksè nan fonksyon kreyatè yo!",
+      "features": {
+        "createContent": "Kreye kontni",
+        "createContentDescription": "Pataje videyo pèsonalize ak fanatik ou yo",
+        "earnMoney": "Fè lajan",
+        "earnMoneyDescription": "Resevwa peman pou kontni pèsonalize ou",
+        "buildAudience": "Konstwi oditwa ou",
+        "buildAudienceDescription": "Konekte ak fanatik yo sot toupatou nan lemond",
+        "analytics": "Analytics ak ensight",
+        "analyticsDescription": "Swiv pèfòmans ak kwasans ou"
+      },
+      "becomeCreator": "Vin yon kreyatè",
+      "activating": "K ap aktive...",
+      "activatedMessage": "Fonksyon kreyatè yo aktive! Ou ka kreye kontni ak fè lajan kounye a.",
+      "activationSuccess": "🎉 Fonksyon kreyatè yo aktive!",
+      "activationSuccessMessage": "Ou ka jwenn akè nan Studio Kreyatè ak kòmanse fè lajan kounye a.",
+      "alreadyActivated": "Deja aktive",
+      "activationFailed": "Aktivasyon echwe",
+      "activationError": "Pa t kapab aktive fonksyon kreyatè yo",
+      "goToCreatorStudio": "Ale nan Studio Kreyatè",
+      "creatorSettings": "Paramèt kreyatè",
+      "currentMode": "Mòd aktyèl:",
+      "creatorMode": "🎬 Mòd kreyatè",
+      "fanMode": "👤 Mòd fanatik",
+      "switchModeHint": "Chanje mòd nan meni navigasyon an"
+    },
+    "account": {
+      "title": "Aksyon kont",
+      "subtitle": "Jere sekirite ak done kont ou",
+      "changePassword": "Chanje modpas",
+      "changePasswordDescription": "Mizajou modpas ou pou kenbe kont ou an sekirite",
+      "downloadData": "Telechaje done ou yo",
+      "downloadDataDescription": "Jwenn yon kopi done Ann Pale ou yo",
+      "comingSoon": "Ap vini byento"
+    },
+    "subscriptions": {
+      "discoverTitle": "Dekouvri nouvo kreyatè",
+      "discoverSubtitle": "Selon enterè ak abònman ou yo",
+      "exploreMessage": "Eksplore nouvo kreyatè pou swiv",
+      "browseCreators": "Navige kreyatè yo",
+      "management": {
+        "title": "Abònman aktif yo",
+        "description": "Jere abònman kreyatè ou yo",
+        "noSubscriptions": "Ou poko gen okenn abònman aktif",
+        "browseCreators": "Navige kreyatè yo",
+        "viewCreator": "Gade kreyatè a",
+        "nextBilling": "Pwochen faktirasyon : {date}",
+        "accessUntil": "Aksè jiskaske : {date}",
+        "month": "mwa",
+        "year": "ane",
+        "status": {
+          "active": "Aktif",
+          "paused": "Nan pòz",
+          "cancelled": "Anile",
+          "expired": "Ekspire"
+        },
+        "actions": {
+          "pauseSubscription": "Mete abònman an nan pòz",
+          "resumeSubscription": "Reprann abònman an",
+          "cancelSubscription": "Anile abònman an",
+          "updatePaymentMethod": "Chanje metòd peman",
+          "manageSubscription": "Jeye abònman an"
+        },
+        "dialogs": {
+          "pause": {
+            "title": "Mete abònman an nan pòz",
+            "description": "Èske ou sèten ou vle mete abònman {creator} a nan pòz? Ou ka reprann li nenpòt lè."
+          },
+          "resume": {
+            "title": "Reprann abònman an",
+            "description": "Reprann abònman {creator} ou an? Faktirasyon an ap kontinye nan pwochen sik la."
+          },
+          "cancel": {
+            "title": "Anile abònman an",
+            "description": "Èske ou sèten ou vle anile abònman {creator} ou an? Ou pral gen aksè jiskaske {date}.",
+            "warning": "Ou ka abòne ankò nenpòt lè, men ou ka pèdi pri espesyal oswa avantaj ou gen kounye a yo."
+          }
+        },
+        "messages": {
+          "pauseSuccess": "Abònman an mete nan pòz ak siksè. Yo p ap fakture ou jiskaske ou reprann.",
+          "resumeSuccess": "Abònman an reprann ak siksè. Faktirasyon an ap kontinye nòmalman.",
+          "cancelSuccess": "Abònman an anile. Ou pral gen aksè jiskaske {date}.",
+          "loadError": "Echèk pou chaje abònman yo",
+          "updateError": "Echèk pou mizajou abònman an",
+          "paymentError": "Echèk pou ouvè paramèt peman yo"
+        },
+        "processing": "K ap trete...",
+        "cancel": "Anile",
+        "success": "Siksè",
+        "error": "Erè"
+      }
+    }
   }
 }

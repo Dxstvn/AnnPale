@@ -1,0 +1,102 @@
+{
+  "tiers": {
+    "title": "Niveaux d'abonnement",
+    "chooseYourPlan": "Choisissez votre plan",
+    "basic": "Basique",
+    "premium": "Premium",
+    "vip": "VIP",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "perMonth": "par mois",
+    "perYear": "par an",
+    "save": "Économisez",
+    "mostPopular": "Le plus populaire",
+    "bestValue": "Meilleure valeur",
+    "currentPlan": "Plan actuel"
+  },
+  "features": {
+    "unlimitedAccess": "Accès illimité",
+    "exclusiveContent": "Contenu exclusif",
+    "prioritySupport": "Support prioritaire",
+    "earlyAccess": "Accès anticipé",
+    "customRequests": "Demandes personnalisées",
+    "directMessaging": "Messagerie directe",
+    "liveStreams": "Diffusions en direct",
+    "behindTheScenes": "En coulisses",
+    "monthlyVideos": "Vidéos mensuelles",
+    "discounts": "Réductions sur les vidéos",
+    "badges": "Badges spéciaux",
+    "communityAccess": "Accès à la communauté"
+  },
+  "actions": {
+    "subscribe": "S'abonner",
+    "subscribeNow": "S'abonner maintenant",
+    "upgrade": "Améliorer",
+    "downgrade": "Rétrograder",
+    "cancel": "Annuler l'abonnement",
+    "pause": "Mettre en pause l'abonnement",
+    "resume": "Reprendre l'abonnement",
+    "manage": "Gérer l'abonnement",
+    "changePlan": "Changer de plan",
+    "updatePayment": "Mettre à jour le mode de paiement",
+    "viewBilling": "Voir l'historique de facturation",
+    "confirmCancel": "Confirmer l'annulation"
+  },
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif",
+    "paused": "En pause",
+    "cancelled": "Annulé",
+    "expired": "Expiré",
+    "pending": "En attente",
+    "trial": "Essai",
+    "pastDue": "En retard"
+  },
+  "billing": {
+    "nextBilling": "Prochaine date de facturation",
+    "lastPayment": "Dernier paiement",
+    "paymentMethod": "Mode de paiement",
+    "updateCard": "Mettre à jour la carte",
+    "addPaymentMethod": "Ajouter un mode de paiement",
+    "billingHistory": "Historique de facturation",
+    "invoice": "Facture",
+    "receipt": "Reçu",
+    "download": "Télécharger",
+    "amount": "Montant",
+    "date": "Date",
+    "status": "Statut"
+  },
+  "messages": {
+    "subscribeSuccess": "Abonnement réussi!",
+    "upgradeSuccess": "Amélioration réussie!",
+    "downgradeSuccess": "Rétrogradation réussie!",
+    "cancelSuccess": "Abonnement annulé",
+    "pauseSuccess": "Abonnement mis en pause",
+    "resumeSuccess": "Abonnement repris",
+    "paymentUpdated": "Mode de paiement mis à jour",
+    "subscriptionRequired": "Abonnement requis",
+    "confirmCancelMessage": "Êtes-vous sûr de vouloir annuler votre abonnement?",
+    "cancelWarning": "Vous perdrez l'accès à tous les avantages à la fin de votre période de facturation.",
+    "keepSubscription": "Garder l'abonnement",
+    "processingPayment": "Traitement du paiement...",
+    "paymentFailed": "Échec du paiement. Veuillez réessayer.",
+    "trialEnding": "Votre essai se termine dans {days} jours"
+  },
+  "benefits": {
+    "title": "Avantages de l'abonnement",
+    "exclusiveAccess": "Accès exclusif",
+    "memberOnly": "Contenu réservé aux membres",
+    "priorityBooking": "Réservation prioritaire",
+    "specialPricing": "Prix spéciaux",
+    "monthlyPerks": "Avantages mensuels",
+    "supportCreator": "Soutenez votre créateur préféré"
+  },
+  "comparison": {
+    "comparePlans": "Comparer les plans",
+    "feature": "Fonctionnalité",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "unlimited": "Illimité",
+    "limited": "Limité"
+  }
+}

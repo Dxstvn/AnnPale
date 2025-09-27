@@ -3,8 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
 
 // Initialize Stripe
-const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = process.env.STRIPE_SANDBOX_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SANDBOX_SECRET_KEY, {
       apiVersion: '2024-11-20.acacia',
     })
   : null
@@ -36,25 +36,56 @@ export async function POST(request: NextRequest) {
     // Fetch subscription order
     const { data: order, error: orderError } = await supabase
       .from('subscription_orders')
-      .select('*, subscription_tiers(*)')
+      .select('*, creator_subscription_tiers(*)')
       .eq('id', subscriptionOrderId)
-      .eq('fan_id', user.id) // Ensure user owns this subscription
+      .eq('user_id', user.id) // Ensure user owns this subscription
       .single()
 
     if (orderError || !order) {
       return NextResponse.json({ error: 'Subscription not found' }, { status: 404 })
     }
 
-    if (!order.stripe_subscription_id) {
-      return NextResponse.json({ 
-        error: 'No Stripe subscription found' 
+    if (!order.stripe_subscription_id || order.stripe_subscription_id.startsWith('test_') || order.stripe_subscription_id.startsWith('demo_')) {
+      console.log('Invalid Stripe subscription:', {
+        subscriptionOrderId,
+        stripe_subscription_id: order.stripe_subscription_id,
+        status: order.status
+      })
+      return NextResponse.json({
+        error: 'No valid Stripe subscription found',
+        details: 'This subscription was created for testing and cannot be managed through Stripe'
       }, { status: 400 })
     }
 
     let updatedSubscription: Stripe.Subscription
 
+    // Check if subscription exists and is complete in Stripe
+    let stripeSubscription: Stripe.Subscription | null = null
+    try {
+      stripeSubscription = await stripe.subscriptions.retrieve(order.stripe_subscription_id)
+
+      // Reject management of incomplete subscriptions
+      if (stripeSubscription.status === 'incomplete' || stripeSubscription.status === 'incomplete_expired') {
+        console.log('Cannot manage incomplete subscription:', {
+          subscriptionId: order.stripe_subscription_id,
+          status: stripeSubscription.status
+        })
+        return NextResponse.json({
+          error: 'Subscription is incomplete. Please complete the payment setup first.',
+          status: stripeSubscription.status
+        }, { status: 400 })
+      }
+    } catch (error) {
+      console.log('Could not retrieve Stripe subscription:', error)
+      return NextResponse.json({
+        error: 'Subscription not found in Stripe',
+        details: 'This subscription may have been deleted or never properly created'
+      }, { status: 404 })
+    }
+
     switch (action) {
       case 'pause':
+
         // Pause subscription using Stripe's pause collection
         updatedSubscription = await stripe.subscriptions.update(
           order.stripe_subscription_id,
@@ -71,7 +102,7 @@ export async function POST(request: NextRequest) {
         // Update local database
         await supabase
           .from('subscription_orders')
-          .update({ 
+          .update({
             status: 'paused',
             updated_at: new Date().toISOString()
           })
@@ -94,12 +125,12 @@ export async function POST(request: NextRequest) {
         // Update local database
         await supabase
           .from('subscription_orders')
-          .update({ 
+          .update({
             status: 'active',
             updated_at: new Date().toISOString()
           })
           .eq('id', subscriptionOrderId)
-        
+
         break
 
       case 'cancel':
@@ -118,7 +149,7 @@ export async function POST(request: NextRequest) {
         // Update local database
         await supabase
           .from('subscription_orders')
-          .update({ 
+          .update({
             status: 'cancelled',
             cancelled_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -157,7 +188,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       subscription: {
         id: updatedSubscription.id,
