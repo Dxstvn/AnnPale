@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -83,64 +84,6 @@ import {
   Legend
 } from "recharts"
 
-// Translations
-const systemTranslations: Record<string, Record<string, string>> = {
-  system_health: {
-    en: "System Health Monitoring",
-    fr: "Surveillance de la santé du système",
-    ht: "Siveyans sante sistèm"
-  },
-  infrastructure_status: {
-    en: "Monitor and manage infrastructure health",
-    fr: "Surveiller et gérer la santé de l'infrastructure",
-    ht: "Siveye ak jere sante enfrastrikti"
-  },
-  server_status: {
-    en: "Server Status",
-    fr: "État du serveur",
-    ht: "Estati sèvè"
-  },
-  database_health: {
-    en: "Database Health",
-    fr: "Santé de la base de données",
-    ht: "Sante baz done"
-  },
-  network_performance: {
-    en: "Network Performance",
-    fr: "Performance réseau",
-    ht: "Pèfòmans rezo"
-  },
-  storage_capacity: {
-    en: "Storage Capacity",
-    fr: "Capacité de stockage",
-    ht: "Kapasite estokaj"
-  },
-  emergency_actions: {
-    en: "Emergency Actions",
-    fr: "Actions d'urgence",
-    ht: "Aksyon ijans"
-  },
-  restart_services: {
-    en: "Restart Services",
-    fr: "Redémarrer les services",
-    ht: "Rekòmanse sèvis yo"
-  },
-  clear_cache: {
-    en: "Clear Cache",
-    fr: "Vider le cache",
-    ht: "Efase kach"
-  },
-  backup_now: {
-    en: "Backup Now",
-    fr: "Sauvegarder maintenant",
-    ht: "Sovgade kounye a"
-  },
-  maintenance_mode: {
-    en: "Maintenance Mode",
-    fr: "Mode maintenance",
-    ht: "Mòd antretyen"
-  }
-}
 
 // Mock system data
 const systemMetrics = {
@@ -209,7 +152,8 @@ const systemLogs = [
 ]
 
 export default function SystemHealthPage() {
-  const t = useTranslations()
+  const t = useTranslations('admin.system')
+  const tCommon = useTranslations('admin.common')
   const [selectedTimeRange, setSelectedTimeRange] = useState("24h")
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false)
   const [selectedServer, setSelectedServer] = useState<string | null>(null)
@@ -218,10 +162,6 @@ export default function SystemHealthPage() {
   const [isBackupDialogOpen, setIsBackupDialogOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [systemHealth, setSystemHealth] = useState(92)
-
-  const tSystem = (key: string) => {
-    return systemTranslations[key]?.['en'] || systemTranslations[key]?.en || key
-  }
 
   // Calculate overall system health
   useEffect(() => {
@@ -308,8 +248,8 @@ export default function SystemHealthPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{tSystem('system_health')}</h1>
-            <p className="text-gray-700 dark:text-gray-300 mt-1">{tSystem('infrastructure_status')}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{t('title')}</h1>
+            <p className="text-gray-700 dark:text-gray-300 mt-1">{t('health')}</p>
           </div>
           <div className="flex items-center gap-3">
             <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
@@ -317,10 +257,10 @@ export default function SystemHealthPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1h">1 Hour</SelectItem>
-                <SelectItem value="24h">24 Hours</SelectItem>
-                <SelectItem value="7d">7 Days</SelectItem>
-                <SelectItem value="30d">30 Days</SelectItem>
+                <SelectItem value="1h">1 {tCommon('hour', {fallback: 'Hour'})}</SelectItem>
+                <SelectItem value="24h">24 {tCommon('hours', {fallback: 'Hours'})}</SelectItem>
+                <SelectItem value="7d">7 {tCommon('days', {fallback: 'Days'})}</SelectItem>
+                <SelectItem value="30d">30 {tCommon('days', {fallback: 'Days'})}</SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -338,7 +278,7 @@ export default function SystemHealthPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
         <Card className="lg:col-span-1">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Overall Health</CardTitle>
+            <CardTitle className="text-lg">{tCommon('overallHealth', {fallback: 'Overall Health'})}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={150}>
@@ -356,7 +296,7 @@ export default function SystemHealthPage() {
                 systemHealth > 60 ? "bg-yellow-100 text-yellow-700" :
                 "bg-red-100 text-red-700"
               )}>
-                {systemHealth > 80 ? "Healthy" : systemHealth > 60 ? "Warning" : "Critical"}
+                {systemHealth > 80 ? tCommon('healthy', {fallback: 'Healthy'}) : systemHealth > 60 ? tCommon('warning', {fallback: 'Warning'}) : tCommon('critical', {fallback: 'Critical'})}
               </Badge>
             </div>
           </CardContent>
@@ -364,7 +304,7 @@ export default function SystemHealthPage() {
 
         <Card className="lg:col-span-3">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Performance Metrics</CardTitle>
+            <CardTitle className="text-lg">{t('performance')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={150}>
@@ -385,14 +325,14 @@ export default function SystemHealthPage() {
       {/* Emergency Actions Panel */}
       <Alert className="mb-8 bg-red-50 border-red-200">
         <AlertTriangle className="h-4 w-4 text-red-600" />
-        <AlertTitle className="text-red-900">{tSystem('emergency_actions')}</AlertTitle>
+        <AlertTitle className="text-red-900">{tCommon('emergencyActions', {fallback: 'Emergency Actions'})}</AlertTitle>
         <AlertDescription className="mt-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Dialog open={isRestartDialogOpen} onOpenChange={setIsRestartDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="destructive" className="w-full">
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  {tSystem('restart_services')}
+                  {tCommon('restartServices', {fallback: 'Restart Services'})}
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -418,7 +358,7 @@ export default function SystemHealthPage() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsRestartDialogOpen(false)}>
-                    Cancel
+                    {tCommon('cancel')}
                   </Button>
                   <Button variant="destructive" onClick={handleRestartService} disabled={!selectedServer}>
                     Restart Service
@@ -431,7 +371,7 @@ export default function SystemHealthPage() {
               <DialogTrigger asChild>
                 <Button variant="destructive" className="w-full">
                   <Trash2 className="h-4 w-4 mr-2" />
-                  {tSystem('clear_cache')}
+                  {t('cache')}
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -443,7 +383,7 @@ export default function SystemHealthPage() {
                 </DialogHeader>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsClearCacheDialogOpen(false)}>
-                    Cancel
+                    {tCommon('cancel')}
                   </Button>
                   <Button variant="destructive" onClick={handleClearCache}>
                     Clear Cache
@@ -456,7 +396,7 @@ export default function SystemHealthPage() {
               <DialogTrigger asChild>
                 <Button variant="destructive" className="w-full">
                   <Download className="h-4 w-4 mr-2" />
-                  {tSystem('backup_now')}
+                  {tCommon('backupNow', {fallback: 'Backup Now'})}
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -468,7 +408,7 @@ export default function SystemHealthPage() {
                 </DialogHeader>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsBackupDialogOpen(false)}>
-                    Cancel
+                    {tCommon('cancel')}
                   </Button>
                   <Button onClick={handleBackup}>
                     Start Backup
@@ -483,7 +423,7 @@ export default function SystemHealthPage() {
               className="w-full"
             >
               <Power className="h-4 w-4 mr-2" />
-              {isMaintenanceMode ? "Exit" : "Enter"} {tSystem('maintenance_mode')}
+              {isMaintenanceMode ? tCommon('exit', {fallback: 'Exit'}) : tCommon('enter', {fallback: 'Enter'})} {t('maintenance')}
             </Button>
           </div>
         </AlertDescription>
@@ -492,17 +432,17 @@ export default function SystemHealthPage() {
       {/* Main Content Tabs */}
       <Tabs defaultValue="servers" className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="servers">Servers</TabsTrigger>
-          <TabsTrigger value="database">Database</TabsTrigger>
-          <TabsTrigger value="storage">Storage</TabsTrigger>
-          <TabsTrigger value="network">Network</TabsTrigger>
-          <TabsTrigger value="logs">System Logs</TabsTrigger>
+          <TabsTrigger value="servers">{tCommon('servers', {fallback: 'Servers'})}</TabsTrigger>
+          <TabsTrigger value="database">{tCommon('database', {fallback: 'Database'})}</TabsTrigger>
+          <TabsTrigger value="storage">{tCommon('storage', {fallback: 'Storage'})}</TabsTrigger>
+          <TabsTrigger value="network">{tCommon('network', {fallback: 'Network'})}</TabsTrigger>
+          <TabsTrigger value="logs">{t('logs')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="servers" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>{tSystem('server_status')}</CardTitle>
+              <CardTitle>{tCommon('serverStatus', {fallback: 'Server Status'})}</CardTitle>
               <CardDescription>Monitor individual server health and performance</CardDescription>
             </CardHeader>
             <CardContent>
@@ -568,7 +508,7 @@ export default function SystemHealthPage() {
         <TabsContent value="database" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>{tSystem('database_health')}</CardTitle>
+              <CardTitle>{tCommon('databaseHealth', {fallback: 'Database Health'})}</CardTitle>
               <CardDescription>Database connections and performance metrics</CardDescription>
             </CardHeader>
             <CardContent>
@@ -623,13 +563,13 @@ export default function SystemHealthPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>{tSystem('storage_capacity')}</CardTitle>
+                <CardTitle>{tCommon('storageCapacity', {fallback: 'Storage Capacity'})}</CardTitle>
                 <CardDescription>Disk usage and allocation</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Total Usage</span>
+                    <span className="text-sm font-medium">{tCommon('totalUsage', {fallback: 'Total Usage'})}</span>
                     <span className="text-sm font-bold">
                       {systemMetrics.storage.used} GB / {systemMetrics.storage.total} GB
                     </span>
@@ -644,19 +584,19 @@ export default function SystemHealthPage() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Media Files</span>
+                    <span className="text-sm">{tCommon('mediaFiles', {fallback: 'Media Files'})}</span>
                     <span className="text-sm font-medium">{systemMetrics.storage.media} GB</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Database</span>
+                    <span className="text-sm">{tCommon('database', {fallback: 'Database'})}</span>
                     <span className="text-sm font-medium">{systemMetrics.storage.databases} GB</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Logs</span>
+                    <span className="text-sm">{t('logs')}</span>
                     <span className="text-sm font-medium">{systemMetrics.storage.logs} GB</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Backups</span>
+                    <span className="text-sm">{tCommon('backups', {fallback: 'Backups'})}</span>
                     <span className="text-sm font-medium">{systemMetrics.storage.backups} GB</span>
                   </div>
                 </div>
@@ -665,7 +605,7 @@ export default function SystemHealthPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Storage Distribution</CardTitle>
+                <CardTitle>{tCommon('storageDistribution', {fallback: 'Storage Distribution'})}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
@@ -695,7 +635,7 @@ export default function SystemHealthPage() {
           <div className="grid md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Bandwidth</CardTitle>
+                <CardTitle className="text-lg">{tCommon('bandwidth', {fallback: 'Bandwidth'})}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -719,7 +659,7 @@ export default function SystemHealthPage() {
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Requests</CardTitle>
+                <CardTitle className="text-lg">{tCommon('requests', {fallback: 'Requests'})}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -742,7 +682,7 @@ export default function SystemHealthPage() {
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Performance</CardTitle>
+                <CardTitle className="text-lg">{t('performance')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">

@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -84,6 +85,8 @@ const allCreators = [
 ]
 
 export default function AdminCreatorsPage() {
+  const t = useTranslations('admin.creators')
+  const tCommon = useTranslations('admin.common')
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
@@ -125,13 +128,13 @@ export default function AdminCreatorsPage() {
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
               </Button>
-              <h1 className="text-xl font-semibold">Creator Management</h1>
+              <h1 className="text-xl font-semibold">{t('title')}</h1>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="secondary">
-                {filteredCreators.filter((c) => c.status === "pending").length} Pending Approval
+                {filteredCreators.filter((c) => c.status === "pending").length} {t('filters.pending')}
               </Badge>
-              <Badge variant="outline">{filteredCreators.filter((c) => c.status === "active").length} Active</Badge>
+              <Badge variant="outline">{filteredCreators.filter((c) => c.status === "active").length} {t('filters.active')}</Badge>
             </div>
           </div>
         </div>
@@ -145,7 +148,7 @@ export default function AdminCreatorsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search creators..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -154,19 +157,19 @@ export default function AdminCreatorsPage() {
 
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder={t('filterByStatus', { defaultValue: 'Filter by status' })} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="all">{t('filters.all')}</SelectItem>
+                  <SelectItem value="active">{t('status.active')}</SelectItem>
+                  <SelectItem value="pending">{t('status.pending')}</SelectItem>
+                  <SelectItem value="suspended">{t('status.suspended')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by category" />
+                  <SelectValue placeholder={t('filterByCategory', { defaultValue: 'Filter by category' })} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
@@ -180,7 +183,7 @@ export default function AdminCreatorsPage() {
 
               <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
                 <Filter className="h-4 w-4" />
-                <span>More Filters</span>
+                <span>{tCommon('moreFilters', { defaultValue: 'More Filters' })}</span>
               </Button>
             </div>
           </CardContent>
@@ -189,7 +192,7 @@ export default function AdminCreatorsPage() {
         {/* Results Summary */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredCreators.length} of {allCreators.length} creators
+            {tCommon('showing')} {filteredCreators.length} {tCommon('of')} {allCreators.length} {t('creatorsCount', { defaultValue: 'creators' })}
           </p>
         </div>
 

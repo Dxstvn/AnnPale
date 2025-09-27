@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useTranslations } from 'next-intl'
 import {
   Select,
   SelectContent,
@@ -68,59 +69,6 @@ import {
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 
-// Translations
-const moderationTranslations: Record<string, Record<string, string>> = {
-  content_moderation: {
-    en: "Content Moderation Queue",
-    fr: "File de modération du contenu",
-    ht: "Keu moderasyon kontni"
-  },
-  review_flagged_content: {
-    en: "Review and moderate flagged content",
-    fr: "Examiner et modérer le contenu signalé",
-    ht: "Revize ak modere kontni ki siyale"
-  },
-  pending_review: {
-    en: "Pending Review",
-    fr: "En attente de révision",
-    ht: "K ap tann revizyon"
-  },
-  approved: {
-    en: "Approved",
-    fr: "Approuvé",
-    ht: "Apwouve"
-  },
-  rejected: {
-    en: "Rejected",
-    fr: "Rejeté",
-    ht: "Rejte"
-  },
-  bulk_actions: {
-    en: "Bulk Actions",
-    fr: "Actions en masse",
-    ht: "Aksyon an gwo"
-  },
-  approve_selected: {
-    en: "Approve Selected",
-    fr: "Approuver la sélection",
-    ht: "Apwouve sa ki chwazi"
-  },
-  reject_selected: {
-    en: "Reject Selected",
-    fr: "Rejeter la sélection",
-    ht: "Rejte sa ki chwazi"
-  },
-  view_details: {
-    en: "View Details",
-    fr: "Voir les détails",
-    ht: "Gade detay"
-  },
-  moderation_reason: {
-    en: "Moderation Reason",
-    fr: "Raison de la modération",
-    ht: "Rezon moderasyon"
-  }
-}
 
 // Mock moderation data
 const moderationQueue = [
@@ -247,7 +195,8 @@ const auditLog = [
 ]
 
 export default function ModerationQueuePage() {
-  const tAdmin = useTranslations()
+  const t = useTranslations('admin.moderation')
+  const tCommon = useTranslations('admin.common')
   const [activeTab, setActiveTab] = useState("pending")
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [filterType, setFilterType] = useState("all")
@@ -258,10 +207,6 @@ export default function ModerationQueuePage() {
   const [moderationNote, setModerationNote] = useState("")
   const [isBulkActionDialogOpen, setIsBulkActionDialogOpen] = useState(false)
   const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null)
-
-  const tAdmin = (key: string) => {
-    return moderationTranslations[key]?.['en'] || moderationTranslations[key]?.en || key
-  }
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -349,17 +294,17 @@ export default function ModerationQueuePage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{tAdmin('content_moderation'}</h1>
-            <p className="text-gray-700 dark:text-gray-300 mt-1">{tAdmin('review_flagged_content'}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{t('title')}</h1>
+            <p className="text-gray-700 dark:text-gray-300 mt-1">{t('queue.title')}</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export Report
+              {tCommon('export')} {tCommon('report', {fallback: 'Report'})}
             </Button>
             <Button variant="outline">
               <Shield className="h-4 w-4 mr-2" />
-              Guidelines
+              {tCommon('guidelines', {fallback: 'Guidelines'})}
             </Button>
           </div>
         </div>
@@ -371,7 +316,7 @@ export default function ModerationQueuePage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tAdmin('pending_review'}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('queue.pending')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">{moderationStats.pending}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
@@ -383,7 +328,7 @@ export default function ModerationQueuePage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Approved Today</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tCommon('approvedToday', {fallback: 'Approved Today'})}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">{moderationStats.approvedToday}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
@@ -395,7 +340,7 @@ export default function ModerationQueuePage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Rejected Today</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tCommon('rejectedToday', {fallback: 'Rejected Today'})}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">{moderationStats.rejectedToday}</p>
               </div>
               <XCircle className="h-8 w-8 text-red-500" />
@@ -407,7 +352,7 @@ export default function ModerationQueuePage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Avg Review Time</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tCommon('avgReviewTime', {fallback: 'Avg Review Time'})}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">{moderationStats.avgReviewTime}</p>
               </div>
               <Clock className="h-8 w-8 text-blue-500" />
@@ -419,7 +364,7 @@ export default function ModerationQueuePage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Report Trend</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tCommon('reportTrend', {fallback: 'Report Trend'})}</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">{moderationStats.reportTrend}</p>
               </div>
               <Flag className="h-8 w-8 text-purple-500" />
@@ -436,7 +381,7 @@ export default function ModerationQueuePage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by content, creator, or reason..."
+                  placeholder={tCommon('searchPlaceholder', {fallback: 'Search by content, creator, or reason...'})}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -488,7 +433,7 @@ export default function ModerationQueuePage() {
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Check className="h-4 w-4 mr-2" />
-                {tAdmin('approve_selected'}
+                {t('actions.approve')} {tCommon('selected', {fallback: 'Selected'})}
               </Button>
               <Button
                 size="sm"
@@ -496,14 +441,14 @@ export default function ModerationQueuePage() {
                 onClick={() => handleBulkAction("reject")}
               >
                 <X className="h-4 w-4 mr-2" />
-                {tAdmin('reject_selected'}
+                {t('actions.reject')} {tCommon('selected', {fallback: 'Selected'})}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setSelectedItems([])}
               >
-                Clear Selection
+                {tCommon('clear')} {tCommon('selection', {fallback: 'Selection'})}
               </Button>
             </div>
           </AlertDescription>
@@ -514,25 +459,25 @@ export default function ModerationQueuePage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="pending">
-            {tAdmin('pending_review'}
+            {t('queue.pending')}
             <Badge className="ml-2" variant="secondary">{moderationStats.pending}</Badge>
           </TabsTrigger>
           <TabsTrigger value="approved">
-            {tAdmin('approved'}
+            {t('queue.reviewed')}
           </TabsTrigger>
           <TabsTrigger value="rejected">
-            {tAdmin('rejected'}
+            {t('queue.flagged')}
           </TabsTrigger>
           <TabsTrigger value="audit">
-            Audit Log
+            {tCommon('auditLog', {fallback: 'Audit Log'})}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Moderation Queue</CardTitle>
-              <CardDescription>Review and take action on flagged content</CardDescription>
+              <CardTitle>{t('queue.title')}</CardTitle>
+              <CardDescription>{tCommon('moderationDescription', {fallback: 'Review and take action on flagged content'})}</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -544,14 +489,14 @@ export default function ModerationQueuePage() {
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Content</TableHead>
-                    <TableHead>Flagged By</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Severity</TableHead>
-                    <TableHead>Reports</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{tCommon('type', {fallback: 'Type'})}</TableHead>
+                    <TableHead>{tCommon('content', {fallback: 'Content'})}</TableHead>
+                    <TableHead>{tCommon('flaggedBy', {fallback: 'Flagged By'})}</TableHead>
+                    <TableHead>{tCommon('reason', {fallback: 'Reason'})}</TableHead>
+                    <TableHead>{tCommon('severity', {fallback: 'Severity'})}</TableHead>
+                    <TableHead>{tCommon('reports', {fallback: 'Reports'})}</TableHead>
+                    <TableHead>{tCommon('time', {fallback: 'Time'})}</TableHead>
+                    <TableHead>{tCommon('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -656,8 +601,8 @@ export default function ModerationQueuePage() {
         <TabsContent value="audit" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Audit Log</CardTitle>
-              <CardDescription>Track moderation actions and decisions</CardDescription>
+              <CardTitle>{tCommon('auditLog', {fallback: 'Audit Log'})}</CardTitle>
+              <CardDescription>{tCommon('auditDescription', {fallback: 'Track moderation actions and decisions'})}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -696,9 +641,9 @@ export default function ModerationQueuePage() {
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Content Details</DialogTitle>
+            <DialogTitle>{tCommon('contentDetails', {fallback: 'Content Details'})}</DialogTitle>
             <DialogDescription>
-              Review the flagged content and make a moderation decision
+              {tCommon('reviewContent', {fallback: 'Review the flagged content and make a moderation decision'})}
             </DialogDescription>
           </DialogHeader>
           {selectedContent && (
@@ -745,7 +690,7 @@ export default function ModerationQueuePage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               variant="default"
@@ -756,7 +701,7 @@ export default function ModerationQueuePage() {
               }}
             >
               <Check className="h-4 w-4 mr-2" />
-              Approve
+              {t('actions.approve')}
             </Button>
             <Button
               variant="destructive"
@@ -766,7 +711,7 @@ export default function ModerationQueuePage() {
               }}
             >
               <X className="h-4 w-4 mr-2" />
-              Reject
+              {t('actions.reject')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -786,7 +731,7 @@ export default function ModerationQueuePage() {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsBulkActionDialogOpen(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               variant={bulkAction === "approve" ? "default" : "destructive"}

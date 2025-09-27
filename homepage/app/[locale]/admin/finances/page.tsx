@@ -51,20 +51,7 @@ import {
   Pie,
   Cell
 } from "recharts"
-
-// Translations
-const financeTranslations: Record<string, Record<string, string>> = {
-  financial_overview: {
-    en: "Financial Overview",
-    fr: "Aperçu financier",
-    ht: "Apèsi finansye"
-  },
-  platform_finances: {
-    en: "Monitor platform revenue and transactions",
-    fr: "Surveiller les revenus et transactions",
-    ht: "Siveye revni ak tranzaksyon"
-  }
-}
+import { useTranslations } from 'next-intl'
 
 // Mock financial data
 const revenueData = Array.from({ length: 30 }, (_, i) => ({
@@ -82,12 +69,9 @@ const transactions = [
 ]
 
 export default function FinancesPage() {
-  const tAdmin = useTranslations()
+  const t = useTranslations('admin.finance')
+  const tCommon = useTranslations('admin.common')
   const [timeRange, setTimeRange] = useState("30d")
-
-  const tAdmin = (key: string) => {
-    return financeTranslations[key]?.['en'] || financeTranslations[key]?.en || key
-  }
 
   const totalRevenue = revenueData.reduce((sum, day) => sum + day.revenue, 0)
   const totalTransactions = revenueData.reduce((sum, day) => sum + day.transactions, 0)
@@ -100,8 +84,8 @@ export default function FinancesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{tAdmin('financial_overview'}</h1>
-            <p className="text-gray-700 dark:text-gray-300 mt-1">{tAdmin('platform_finances'}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{t('title')}</h1>
+            <p className="text-gray-700 dark:text-gray-300 mt-1">{t('overview')}</p>
           </div>
           <div className="flex items-center gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
@@ -109,15 +93,15 @@ export default function FinancesPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7d">7 Days</SelectItem>
-                <SelectItem value="30d">30 Days</SelectItem>
-                <SelectItem value="90d">90 Days</SelectItem>
-                <SelectItem value="1y">1 Year</SelectItem>
+                <SelectItem value="7d">7 {tCommon('days', {fallback: 'Days'})}</SelectItem>
+                <SelectItem value="30d">30 {tCommon('days', {fallback: 'Days'})}</SelectItem>
+                <SelectItem value="90d">90 {tCommon('days', {fallback: 'Days'})}</SelectItem>
+                <SelectItem value="1y">1 {tCommon('year', {fallback: 'Year'})}</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export Report
+              {tCommon('export')} {tCommon('report', {fallback: 'Report'})}
             </Button>
           </div>
         </div>
@@ -129,7 +113,7 @@ export default function FinancesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Revenue</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('revenue.total')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">${totalRevenue.toLocaleString()}</p>
                 <div className="flex items-center mt-2">
                   <ArrowUp className="h-4 w-4 text-green-600 mr-1" />
@@ -145,7 +129,7 @@ export default function FinancesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Transactions</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('transactions.title')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">{totalTransactions.toLocaleString()}</p>
                 <div className="flex items-center mt-2">
                   <ArrowUp className="h-4 w-4 text-green-600 mr-1" />
@@ -161,7 +145,7 @@ export default function FinancesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Avg Order Value</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tCommon('avgOrderValue', {fallback: 'Avg Order Value'})}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">${avgOrderValue.toFixed(2)}</p>
                 <div className="flex items-center mt-2">
                   <ArrowDown className="h-4 w-4 text-red-600 mr-1" />
@@ -177,9 +161,9 @@ export default function FinancesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Platform Fees</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tCommon('platformFees', {fallback: 'Platform Fees'})}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">${platformFees.toLocaleString()}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">15% commission</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">15% {tCommon('commission', {fallback: 'commission'})}</p>
               </div>
               <FileText className="h-8 w-8 text-orange-600" />
             </div>
@@ -190,8 +174,8 @@ export default function FinancesPage() {
       {/* Revenue Chart */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Revenue Trend</CardTitle>
-          <CardDescription>Daily revenue over the selected period</CardDescription>
+          <CardTitle>{t('revenue.title')} {tCommon('trend', {fallback: 'Trend'})}</CardTitle>
+          <CardDescription>{tCommon('dailyRevenue', {fallback: 'Daily revenue over the selected period'})}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -209,21 +193,21 @@ export default function FinancesPage() {
       {/* Recent Transactions */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-          <CardDescription>Latest platform transactions</CardDescription>
+          <CardTitle>{t('transactions.title')}</CardTitle>
+          <CardDescription>{tCommon('latestTransactions', {fallback: 'Latest platform transactions'})}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Transaction ID</TableHead>
-                <TableHead>Creator</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Platform Fee</TableHead>
-                <TableHead>Net Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>{t('transactions.id')}</TableHead>
+                <TableHead>{t('transactions.creator')}</TableHead>
+                <TableHead>{t('transactions.user')}</TableHead>
+                <TableHead>{t('transactions.amount')}</TableHead>
+                <TableHead>{tCommon('platformFee', {fallback: 'Platform Fee'})}</TableHead>
+                <TableHead>{tCommon('netAmount', {fallback: 'Net Amount'})}</TableHead>
+                <TableHead>{t('transactions.status')}</TableHead>
+                <TableHead>{t('transactions.date')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -4,6 +4,7 @@ import { useSupabaseAuth } from "@/contexts/supabase-auth-compat"
 import { useAdminStats } from "@/hooks/use-stats"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -43,13 +44,13 @@ const dashboardStats = {
   averageRating: 4.7,
 }
 
-// Mock data for recent activities
-const recentActivities = [
-  { id: 1, type: "user_joined", message: "New user registered", user: "Marie Joseph", time: "2 minutes ago" },
-  { id: 2, type: "video_uploaded", message: "New video uploaded", creator: "Jean Baptiste", time: "15 minutes ago" },
-  { id: 3, type: "order_completed", message: "Order completed", amount: "$150", time: "1 hour ago" },
-  { id: 4, type: "creator_verified", message: "Creator verified", creator: "Anne Laurent", time: "3 hours ago" },
-  { id: 5, type: "withdrawal_request", message: "Withdrawal request", amount: "$500", time: "5 hours ago" },
+// Mock data for recent activities - will be populated with translated messages
+const getMockActivities = (t: any) => [
+  { id: 1, type: "user_joined", message: t("activities.userJoined"), user: "Marie Joseph", time: "2 minutes ago" },
+  { id: 2, type: "video_uploaded", message: t("activities.videoUploaded"), creator: "Jean Baptiste", time: "15 minutes ago" },
+  { id: 3, type: "order_completed", message: t("activities.orderCompleted"), amount: "$150", time: "1 hour ago" },
+  { id: 4, type: "creator_verified", message: t("activities.creatorVerified"), creator: "Anne Laurent", time: "3 hours ago" },
+  { id: 5, type: "withdrawal_request", message: t("activities.withdrawalRequest"), amount: "$500", time: "5 hours ago" },
 ]
 
 // Mock data for creators
@@ -98,6 +99,10 @@ const creators = [
 export default function AdminDashboard() {
   const { user, isLoading } = useSupabaseAuth()
   const { stats, recentActivities: realRecentActivities, creators: recentCreators, loading: statsLoading } = useAdminStats()
+  const t = useTranslations('admin.dashboard')
+  const tCommon = useTranslations('admin.common')
+
+  const recentActivities = getMockActivities(t)
   const [selectedCreator, setSelectedCreator] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -128,21 +133,21 @@ export default function AdminDashboard() {
       <div className="p-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user?.name || user?.email}!</p>
+            <h1 className="text-3xl font-bold">{t('title')}</h1>
+            <p className="text-gray-600 mt-1">{t('welcomeBack')}, {user?.name || user?.email}!</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              {tCommon('refresh')}
             </Button>
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export Data
+              {tCommon('export')}
             </Button>
             <Button>
               <Settings className="h-4 w-4 mr-2" />
-              Settings
+              {tCommon('settings', { defaultValue: 'Settings' })}
             </Button>
           </div>
         </div>
@@ -151,52 +156,52 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('stats.totalUsers')}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboardStats.totalUsers.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+{stats?.monthlyGrowth || 0}%</span> from last month
+                <span className="text-green-600">+{stats?.monthlyGrowth || 0}%</span> {tCommon('fromLastMonth', { defaultValue: 'from last month' })}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Creators</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('stats.totalCreators')}</CardTitle>
               <Star className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboardStats.totalCreators}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-orange-600">{dashboardStats.pendingApprovals} pending</span> approvals
+                <span className="text-orange-600">{dashboardStats.pendingApprovals}</span> {t('stats.pendingApprovals').toLowerCase()}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Videos</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('stats.totalVideos')}</CardTitle>
               <Video className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboardStats.totalVideos.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-blue-600">{dashboardStats.activeOrders} active</span> orders
+                <span className="text-blue-600">{dashboardStats.activeOrders}</span> {t('stats.activeOrders').toLowerCase()}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('stats.totalRevenue')}</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">${dashboardStats.totalRevenue.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+{stats?.monthlyGrowth || 0}%</span> from last month
+                <span className="text-green-600">+{stats?.monthlyGrowth || 0}%</span> {tCommon('fromLastMonth', { defaultValue: 'from last month' })}
               </p>
             </CardContent>
           </Card>
@@ -205,11 +210,11 @@ export default function AdminDashboard() {
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="creators">Creators</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="finance">Finance</TabsTrigger>
+            <TabsTrigger value="overview">{t('tabs.overview')}</TabsTrigger>
+            <TabsTrigger value="creators">{t('tabs.creators')}</TabsTrigger>
+            <TabsTrigger value="users">{t('tabs.users')}</TabsTrigger>
+            <TabsTrigger value="content">{t('tabs.content')}</TabsTrigger>
+            <TabsTrigger value="finance">{t('tabs.finance')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -217,7 +222,7 @@ export default function AdminDashboard() {
               {/* Recent Activities */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Activities</CardTitle>
+                  <CardTitle>{t('activities.title')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -249,7 +254,7 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    Pending Approvals
+                    {t('approvals.title')}
                     <Badge variant="destructive">{dashboardStats.pendingApprovals}</Badge>
                   </CardTitle>
                 </CardHeader>
@@ -271,7 +276,7 @@ export default function AdminDashboard() {
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline">
                             <Eye className="h-3 w-3 mr-1" />
-                            Review
+                            {t('approvals.review')}
                           </Button>
                           <Button size="sm" className="bg-green-600 hover:bg-green-700">
                             <UserCheck className="h-3 w-3" />
@@ -290,11 +295,11 @@ export default function AdminDashboard() {
             {/* Performance Chart Placeholder */}
             <Card>
               <CardHeader>
-                <CardTitle>Platform Performance</CardTitle>
+                <CardTitle>{t('performance.title')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">Chart visualization would go here</p>
+                  <p className="text-gray-500">{t('performance.chartPlaceholder')}</p>
                 </div>
               </CardContent>
             </Card>

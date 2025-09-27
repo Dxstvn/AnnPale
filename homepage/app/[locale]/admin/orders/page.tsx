@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Eye, Download, RefreshCw, DollarSign, Calendar, ArrowLeft, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useTranslations } from 'next-intl'
 
 const allOrders = [
   {
@@ -83,6 +84,8 @@ const allOrders = [
 ]
 
 export default function AdminOrdersPage() {
+  const t = useTranslations('admin.orders')
+  const tCommon = useTranslations('admin.common')
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("all")
@@ -152,11 +155,11 @@ export default function AdminOrdersPage() {
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
               </Button>
-              <h1 className="text-xl font-semibold">Order Management</h1>
+              <h1 className="text-xl font-semibold">{t('title')}</h1>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="destructive">{filteredOrders.filter((o) => o.status === "overdue").length} Overdue</Badge>
-              <Badge variant="secondary">{filteredOrders.filter((o) => o.status === "pending").length} Pending</Badge>
+              <Badge variant="destructive">{filteredOrders.filter((o) => o.status === "overdue").length} {t('filters.overdue', {fallback: 'Overdue'})}</Badge>
+              <Badge variant="secondary">{filteredOrders.filter((o) => o.status === "pending").length} {t('filters.pending')}</Badge>
             </div>
           </div>
         </div>
@@ -169,7 +172,7 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                  <p className="text-sm font-medium text-gray-600">{tCommon('total')} {t('title', {fallback: 'Orders'}).split(' ')[1]}</p>
                   <p className="text-2xl font-bold text-gray-900">{filteredOrders.length}</p>
                 </div>
                 <RefreshCw className="h-8 w-8 text-blue-600" />
@@ -181,7 +184,7 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                  <p className="text-sm font-medium text-gray-600">{tCommon('total')} {tCommon('revenue', {fallback: 'Revenue'})}</p>
                   <p className="text-2xl font-bold text-gray-900">${totalRevenue.toLocaleString()}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
@@ -193,7 +196,7 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Completed</p>
+                  <p className="text-sm font-medium text-gray-600">{t('filters.completed')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {filteredOrders.filter((o) => o.status === "completed").length}
                   </p>
@@ -209,7 +212,7 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Overdue</p>
+                  <p className="text-sm font-medium text-gray-600">{t('filters.overdue', {fallback: 'Overdue'})}</p>
                   <p className="text-2xl font-bold text-red-600">
                     {filteredOrders.filter((o) => o.status === "overdue").length}
                   </p>
@@ -227,7 +230,7 @@ export default function AdminOrdersPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search orders..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -236,33 +239,33 @@ export default function AdminOrdersPage() {
 
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder={`${tCommon('filter')} by ${tCommon('status')}`} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="overdue">Overdue</SelectItem>
-                  <SelectItem value="refunded">Refunded</SelectItem>
+                  <SelectItem value="all">{t('filters.all')}</SelectItem>
+                  <SelectItem value="pending">{t('filters.pending')}</SelectItem>
+                  <SelectItem value="in-progress">{t('filters.processing')}</SelectItem>
+                  <SelectItem value="completed">{t('filters.completed')}</SelectItem>
+                  <SelectItem value="overdue">{t('filters.overdue', {fallback: 'Overdue'})}</SelectItem>
+                  <SelectItem value="refunded">{t('filters.refunded')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={dateFilter} onValueChange={setDateFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by date" />
+                  <SelectValue placeholder={`${tCommon('filter')} by ${tCommon('date')}`} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Time</SelectItem>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="week">This Week</SelectItem>
-                  <SelectItem value="month">This Month</SelectItem>
+                  <SelectItem value="all">{tCommon('allTime', {fallback: 'All Time'})}</SelectItem>
+                  <SelectItem value="today">{tCommon('today', {fallback: 'Today'})}</SelectItem>
+                  <SelectItem value="week">{tCommon('thisWeek', {fallback: 'This Week'})}</SelectItem>
+                  <SelectItem value="month">{tCommon('thisMonth', {fallback: 'This Month'})}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
                 <Download className="h-4 w-4" />
-                <span>Export</span>
+                <span>{tCommon('export')}</span>
               </Button>
             </div>
           </CardContent>
@@ -271,7 +274,7 @@ export default function AdminOrdersPage() {
         {/* Results Summary */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredOrders.length} of {allOrders.length} orders
+            {tCommon('showing')} {filteredOrders.length} {tCommon('of')} {allOrders.length} {t('title').toLowerCase()}
           </p>
         </div>
 
@@ -311,15 +314,15 @@ export default function AdminOrdersPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-4">
                   <div>
-                    <span className="font-medium">Order Date:</span>
+                    <span className="font-medium">{t('table.date', {fallback: 'Order Date'})}:</span>
                     <p>{order.orderDate}</p>
                   </div>
                   <div>
-                    <span className="font-medium">Customer Email:</span>
+                    <span className="font-medium">{t('table.customer')} Email:</span>
                     <p>{order.customerEmail}</p>
                   </div>
                   <div>
-                    <span className="font-medium">Creator Fee:</span>
+                    <span className="font-medium">{t('table.creator')} Fee:</span>
                     <p>${order.amount}</p>
                   </div>
                   <div>
@@ -330,26 +333,26 @@ export default function AdminOrdersPage() {
 
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-500">
-                    {order.completedDate && <span>Completed: {order.completedDate}</span>}
+                    {order.completedDate && <span>{t('filters.completed')}: {order.completedDate}</span>}
                   </div>
 
                   <div className="flex space-x-2">
                     <Button size="sm" variant="outline">
                       <Eye className="h-4 w-4 mr-1" />
-                      View Details
+                      {t('actions.view')}
                     </Button>
 
                     {order.status === "completed" && (
                       <Button size="sm" variant="outline">
                         <Download className="h-4 w-4 mr-1" />
-                        Download
+                        {tCommon('export', {fallback: 'Download'})}
                       </Button>
                     )}
 
                     {(order.status === "overdue" || order.status === "pending") && (
                       <Button size="sm" variant="outline">
                         <RefreshCw className="h-4 w-4 mr-1" />
-                        Follow Up
+                        {tCommon('followUp', {fallback: 'Follow Up'})}
                       </Button>
                     )}
                   </div>
@@ -362,7 +365,7 @@ export default function AdminOrdersPage() {
         {filteredOrders.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
-              <p className="text-gray-500 text-lg mb-4">No orders found matching your criteria.</p>
+              <p className="text-gray-500 text-lg mb-4">{tCommon('noDataFound')}.</p>
               <Button
                 onClick={() => {
                   setSearchTerm("")
@@ -370,7 +373,7 @@ export default function AdminOrdersPage() {
                   setDateFilter("all")
                 }}
               >
-                Clear Filters
+                {tCommon('clear')} {tCommon('filter')}s
               </Button>
             </CardContent>
           </Card>
