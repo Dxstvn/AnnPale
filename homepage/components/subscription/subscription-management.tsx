@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -27,12 +28,8 @@ import {
   Users,
   Clock,
   DollarSign,
-  MoreVertical,
-  Pause,
-  Play,
-  XCircle,
+  Settings,
   AlertCircle,
-  CreditCard,
   Calendar,
   ChevronRight,
   Loader2
@@ -40,38 +37,47 @@ import {
 import { formatCurrency } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import { useSubscriptionRealtime } from '@/hooks/use-subscription-realtime'
 
 interface Subscription {
   id: string
-  creator_id: string
-  tier_id: string
+  creator_id?: string // Made optional for compatibility
+  tier_id?: string // Made optional for compatibility
   status: 'active' | 'paused' | 'cancelled' | 'expired' | 'pending' | 'trialing'
   billing_period: 'monthly' | 'yearly'
-  current_period_start: string
-  current_period_end: string
-  next_billing_date: string
+  current_period_start?: string // Made optional
+  current_period_end?: string // Made optional
+  expires_at?: string // From subscription_orders
+  next_billing_date?: string
   cancelled_at: string | null
   total_amount: number
+  stripe_subscription_id?: string // Added for Stripe operations
   creator: {
     id: string
-    display_name: string
+    display_name?: string
+    name?: string // From profiles table
     username: string
     profile_image_url?: string
+    avatar_url?: string // From profiles table
   }
   tier: {
     id: string
-    tier_name: string
+    tier_name?: string
+    name?: string // Alternative field name
     description: string
     price: number
     benefits: string[] | null
+    billing_period?: 'monthly' | 'yearly'
   }
 }
 
 export function SubscriptionManagement() {
   const router = useRouter()
   const { toast } = useToast()
+  const t = useTranslations('fan.settings.subscriptions.management')
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
   const [actionDialog, setActionDialog] = useState<{
     open: boolean
     type: 'pause' | 'resume' | 'cancel' | null
@@ -83,8 +89,63 @@ export function SubscriptionManagement() {
   })
   const [processing, setProcessing] = useState(false)
 
+  // Get user ID for realtime subscription
+  useEffect(() => {
+    const getUserId = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+      }
+    }
+    getUserId()
+  }, [])
+
+  // Use realtime hook for instant updates (only when userId is available)
+  const { isConnected, updates } = useSubscriptionRealtime({
+    userId: userId || '',
+    role: 'fan',
+    onUpdate: userId ? (update) => {
+      console.log('Realtime subscription update:', update)
+      // Reload subscriptions when any change is detected
+      loadSubscriptions()
+    } : undefined
+  })
+
   useEffect(() => {
     loadSubscriptions()
+  }, [])
+
+  // Add window focus refresh as fallback with debouncing
+  useEffect(() => {
+    let debounceTimer: NodeJS.Timeout | null = null
+
+    const handleFocus = () => {
+      // Clear any existing timer
+      if (debounceTimer) {
+        clearTimeout(debounceTimer)
+      }
+
+      // Only refresh if window is visible and debounce by 500ms
+      if (document.visibilityState === 'visible') {
+        debounceTimer = setTimeout(() => {
+          console.log('Window focused - refreshing subscriptions')
+          loadSubscriptions()
+        }, 500)
+      }
+    }
+
+    // Listen for both focus and visibility change events
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleFocus)
+
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer)
+      }
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleFocus)
+    }
   }, [])
 
   const loadSubscriptions = async () => {
@@ -101,37 +162,42 @@ export function SubscriptionManagement() {
         if (response.status !== 404) {
           console.error('Failed to fetch subscriptions:', data)
           toast({
-            title: 'Error',
-            description: data.error || 'Failed to load subscriptions',
+            title: t('error'),
+            description: data.error || t('messages.loadError'),
             variant: 'destructive',
           })
         }
         setSubscriptions([])
       } else {
-        // Transform the data to match our expected format
+        // Transform the data to match our expected format (handles both old and new API response)
         const transformedSubs = data.subscriptions?.map((sub: any) => ({
           id: sub.id,
-          creator_id: sub.creator.id,
-          tier_id: sub.tier.id,
+          creator_id: sub.creator_id || sub.creator?.id,
+          tier_id: sub.tier_id || sub.tier?.id,
           status: sub.is_expired ? 'expired' : sub.status,
-          billing_period: 'monthly' as const,
-          current_period_start: sub.started_at,
-          current_period_end: sub.expires_at,
-          next_billing_date: sub.expires_at,
+          billing_period: sub.billing_period || sub.tier?.billing_period || 'monthly',
+          current_period_start: sub.current_period_start || sub.started_at,
+          current_period_end: sub.current_period_end || sub.expires_at,
+          next_billing_date: sub.next_billing_date || sub.expires_at,
           cancelled_at: sub.cancelled_at,
-          total_amount: sub.tier.price,
+          total_amount: sub.total_amount || sub.tier?.price || 0,
+          stripe_subscription_id: sub.stripe_subscription_id,
           creator: {
-            id: sub.creator.id,
-            display_name: sub.creator.name,
-            username: sub.creator.username || sub.creator.name.toLowerCase().replace(/\s+/g, ''),
-            profile_image_url: sub.creator.avatar_url
+            id: sub.creator?.id,
+            display_name: sub.creator?.display_name || sub.creator?.name,
+            name: sub.creator?.name,
+            username: sub.creator?.username || sub.creator?.name?.toLowerCase().replace(/\s+/g, ''),
+            profile_image_url: sub.creator?.profile_image_url || sub.creator?.avatar_url,
+            avatar_url: sub.creator?.avatar_url
           },
           tier: {
-            id: sub.tier.id,
-            tier_name: sub.tier.name,
-            description: sub.tier.description || '',
-            price: sub.tier.price,
-            benefits: sub.tier.benefits
+            id: sub.tier?.id,
+            tier_name: sub.tier?.tier_name || sub.tier?.name,
+            name: sub.tier?.name,
+            description: sub.tier?.description || '',
+            price: sub.tier?.price || sub.total_amount || 0,
+            benefits: sub.tier?.benefits,
+            billing_period: sub.tier?.billing_period || sub.billing_period
           }
         })) || []
         
@@ -149,8 +215,8 @@ export function SubscriptionManagement() {
     } catch (error) {
       console.error('Error loading subscriptions:', error)
       toast({
-        title: 'Error',
-        description: 'Failed to load subscriptions',
+        title: t('error'),
+        description: t('messages.loadError'),
         variant: 'destructive',
       })
       setSubscriptions([])
@@ -159,7 +225,7 @@ export function SubscriptionManagement() {
     }
   }
 
-  const handleUpdatePaymentMethod = async (subscription: Subscription) => {
+  const handleManageSubscription = async (subscription: Subscription) => {
     try {
       const response = await fetch('/api/stripe/subscriptions/payment-method', {
         method: 'POST',
@@ -174,20 +240,39 @@ export function SubscriptionManagement() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to open payment settings')
+        // Handle specific error cases
+        if (data.code === 'PORTAL_NOT_CONFIGURED') {
+          toast({
+            title: t('error'),
+            description: 'The payment portal is currently being set up. Please try again later or contact support.',
+            variant: 'destructive',
+          })
+          return
+        }
+
+        if (data.fallback) {
+          // Fallback to generic portal link if specific customer portal fails
+          const fallbackUrl = process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_LINK
+          if (fallbackUrl) {
+            window.location.href = fallbackUrl
+            return
+          }
+        }
+
+        throw new Error(data.error || 'Failed to open subscription management')
       }
 
       if (data.url) {
-        // Redirect to Stripe Customer Portal
+        // Redirect to Stripe Customer Portal for all subscription management
         window.location.href = data.url
       } else {
-        throw new Error('No payment portal URL received')
+        throw new Error('No portal URL received')
       }
     } catch (error) {
-      console.error('Error opening payment settings:', error)
+      console.error('Error opening subscription management:', error)
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to open payment settings',
+        title: t('error'),
+        description: error instanceof Error ? error.message : 'Failed to open subscription management',
         variant: 'destructive',
       })
     }
@@ -220,18 +305,18 @@ export function SubscriptionManagement() {
       let message = ''
       switch (actionDialog.type) {
         case 'pause':
-          message = 'Subscription paused successfully. You will not be billed until you resume.'
+          message = t('messages.pauseSuccess')
           break
         case 'resume':
-          message = 'Subscription resumed successfully. Billing will continue normally.'
+          message = t('messages.resumeSuccess')
           break
         case 'cancel':
-          message = `Subscription cancelled. You'll have access until ${actionDialog.subscription.current_period_end ? formatDate(actionDialog.subscription.current_period_end) : 'the end of your billing period'}.`
+          message = t('messages.cancelSuccess', { date: actionDialog.subscription.current_period_end ? formatDate(actionDialog.subscription.current_period_end) : 'the end of your billing period' })
           break
       }
 
       toast({
-        title: 'Success',
+        title: t('success'),
         description: message,
       })
 
@@ -243,8 +328,8 @@ export function SubscriptionManagement() {
     } catch (error) {
       console.error('Error updating subscription:', error)
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to update subscription',
+        title: t('error'),
+        description: error instanceof Error ? error.message : t('messages.updateError'),
         variant: 'destructive',
       })
     } finally {
@@ -254,10 +339,10 @@ export function SubscriptionManagement() {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { className: string; label: string }> = {
-      active: { className: 'bg-green-100 text-green-700', label: 'Active' },
-      paused: { className: 'bg-yellow-100 text-yellow-700', label: 'Paused' },
-      cancelled: { className: 'bg-red-100 text-red-700', label: 'Cancelled' },
-      expired: { className: 'bg-gray-100 text-gray-700', label: 'Expired' },
+      active: { className: 'bg-green-100 text-green-700', label: t('status.active') },
+      paused: { className: 'bg-yellow-100 text-yellow-700', label: t('status.paused') },
+      cancelled: { className: 'bg-red-100 text-red-700', label: t('status.cancelled') },
+      expired: { className: 'bg-gray-100 text-gray-700', label: t('status.expired') },
     }
 
     const variant = variants[status] || variants.expired
@@ -286,18 +371,18 @@ export function SubscriptionManagement() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Active Subscriptions</CardTitle>
-          <CardDescription>Manage your creator subscriptions</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
             <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">You don't have any active subscriptions yet</p>
-            <Button 
+            <p className="text-gray-600 mb-4">{t('noSubscriptions')}</p>
+            <Button
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
               onClick={() => router.push('/browse')}
             >
-              Browse Creators
+              {t('browseCreators')}
             </Button>
           </div>
         </CardContent>
@@ -309,8 +394,8 @@ export function SubscriptionManagement() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Active Subscriptions</CardTitle>
-          <CardDescription>Manage your creator subscriptions</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {subscriptions.map((subscription) => (
@@ -321,29 +406,29 @@ export function SubscriptionManagement() {
             >
               <div className="flex items-center gap-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={subscription.creator.profile_image_url} />
+                  <AvatarImage src={subscription.creator.profile_image_url || subscription.creator.avatar_url} />
                   <AvatarFallback>
-                    {subscription.creator.display_name?.[0] || 'C'}
+                    {(subscription.creator.display_name || subscription.creator.name)?.[0] || 'C'}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-medium">{subscription.creator.display_name}</p>
-                    <span data-testid={`subscription-status-${subscription.status}`}>
-                      {getStatusBadge(subscription.status)}
+                    <p className="font-medium">{subscription.creator.display_name || subscription.creator.name}</p>
+                    <span data-testid={`subscription-status-${subscription.cancelled_at ? 'cancelled' : subscription.status}`}>
+                      {getStatusBadge(subscription.cancelled_at ? 'cancelled' : subscription.status)}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500">
-                    {subscription.tier?.tier_name || 'Subscription'} • {formatCurrency(subscription.tier?.price || subscription.total_amount)}/{subscription.billing_period === 'yearly' ? 'year' : 'month'}
+                    {subscription.tier?.tier_name || subscription.tier?.name || 'Subscription'} • {formatCurrency(subscription.tier?.price || subscription.total_amount)}/{subscription.billing_period === 'yearly' ? t('year') : t('month')}
                   </p>
                   {subscription.status === 'active' && subscription.next_billing_date && (
                     <p className="text-xs text-gray-400 mt-1">
-                      Next billing: {formatDate(subscription.next_billing_date)}
+                      {t('nextBilling', { date: formatDate(subscription.next_billing_date) })}
                     </p>
                   )}
-                  {subscription.status === 'cancelled' && subscription.current_period_end && (
+                  {subscription.cancelled_at && (subscription.current_period_end || subscription.expires_at) && (
                     <p className="text-xs text-gray-400 mt-1">
-                      Access until: {formatDate(subscription.current_period_end)}
+                      {t('accessUntil', { date: formatDate(subscription.current_period_end || subscription.expires_at || '') })}
                     </p>
                   )}
                 </div>
@@ -353,74 +438,22 @@ export function SubscriptionManagement() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push(`/fan/creators/${subscription.creator_id}`)}
+                  onClick={() => router.push(`/fan/creators/${subscription.creator?.id || subscription.creator_id}`)}
                 >
-                  View Creator
+                  {t('viewCreator')}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" data-testid="subscription-actions-menu">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {subscription.status === 'active' && (
-                      <>
-                        <DropdownMenuItem
-                          onClick={() => setActionDialog({
-                            open: true,
-                            type: 'pause',
-                            subscription
-                          })}
-                          data-testid="pause-subscription-btn"
-                        >
-                          <Pause className="h-4 w-4 mr-2" />
-                          Pause Subscription
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    {subscription.status === 'paused' && (
-                      <>
-                        <DropdownMenuItem
-                          onClick={() => setActionDialog({
-                            open: true,
-                            type: 'resume',
-                            subscription
-                          })}
-                          data-testid="resume-subscription-btn"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Resume Subscription
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    {['active', 'paused'].includes(subscription.status) && (
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => setActionDialog({
-                          open: true,
-                          type: 'cancel',
-                          subscription
-                        })}
-                        data-testid="cancel-subscription-btn"
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Cancel Subscription
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem
-                      onClick={() => handleUpdatePaymentMethod(subscription)}
-                      data-testid="update-payment-btn"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Update Payment Method
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleManageSubscription(subscription)}
+                  data-testid="manage-subscription-btn"
+                  disabled={subscription.status === 'expired'}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  {t('actions.manageSubscription')}
+                </Button>
               </div>
             </div>
           ))}
@@ -436,19 +469,24 @@ export function SubscriptionManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionDialog.type === 'pause' && 'Pause Subscription'}
-              {actionDialog.type === 'resume' && 'Resume Subscription'}
-              {actionDialog.type === 'cancel' && 'Cancel Subscription'}
+              {actionDialog.type === 'pause' && t('dialogs.pause.title')}
+              {actionDialog.type === 'resume' && t('dialogs.resume.title')}
+              {actionDialog.type === 'cancel' && t('dialogs.cancel.title')}
             </DialogTitle>
             <DialogDescription>
-              {actionDialog.type === 'pause' && 
-                `Are you sure you want to pause your subscription to ${actionDialog.subscription?.creator.display_name}? You can resume it anytime.`
+              {actionDialog.type === 'pause' &&
+                t('dialogs.pause.description', { creator: actionDialog.subscription?.creator.display_name || actionDialog.subscription?.creator.name })
               }
-              {actionDialog.type === 'resume' && 
-                `Resume your subscription to ${actionDialog.subscription?.creator.display_name}? Billing will continue from the next cycle.`
+              {actionDialog.type === 'resume' &&
+                t('dialogs.resume.description', { creator: actionDialog.subscription?.creator.display_name || actionDialog.subscription?.creator.name })
               }
-              {actionDialog.type === 'cancel' && 
-                `Are you sure you want to cancel your subscription to ${actionDialog.subscription?.creator.display_name}? You'll have access until ${actionDialog.subscription?.current_period_end ? formatDate(actionDialog.subscription.current_period_end) : 'the end of your billing period'}.`
+              {actionDialog.type === 'cancel' &&
+                t('dialogs.cancel.description', {
+                  creator: actionDialog.subscription?.creator.display_name || actionDialog.subscription?.creator.name,
+                  date: actionDialog.subscription?.current_period_end || actionDialog.subscription?.expires_at ?
+                    formatDate(actionDialog.subscription.current_period_end || actionDialog.subscription.expires_at || '') :
+                    'the end of your billing period'
+                })
               }
             </DialogDescription>
           </DialogHeader>
@@ -457,7 +495,7 @@ export function SubscriptionManagement() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                You can resubscribe anytime, but you may lose any special pricing or perks you currently have.
+                {t('dialogs.cancel.warning')}
               </AlertDescription>
             </Alert>
           )}
@@ -469,7 +507,7 @@ export function SubscriptionManagement() {
               disabled={processing}
               data-testid="dialog-cancel-btn"
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               variant={actionDialog.type === 'cancel' ? 'destructive' : 'default'}
@@ -480,13 +518,13 @@ export function SubscriptionManagement() {
               {processing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  {t('processing')}
                 </>
               ) : (
                 <>
-                  {actionDialog.type === 'pause' && 'Pause Subscription'}
-                  {actionDialog.type === 'resume' && 'Resume Subscription'}
-                  {actionDialog.type === 'cancel' && 'Cancel Subscription'}
+                  {actionDialog.type === 'pause' && t('actions.pauseSubscription')}
+                  {actionDialog.type === 'resume' && t('actions.resumeSubscription')}
+                  {actionDialog.type === 'cancel' && t('actions.cancelSubscription')}
                 </>
               )}
             </Button>

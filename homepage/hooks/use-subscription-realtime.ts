@@ -125,9 +125,9 @@ export function useSubscriptionRealtime({
           event: '*',
           schema: 'public',
           table: 'subscription_orders',
-          filter: role === 'creator' 
+          filter: role === 'creator'
             ? `creator_id=eq.${userId}`
-            : `fan_id=eq.${userId}`
+            : `user_id=eq.${userId}`  // Fixed: subscription_orders uses 'user_id' not 'fan_id'
         },
         handleSubscriptionChange
       )
